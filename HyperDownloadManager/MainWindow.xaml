@@ -1,0 +1,17 @@
+﻿<MahApps:MetroWindow x:Class="HyperDownloadManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HyperDownloadManager"
+        xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        mc:Ignorable="d"
+        Title="HyperDownloadManager" Height="630" Width="900" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
+
+    <MahApps:MetroWindow.WindowButtonCommands>
+        <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>
+    </MahApps:MetroWindow.WindowButtonCommands>
+    <Grid>
+
+    </Grid>
+</MahApps:MetroWindow>

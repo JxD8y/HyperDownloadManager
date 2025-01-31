@@ -1,0 +1,14 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Styles/Colors.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource WBorderColor}"/>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource WBackgroundColor}"/>
+    <SolidColorBrush x:Key="ForegroundBrush" Color="{DynamicResource WForegroundColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{DynamicResource WSecondryColor}"/>
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource WPrimaryColor}"/>
+    <SolidColorBrush x:Key="ObsoleteBrush" Color="{DynamicResource WObsoleteColor}"/>
+    <SolidColorBrush x:Key="BoxBrush" Color="{DynamicResource WBoxColor}"/>
+</ResourceDictionary>

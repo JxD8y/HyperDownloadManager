@@ -1,0 +1,34 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+                    xmlns:theme="clr-namespace:Xceed.Wpf.Toolkit.Themes;assembly=Xceed.Wpf.Toolkit">
+    <Style TargetType="xceed:TimePicker">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        <Setter Property="ShowDropDownButton" Value="False"/>
+        <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Height" Value="30"/>
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.GlyphNormalForegroundKey}" Color="{DynamicResource ForegroundColor}"/>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.ButtonNormalBackgroundKey}" Color="{DynamicResource SecondryColor}"/>
+        </Style.Resources>
+    </Style>
+    <Style TargetType="xceed:TimeSpanUpDown">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}"/>
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Height" Value="30"/>
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.GlyphNormalForegroundKey}" Color="{DynamicResource ForegroundColor}"/>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.ButtonNormalBackgroundKey}" Color="{DynamicResource SecondryColor}"/>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.ButtonDisabledOuterBorderKey}" Color="{DynamicResource ObsoleteColor}"/>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.ButtonInnerBorderDisabledKey}" Color="{DynamicResource ObsoleteColor}"/>
+        </Style.Resources>
+    </Style>
+</ResourceDictionary>
