@@ -46,4 +46,32 @@
             <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.ButtonNormalBackgroundKey}" Color="{DynamicResource SecondryColor}"/>
         </Style.Resources>
     </Style>
+
+
+    <Style TargetType="xceed:ButtonChrome">
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    <Style TargetType="xceed:IntegerUpDown">
+        <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0 0 0 1"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Height" Value="30"/>
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.GlyphNormalForegroundKey}" Color="{DynamicResource ForegroundColor}"/>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.ButtonNormalBackgroundKey}" Color="{DynamicResource SecondryColor}"/>
+        </Style.Resources>
+    </Style>
+    <Style TargetType="xceed:UIntegerUpDown">
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.GlyphNormalForegroundKey}" Color="{DynamicResource ForegroundColor}"/>
+            <SolidColorBrush x:Key="{x:Static theme:ResourceKeys.ButtonNormalBackgroundKey}" Color="{DynamicResource SecondryColor}"/>
+        </Style.Resources>
+    </Style>
 </ResourceDictionary>

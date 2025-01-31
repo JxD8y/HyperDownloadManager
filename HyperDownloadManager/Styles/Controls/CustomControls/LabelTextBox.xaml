@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="HyperDownloadManager.Styles.Controls.CustomControls.LabelTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="200">
+    
+    <TextBox x:Name="textbox" Text="{Binding Text}" TextChanged="textbox_TextChanged">
+        <TextBox.Style>
+            <Style TargetType="{x:Type TextBox}">
+                <Setter Property="ContextMenu">
+                    <Setter.Value>
+                        <ContextMenu>
+                            <MenuItem Header="Copy" Command="ApplicationCommands.Copy"/>
+                            <MenuItem Header="Paste" Command="ApplicationCommands.Paste"/>
+                            <MenuItem Header="Cut" Command="ApplicationCommands.Cut"/>
+                        </ContextMenu>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="FontFamily" Value="pack://application:,,,/Resources/Fonts/#Heebo-VariableFont_wght"/>
+                <Setter Property="CaretBrush" Value="{DynamicResource ForegroundBrush}"/>
+                <Setter Property="IsReadOnly" Value="{Binding IsReadOnly}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TextBox}">
+                            <Grid Height="{TemplateBinding Height}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Label x:Name="helpertext" FontSize="13" Content="{Binding Path=HelperContent}" Grid.Row="0" Foreground="{DynamicResource PrimaryBrush}"/>
+                                <Border Name="Border" CornerRadius="0" Grid.Row="1" Margin="0,-8,0,0" Padding="2" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource PrimaryBrush}">
+                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" Margin="0"
+                        x:Name="PART_ContentHost" Foreground="{TemplateBinding Foreground}"/>
+                                </Border>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <EventTrigger RoutedEvent="GotFocus">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="{StaticResource AccentColor}"/>
+                                            <ColorAnimation Storyboard.TargetName="Border" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="{StaticResource AccentColor}"/>
+                                            <ColorAnimation Storyboard.TargetName="PART_ContentHost" Duration="0:0:0:0.1" Storyboard.TargetProperty="(ScrollViewer.Foreground).(SolidColorBrush.Color)" To="{StaticResource DForegroundColor}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="LostFocus">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
+                                            <ColorAnimation Storyboard.TargetName="Border" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
+                                            <ColorAnimation Storyboard.TargetName="PART_ContentHost" Duration="0:0:0:0.1" Storyboard.TargetProperty="(ScrollViewer.Foreground).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </TextBox.Style>
+    </TextBox>
+</UserControl>

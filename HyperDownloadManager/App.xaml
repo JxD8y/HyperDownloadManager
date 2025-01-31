@@ -8,6 +8,14 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/DarkTheme.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/ComboBoxStyles.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/ContextMenuStyles.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/PrimaryControls.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/ScrollBarsStyles.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/SliderStyles.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/SwitcheStyles.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/TabControlStyles.xaml"/>
+                <ResourceDictionary Source="Styles/Controls/XceedStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <FontFamily x:Key="DefaultFont">pack://application:,,,/Resources/Fonts/#Heebo-VariableFont_wght</FontFamily>
