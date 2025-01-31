@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HyperDownloadManager"
+        xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:hardCodet="http://www.hardcodet.net/taskbar"
         xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
         Title="HyperDownloadManager" Height="630" Width="900" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
@@ -11,7 +13,153 @@
     <MahApps:MetroWindow.WindowButtonCommands>
         <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>
     </MahApps:MetroWindow.WindowButtonCommands>
-    <Grid>
+    
+    <Grid Background="{DynamicResource BackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height="9*"/>
+            <RowDefinition Height=".5*"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition Width="450"/>
+            <ColumnDefinition Width="0.5*"/>
+        </Grid.ColumnDefinitions>
+        <hardCodet:TaskbarIcon x:Name="HDMNotifyIcon"
+        Visibility="Visible"
+        ToolTipText="HDM"
+        MenuActivation="LeftOrRightClick"
+        IconSource="pack://application:,,,/Icon/App.ico"
+        PopupActivation="DoubleClick"
+        TrayMouseDoubleClick="HDMNotifyIcon_TrayMouseDoubleClick">
+            <hardCodet:TaskbarIcon.ContextMenu>
+                <ContextMenu Background="{DynamicResource BackgroundBrush}" Foreground="{DynamicResource ForegroundBrush}" BorderBrush="{DynamicResource BorderBrush}" StaysOpen="True" Opened="NotifyIconContext_Opened">
+                    <MenuItem Header="Close App"/>
+                    <Separator/>
+                </ContextMenu>
+            </hardCodet:TaskbarIcon.ContextMenu>
+        </hardCodet:TaskbarIcon>
+        <StackPanel DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" Panel.ZIndex="10" Grid.Row="1" x:Name="DragNotifier" Visibility="Collapsed" Grid.Column="1" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <StackPanel Orientation="Vertical">
+                <Label HorizontalAlignment="Center"  Content="{xico:Material Kind=Link,Height=40,Width=40}" Foreground="{StaticResource AccentBrush}"/>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Download will take place in"/>
+                    <Label Content="NONE" Margin="-5 0 0 0" FontStyle="Italic" Foreground="{StaticResource AccentBrush}"/>
+                    <Label Content="Container" Margin="-5 0 0 0"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="InfoBar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Background="{DynamicResource BackgroundBrush}">
+            <StackPanel.ContextMenu>
+                <ContextMenu>
+                    <MenuItem x:Name="SettingMenuItem" Click="InfoMenuItem_Click">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:BootstrapIcons Kind=GearFill}"/>
+                                <TextBlock Text="Settings"/>
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem x:Name="LogsMenuItem" Click="InfoMenuItem_Click">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=Text}"/>
+                                <TextBlock Text="Logs"/>
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                    <MenuItem x:Name="AboutMenuItem" Click="InfoMenuItem_Click">
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=Information}"/>
+                                <TextBlock Text="Info"/>
+                            </StackPanel>
+                        </MenuItem.Header>
+                    </MenuItem>
+                </ContextMenu>
+            </StackPanel.ContextMenu>
+            <StackPanel Margin="5 0 0 0" DockPanel.Dock="Left" VerticalAlignment="Center" x:Name="StateContainer" Orientation="Horizontal">
+                <StackPanel VerticalAlignment="Center">
+                    <Label Content="{xico:Material Kind=EarthOff,Width=20,Height=20}" Foreground="IndianRed" x:Name="netoff" Visibility="Visible">
+                        <Label.ToolTip>
+                            <ToolTip Content="No Network" Background="{DynamicResource BackgroundBrush}" BorderBrush="IndianRed" BorderThickness="1"/>
+                        </Label.ToolTip>
+                    </Label>
+                    <Label Content="{xico:Material Kind=Earth,Width=20,Height=20}" Foreground="SeaGreen" Visibility="{Binding ElementName=netoff,Path=Visibility,Converter={StaticResource ReverseVisiblity}}">
+                        <Label.ToolTip>
+                            <ToolTip Content="Network Connected" Background="{DynamicResource BackgroundBrush}" BorderBrush="SeaGreen" BorderThickness="1"/>
+                        </Label.ToolTip>
+                    </Label>
+                    <StackPanel.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem x:Name="RunNetworkStateIndicatorMenuItem" Click="NetworkStateIndicatorMenuItem_Click" Visibility="{Binding ElementName=StopNetworkStateIndicatorMenuItem,Path=Visibility,Converter={StaticResource ReverseVisiblity}}">
+                                <MenuItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=Earth}"/>
+                                        <TextBlock Text="Run Network Connectivity Checker"/>
+                                    </StackPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                            <MenuItem x:Name="StopNetworkStateIndicatorMenuItem" Click="NetworkStateIndicatorMenuItem_Click" Visibility="Visible">
+                                <MenuItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=EarthOff}" Foreground="IndianRed"/>
+                                        <TextBlock Text="Stop Network Connectivity Checker"/>
+                                    </StackPanel>
+                                </MenuItem.Header>
+                            </MenuItem>
+                        </ContextMenu>
+                    </StackPanel.ContextMenu>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                        <Label Content="{xico:Material Kind=DatabaseArrowDown}"/>
+                        <Label Content="{Binding TransmittedData.DataValue}" ContentStringFormat="0.00"/>
+                        <Label Content="{Binding TransmittedData.DataUnit}"/>
+                        <StackPanel.ToolTip>
+                            <ToolTip>
+                                <Label Content="Transmitted Data"/>
+                            </ToolTip>
+                        </StackPanel.ToolTip>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                        <Label Content="{xico:BootstrapIcons Kind=Stack}"/>
+                        <Label Content="{Binding Containers}"/>
+                        <StackPanel.ToolTip>
+                            <ToolTip>
+                                <Label Content="Containers"/>
+                            </ToolTip>
+                        </StackPanel.ToolTip>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                        <Label Content="{xico:Material Kind=MotionPlay}"/>
+                        <Label Content="{Binding RunningDownloads}"/>
+                        <StackPanel.ToolTip>
+                            <ToolTip>
+                                <Label Content="Running Downloads"/>
+                            </ToolTip>
+                        </StackPanel.ToolTip>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                        <Label Content="{xico:Material Kind=clock}"/>
+                        <Label Content="{Binding AwaitingDownloads}"/>
+                        <StackPanel.ToolTip>
+                            <ToolTip>
+                                <Label Content="Scheduled Downloads"/>
+                            </ToolTip>
+                        </StackPanel.ToolTip>
+                    </StackPanel>
+                    <StackPanel Visibility="{Binding ShowLogInMain,Converter={StaticResource BooltoVisiblity}}" x:Name="DebugInfo" Margin="10 0 0 0" Orientation="Horizontal">
+                        <Label Content="{xico:Material Kind=Text}"/>
+                        <Label Content="" x:Name="LastLoglabel"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+        <Border FocusVisualStyle="{x:Null}" x:Name="mainframelayer" Background="{DynamicResource ObsoleteBrush}" Opacity="0.2" Grid.RowSpan="3" Grid.ColumnSpan="3" Grid.Row="0" Visibility="Collapsed" Panel.ZIndex="1" MouseLeftButtonDown="CloseDialog"/>
+        <Frame Panel.ZIndex="2" IsTabStop="False" KeyboardNavigation.TabNavigation="Contained" Grid.Row="1" Grid.Column="1" FocusVisualStyle="{x:Null}" x:Name="ItemContainer" NavigationUIVisibility="Hidden"/>
 
+        <Frame FocusVisualStyle="{x:Null}" IsTabStop="False" KeyboardNavigation.TabNavigation="Contained" Grid.RowSpan="3" Grid.ColumnSpan="3" x:Name="mainFrame" Grid.Row="0" NavigationUIVisibility="Hidden" Grid.Column="0" Background="{DynamicResource BackgroundBrush}"/>
     </Grid>
 </MahApps:MetroWindow>
