@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
+using HyperDownloadManager.Views.Pages.Download;
 using MahApps.Metro.Controls;
 
 namespace HyperDownloadManager
@@ -31,13 +32,13 @@ namespace HyperDownloadManager
         {
             try
             {
-                (((DetailDownload)MainFrame.Content).DataContext as DownloadViewModel).IsSeparateWindowOpen = false;
-                ((DetailDownload)MainFrame.Content).NewWindow.Visibility = Visibility.Visible;
-                ((DetailDownload)MainFrame.Content).Backtomain.Visibility = Visibility.Visible;
+                (((DownloadDetailView)MainFrame.Content).DataContext as DownloadDetailView).IsSeparateWindowOpen = false;
+                ((DownloadDetailView)MainFrame.Content).NewWindow.Visibility = Visibility.Visible;
+                ((DownloadDetailView)MainFrame.Content).Backtomain.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
-                LogManager.Log(MessageLevel.Warning, LogManager.LogSection.Download, ex.Message, true);
+                LogManager.Log(MessageLevel.Warning, LogSection.Download, ex.Message, true);
             }
         }
     }

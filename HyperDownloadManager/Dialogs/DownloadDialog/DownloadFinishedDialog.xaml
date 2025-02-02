@@ -1,0 +1,54 @@
+﻿<Page x:Class="HyperDownloadManager.Dialogs.DownloadDialog.DownloadFinishedDialog"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HyperDownloadManager.Dialogs.DownloadDialog"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
+      mc:Ignorable="d" 
+      d:DesignHeight="242" MaxHeight="262" Background="{DynamicResource BackgroundBrush}" d:DesignWidth="520" MaxWidth="520"
+      Title="EndDlDialog">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height=".45*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="10 0 0 0">
+            <Image x:Name="FileIcon" Width="50" Height="50" Margin="5"/>
+            <Label x:Name="FileName" Content="-"/>
+            <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
+                <Label Content="{xico:Material Kind=FileSwap}"/>
+                <Label Content="File Size"/>
+                <Label x:Name="FileSize"/>
+                <Label Content="-" x:Name="filesizeunit"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0 0 0 0">
+            <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                <Label Content="{xico:Material Kind=Link}"/>
+                <HDMControls:LabelTextBox HelperContent="Url" IsReadOnly="True" x:Name="Url" Width="480"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                <Label Content="{xico:Material Kind=Folder}" Foreground="Orange"/>
+                <HDMControls:LabelTextBox HelperContent="Save Path" IsReadOnly="True" x:Name="path" Width="480"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 10 10 5">
+                <Button x:Name="openFolder" Click="openFolder_Click" Margin="5">
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <Label Content="{xico:Material Kind=FolderOpen}" Foreground="Orange"/>
+                        <Label Content="Open Folder"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="openFile" Click="openFile_Click"  Margin="5">
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <Label Content="{xico:Material Kind=FileOutline}" Foreground="RoyalBlue"/>
+                        <Label Content="Open File"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

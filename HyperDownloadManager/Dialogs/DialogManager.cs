@@ -39,7 +39,7 @@ namespace HyperDownloadManager.Dialogs
             {
                 GlobalSupervisor.mainwindow.Dispatcher.Invoke(() =>
                 {
-                    box = new MBox(message, level, buttonorder, dialog);
+                    box = new MessageBoxDialogView(message, level, buttonorder, dialog);
                     dialog.DialogContent = box;
                     if (NewWindow)
                         dialog.DialogMode = DialogMode.Window;

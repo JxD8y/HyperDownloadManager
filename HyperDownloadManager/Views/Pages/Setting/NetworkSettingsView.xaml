@@ -1,0 +1,59 @@
+﻿<Page x:Class="HyperDownloadManager.Views.Pages.Setting.NetworkSettingsView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HyperDownloadManager.Views.Pages.Setting"
+      xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
+      mc:Ignorable="d"
+      d:DesignHeight="700" d:DesignWidth="342"
+      Title="NetworkSettings" Background="{DynamicResource BackgroundBrush}">
+
+    <StackPanel Orientation="Vertical">
+        <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
+            <Label Content="{xico:Material Kind=Web}" />
+            <ComboBox x:Name="proxyType" Width="80" SelectedIndex="0" Margin="5 0 0 0">
+                <ComboBoxItem Content="No Proxy" x:Name="noproxycomboitem"/>
+                <ComboBoxItem Content="Http"/>
+                <ComboBoxItem Content="Socks4"/>
+                <ComboBoxItem Content="Socks5"/>
+            </ComboBox>
+            <HDMControls:LabelTextBox x:Name="proxyHost" Margin="3 0 0 0" HelperContent="Host" Text="{Binding ProxyViewModel.ProxyAddress}"  Width="160"/>
+            <HDMControls:LabelTextBox x:Name="proxyPort" IsNumericalInput="True" Minimum="0" Maximum="65535" Margin="3 0 0 0" HelperContent="Port" Text="{Binding ProxyViewModel.Port}"  Width="50"/>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Margin="10 20 0 0">
+            <Label Content="{xico:Material Kind=Account}"/>
+            <HDMControls:LabelTextBox HelperContent="Username" x:Name="proxyuser" Text="{Binding ProxyViewModel.User}" Width="100"/>
+            <HDMControls:LabelTextBox HelperContent="Password" x:Name="proxypass" Margin="4 0 0 0" Text="{Binding ProxyViewModel.Pass}" Width="100"/>
+        </StackPanel>
+        <Label Margin="10 7 0 0" Height="10" Background="{DynamicResource ObsoleteBrush}"/>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=CableData}"/>
+            <Label Content="Https Configuration"/>
+        </StackPanel>
+        <StackPanel Margin="10 5 0 0" Orientation="Vertical">
+            <HDMControls:LabelTextBox Text="{Binding DefaultHeaders}" HelperContent="Headers" Margin="5 10 10 0" Height="200" x:Name="defheadertext"/>
+            <Button Content="Reset to Default" Margin="5 10 10 0" x:Name="headerresetbut" Click="headerresetbut_Click"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=Earth}"/>
+            <ToggleButton Margin="2 0 0 0" IsChecked="{Binding EnsureSiteReturn200}" VerticalAlignment="Center" Content="Ensure the Site Return 200 before Download" x:Name="site200check"/>
+        </StackPanel>
+        <Label Margin="10 7 0 0" Height="10" Background="{DynamicResource ObsoleteBrush}"/>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=AccessPoint}"/>
+            <Label Content="Tcp/Ip Configuration"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <ToggleButton IsChecked="{Binding ResumeAfterError}" Margin="2 0 0 0" VerticalAlignment="Center" Content="Auto Resume after Error" x:Name="autoresumcheck"/>
+        </StackPanel>
+        <HDMControls:LabelTextBox x:Name="Connectionspreserver" HorizontalAlignment="Left" IsNumericalInput="True" Minimum="1"  Margin="10 5 0 0" HelperContent="Connections" Text="{Binding MaxConnectionsPreServer}"  Width="120"/>
+        <StackPanel Margin="10 5 0 0" Orientation="Horizontal">
+            <HDMControls:LabelTextBox x:Name="maxspeed" IsNumericalInput="True" Minimum="0" HelperContent="Max Speed" Text="{Binding MaxBytePreSecond}"  Width="120"/>
+            <Label Content="KB/s"/>
+        </StackPanel>
+    </StackPanel>
+</Page>

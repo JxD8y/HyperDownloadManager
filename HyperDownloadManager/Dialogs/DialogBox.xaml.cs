@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ControlzEx.Theming;
+using HyperDownloadManager.ViewModels.Settings;
 using MahApps.Metro.Controls;
 
 namespace HyperDownloadManager.Dialogs

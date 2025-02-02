@@ -8,7 +8,7 @@ using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using System.Xml.Serialization;
 using HyperDownloadManager.Dialogs;
 
-namespace HyperDownloadManager
+namespace HyperDownloadManager.Log
 {
     public static class LogManager
     {
@@ -130,8 +130,8 @@ namespace HyperDownloadManager
         {
             try
             {
-                CheckExistLogs_UpdateLogEntrycount(Paths.GetPathDirectoryInfo("Logs"));
-                string _newlogpath = Path.Combine(Paths.GetPathDirectoryInfo("Logs"), $"Log-{logentry_count++}");
+                CheckExistLogs_UpdateLogEntrycount(PathManager.GetPathDirectoryInfo("Logs"));
+                string _newlogpath = Path.Combine(PathManager.GetPathDirectoryInfo("Logs"), $"Log-{logentry_count++}");
                 CurrentLogStream = File.Create(_newlogpath);
                 return true;
             }
@@ -139,19 +139,6 @@ namespace HyperDownloadManager
             {
                 return false;
             }
-        }
-
-        [XmlType("Log")]
-        public class LogViewModel
-        {
-            [XmlAttribute("Loglv")]
-            public MessageLevel logLevel { get; set; }
-            [XmlAttribute("Loglc")]
-            public LogSection logsection { get; set; }
-            [XmlText]
-            public string Log { get; set; }
-            [XmlAttribute("Date")]
-            public DateTime AccureTime { get; set; }
         }
     }
 }

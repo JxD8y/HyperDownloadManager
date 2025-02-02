@@ -1,0 +1,91 @@
+﻿<Page x:Class="HyperDownloadManager.Views.Pages.Setting.GeneralSettingsView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HyperDownloadManager.Views.Pages.Setting"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
+      mc:Ignorable="d" 
+      d:DesignHeight="740" d:DesignWidth="342"
+      Title="GeneralSettingsView" Background="{DynamicResource BackgroundBrush}">
+
+    <StackPanel Orientation="Vertical" Margin="0 10 0 0">
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=Tooltip}"/>
+            <ToggleButton x:Name="showlogcheck" IsChecked="{Binding LogInMain,Mode=OneWay}" Content="Show Log Messages in Main"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:BootstrapIcons Kind=BarChartFill}"/>
+            <ToggleButton IsChecked="{Binding UseChart,Mode=OneWay}" x:Name="usechartcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Use charts"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=ClipboardFlow}"/>
+            <ToggleButton IsChecked="{Binding NotifyOnState,Mode=OneWay}" x:Name="shownotificationcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Notify on Download States Changed"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=DockWindow}"/>
+            <ToggleButton IsChecked="{Binding TopMost,Mode=OneWay}" x:Name="topmostcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Always on Top"/>
+        </StackPanel>
+
+        <Label Margin="10 7 0 0" Height="10" Background="{DynamicResource ObsoleteBrush}"/>
+
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=MicrosoftWindows}"/>
+            <ToggleButton IsChecked="{Binding StartUp,Mode=OneWay}" x:Name="startupcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Lunch at Startup"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=WindowRestore}"/>
+            <ToggleButton IsChecked="{Binding RunInBack,Mode=OneWay}" x:Name="runinbackcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Run in Background"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=WebBox}"/>
+            <ToggleButton IsChecked="{Binding AutoUrlClip,Mode=OneWay}" x:Name="autourlproccheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Automatic Url Paste"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=Clipboard}"/>
+            <HDMControls:LabelTextBox Margin="3 0 0 0" IsNumericalInput="True" Minimum="1" HelperContent="Auto Paste File Size" Text="{Binding MaxClipDownloadSize,Mode=OneWay}"  Width="140" x:Name="maxClipSizeText"/>
+            <Label Content="GB"/>
+        </StackPanel>
+        <Label Margin="10 7 0 0" Height="10" Background="{DynamicResource ObsoleteBrush}"/>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=TapeMeasure}"/>
+            <Label Content="Measurements and Units"/>
+        </StackPanel>
+        <StackPanel Margin="10 5 0 0" Orientation="Horizontal">
+            <Label Content="Min Unit Prefix: "/>
+            <ComboBox SelectionChanged="MinUnit_SelectionChanged"  x:Name="MinUnit" Margin="2" Width="100">
+                <ComboBoxItem Content="Byte"/>
+                <ComboBoxItem Content="Kb"/>
+                <ComboBoxItem Content="Mb"/>
+                <ComboBoxItem Content="Gb"/>
+                <ComboBoxItem Content="Tb"/>
+            </ComboBox>
+        </StackPanel>
+        <ToggleButton Margin="10 7 0 0" IsChecked="{Binding UseBit,Mode=OneWay}" x:Name="useBitMeasurement" VerticalAlignment="Center" Content="Use 'Bit' instead of 'Byte'"/>
+        <Label Margin="10 7 0 0" Height="10" Background="{DynamicResource ObsoleteBrush}"/>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=Folder}" />
+            <HDMControls:LabelTextBox HelperContent="Default Folder" Text="{Binding DefaultDownloadFolder,Mode=OneWay}" IsReadOnly="True" BorderThickness="1" x:Name="defdonpath" MinHeight="20" Width="240"/>
+            <Button x:Name="ChangeDownloadFolderButton" Click="ChangeDownloadFolderButton_Click" Margin="15" Content="{xico:Material Kind=Folder,Width=18,Height=18}" Foreground="Orange"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <ToggleButton IsChecked="{Binding SaveTemp,Mode=OneWay}" x:Name="tempdownloadcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Save Download in Temp"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+            <Label Content="{xico:Material Kind=CloudSync}"/>
+            <ToggleButton IsChecked="{Binding AllowDrag,Mode=OneWay}" x:Name="allowDragCheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Allow Drag Url"/>
+        </StackPanel>
+        <StackPanel Margin="10 5 0 0" Orientation="Horizontal">
+            <Label Content="On Drag: "/>
+            <ComboBox SelectionChanged="dragEvent_SelectionChanged"  x:Name="dragEvent" Margin="2" Width="120">
+                <ComboBoxItem Content="Start Download"/>
+                <ComboBoxItem Content="Leave it Paused"/>
+            </ComboBox>
+        </StackPanel>
+        <StackPanel Margin="10 5 0 0" Orientation="Horizontal">
+            <Label Content="Default Drag Container: "/>
+            <ComboBox SelectionChanged="dragContainer_SelectionChanged" x:Name="dragContainer" Margin="1" Width="100"/>
+        </StackPanel>
+    </StackPanel>
+</Page>

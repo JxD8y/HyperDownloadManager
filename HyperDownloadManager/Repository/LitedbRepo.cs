@@ -21,7 +21,7 @@ namespace HyperDownloadManager.Repository
         static bool Connected = false;
         private static void Connect(string Collection)
         {
-            string path = System.IO.Path.Combine(Paths.GetPathDirectoryInfo("DataBase"), "DeepDownloads.db");
+            string path = System.IO.Path.Combine(PathManager.GetPathDirectoryInfo("DataBase"), "DeepDownloads.db");
             db = new LiteDatabase(path);
             coll = (LiteCollection<T>)db.GetCollection<T>(Collection);
             Connected = true;

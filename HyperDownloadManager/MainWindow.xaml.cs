@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -10,6 +11,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using ControlzEx.Theming;
 using HyperDownloadManager.Log;
+using HyperDownloadManager.Utils;
+using HyperDownloadManager.ViewModels.Download;
 using MahApps.Metro.Controls;
 
 namespace HyperDownloadManager
@@ -22,9 +25,9 @@ namespace HyperDownloadManager
         public MainWindow()
         {
             InitializeComponent();
-            LogManager.OnLogAdd += LogManager_OnLogAdd;
+            //LogManager.OnLogAdd += LogManager.on; 
             GlobalSupervisor.mainwindow = this;
-            ThemeManager.Current.ChangeTheme(Application.Current, GlobalSupervisor.ThemeSettingsViewModel.CurrentTheme);
+            ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, GlobalSupervisor.ThemeSettingsViewModel.CurrentTheme);
             this.mainFrame.Content = GlobalSupervisor.DownloadPage;
             if (!GlobalSupervisor.UnderDebug)
             {
@@ -37,9 +40,9 @@ namespace HyperDownloadManager
                     HDMNotifyIcon.Visibility = Visibility.Collapsed;
                 }
             }
-            NetworkWatchDog.OnNetworkConnectivityChanged += NetworkWatchDog_OnNetworkConnectivityChanged;
-            NetworkWatchDog.StartNetworkConnectivityObservation();
-            this.DataContext = GlobalSupervisor.GeneralContextViewModel;
+            //NetworkUtility.OnNetworkConnectivityChanged += NetworkWatchDog_OnNetworkConnectivityChanged; //N: ?
+            NetworkUtility.StartNetworkConnectivityObservation();
+            this.DataContext = GlobalSupervisor.MainViewModel;
             this.Topmost = GlobalSupervisor.GeneralSettingsViewModel.TopMost;
             this.AllowDrop = GlobalSupervisor.GeneralSettingsViewModel.AllowDrag;
         }
@@ -73,7 +76,7 @@ namespace HyperDownloadManager
 
         private void AppCloseItem_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("not implemented!");
+            System.Windows.MessageBox.Show("not implemented!");
         }
 
         private void DownloadMenuItem_Click(object sender, RoutedEventArgs e)
@@ -83,13 +86,33 @@ namespace HyperDownloadManager
             DownloadViewModel downloadViewModel = DownloadManager.GetDownloadViewModel(id);
             if (!(downloadViewModel.DetailPage.DataContext as DownloadViewModel).IsSeparateWindowOpen)
             {
-                DownloadSeparateWindow sp = new DownloadSeparateWindow(downloadViewModel.Current_FileName);
+                DownloadWindow sp = new DownloadWindow(downloadViewModel.Current_FileName);
                 sp.MainFrame.Content = downloadViewModel.DetailPage;
                 downloadViewModel.DetailPage.NewWindow.Visibility = Visibility.Collapsed;
                 downloadViewModel.DetailPage.Backtomain.Visibility = Visibility.Collapsed;
                 (downloadViewModel.DetailPage.DataContext as DownloadViewModel).IsSeparateWindowOpen = true;
                 sp.Show();
             }
+        }
+        private void NetworkWatchDog_OnNetworkConnectivityChanged(object? sender, bool e)
+        {
+            if (GlobalSupervisor.GeneralSettingsViewModel.NotifyOnState)
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    if (e)
+                        netoff.Visibility = Visibility.Collapsed;
+                    else
+                        netoff.Visibility = Visibility.Visible;
+                });
+            }
+        }
+        private void NetworkStateIndicatorMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (((MenuItem)sender).Name == "RunNetworkStateIndicatorMenuItem")
+                NetworkUtility.StartNetworkConnectivityObservation();
+            else
+                NetworkUtility.StopNetworkConnectivityObservation();
         }
         #endregion
         public void ShowDialog(Page Dialog)
@@ -128,20 +151,19 @@ namespace HyperDownloadManager
                         ShowDialog(GlobalSupervisor.Logpage);
                         break;
                     case "AboutMenuItem":
-                        GlobalSupervisor.InfoPage = new View.Info();
                         ShowDialog(GlobalSupervisor.InfoPage);
                         break;
                 }
             }
         }
         #region DragDrop
-        private void MetroWindow_DragEnter(object sender, DragEventArgs e)
+        private void MetroWindow_DragEnter(object sender, System.Windows.DragEventArgs e)
         {
             if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag)
             {
                 if (e.Data.GetDataPresent(typeof(string)))
                 {
-                    e.Effects = DragDropEffects.Link;
+                    e.Effects = System.Windows.DragDropEffects.Link;
                     DragNotifier.Visibility = Visibility.Visible;
                 }
             }
@@ -153,7 +175,7 @@ namespace HyperDownloadManager
             {
                 if (e.Data.GetDataPresent(typeof(string)))
                 {
-                    e.Effects = DragDropEffects.Link;
+                    e.Effects = System.Windows.DragDropEffects.Link;
                     string Url = (string)e.Data.GetData(typeof(string));
                     DragNotifier.Visibility = Visibility.Collapsed;
                     //Show new add download page
@@ -161,13 +183,13 @@ namespace HyperDownloadManager
             }
         }
 
-        private void MetroWindow_DragLeave(object sender, DragEventArgs e)
+        private void MetroWindow_DragLeave(object sender, System.Windows.DragEventArgs e)
         {
             if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag)
             {
                 if (sender is MetroWindow)
                 {
-                    e.Effects = DragDropEffects.None;
+                    e.Effects = System.Windows.DragDropEffects.None;
                     DragNotifier.Visibility = Visibility.Collapsed;
                 }
             }

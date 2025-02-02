@@ -1,0 +1,186 @@
+﻿<Page x:Class="HyperDownloadManager.Views.Pages.Download.ContainerSettingsView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HyperDownloadManager.Views.Pages.Download"
+      xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
+      mc:Ignorable="d" 
+      d:DesignHeight="560" d:DesignWidth="510" MaxHeight="560"
+      Title="ContainerSettings">
+
+    <Border Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="5" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <Border x:Name="alertbox" Focusable="True" Visibility="Collapsed" FocusVisualStyle="{x:Null}" Height="40" Margin="40 0 40 0" CornerRadius="3" Opacity="0" Background="#000" Panel.ZIndex="1" Grid.RowSpan="2">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{xico:Material Kind=Information}" x:Name="infoicon" Visibility="Visible" Foreground="RoyalBlue"/>
+                    <Label Content="{xico:Material Kind=Alert}" Visibility="{Binding ElementName=infoicon,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Foreground="Orange"/>
+                    <TextBlock Text="Information" x:Name="alertText"/>
+                </StackPanel>
+            </Border>
+            <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 2 0 0">
+
+                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                    <Label Content="{xico:Material Kind=Group}"/>
+                    <HDMControls:LabelTextBox HelperContent="Name" Width="150" x:Name="name" Text="{Binding Name,Mode=OneTime}"/>
+                    <HDMControls:LabelTextBox HelperContent="Description" Width="250" Margin="10 0 0 0" x:Name="Description" Text="{Binding Description,Mode=OneTime}"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" Margin="0 10 0 0">
+                    <DataGrid BorderThickness="0" Visibility="Visible" MaxHeight="200" Height="200" HorizontalAlignment="Left" RowHeaderWidth="0" Width="440" Margin="4" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource BorderBrush}" VerticalGridLinesBrush="{DynamicResource BorderBrush}" IsReadOnly="True" SelectionUnit="FullRow" Background="{DynamicResource BackgroundBrush}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" CanUserResizeRows="False" x:Name="downloadGrid" SelectionMode="Extended">
+                        <DataGrid.Resources>
+                            <ContextMenu x:Key="rowContextMenu">
+                                <MenuItem x:Name="deselectDownload" Click="deselectDownload_Click">
+                                    <MenuItem.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{xico:Material Kind=Delete}" Foreground="IndianRed"/>
+                                            <TextBlock Text="Deselect"/>
+                                        </StackPanel>
+                                    </MenuItem.Header>
+                                </MenuItem>
+                            </ContextMenu>
+                        </DataGrid.Resources>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                                <Setter Property="FontFamily" Value="Bahnschrift"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}"/>
+                            </Style>
+                        </DataGrid.RowStyle>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="BorderThickness" Value="0"/>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style TargetType="DataGridColumnHeader">
+                                <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                                <Setter Property="FontFamily" Value="Bahnschrift"/>
+                                <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                <Setter Property="Margin" Value="2,0,0,0"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource ObsoleteBrush}"/>
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="200">
+                                <DataGridTemplateColumn.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=File}"/>
+                                        <Label Content="Download Name"/>
+                                    </StackPanel>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding Icon}" Width="25" Height="25" Margin="10 0 10 0"/>
+                                            <Label Content="{Binding DownloadName}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="100">
+                                <DataGridTemplateColumn.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=FileCompare}"/>
+                                        <Label Content="File Size"/>
+                                    </StackPanel>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{Binding FileSize.DataValue,Converter={StaticResource FloattoString}}"/>
+                                            <Label Content="{Binding FileSize.DataUnit}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="80">
+                                <DataGridTemplateColumn.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=ProgressDownload}" Foreground="{DynamicResource AccentBrush}"/>
+                                        <Label Content="Percent"/>
+                                    </StackPanel>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Label Content="{Binding Current_Percent,Converter={StaticResource FloattoString}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <Button Margin="5" Background="SeaGreen" Foreground="White" Name="addDownload" Click="addDownload_Click">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=Plus}" Foreground="SeaGreen"/>
+                                <Label Content="Add to container" x:Name="downloadButtonContent"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                    <Label Content="{xico:Material Kind=Folder}" />
+                    <HDMControls:LabelTextBox HelperContent="Downloads Save Folder" x:Name="path" Width="370" Text="{Binding Path,Mode=OneTime}"/>
+                    <Label Content="{xico:Material Kind=Folder,Width=20,Height=20}" Style="{DynamicResource ButtonicLabel}" x:Name="selectFolder" Foreground="Orange" MouseLeftButtonDown="selectFolder_MouseLeftButtonDown" Margin="10 0 0 0"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" x:Name="Settings" Visibility="Visible">
+                    <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
+                        <Label Content="{xico:Material Kind=Timer}" />
+                        <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="StartConditionCombo">
+                            <ComboBoxItem Content="No Scheduling"/>
+                            <ComboBoxItem Content="Schedule with Container" x:Name="scheduleContaineritem"/>
+                            <ComboBoxItem Content="Schedule with Timer" x:Name="scheduleTimeritem"/>
+                            <ComboBoxItem Content="Schedule on Date" x:Name="scheduleDateitem"/>
+                        </ComboBox>
+                        <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
+                            <ComboBox x:Name="conditionContainerSchedule" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleContaineritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                            <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                            <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
+                        <Label Content="{xico:BootstrapIcons Kind=stack}" />
+                        <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="containerMode">
+                            <ComboBoxItem Content="Normal"/>
+                            <ComboBoxItem Content="Reverse"/>
+                            <ComboBoxItem Content="Direct"/>
+                            <ComboBoxItem Content="Random"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
+                        <Label Content="{xico:Material Kind=FormatListGroup}" Foreground="IndianRed"/>
+                        <HDMControls:LabelTextBox x:Name="maxDownload" IsNumericalInput="True" Minimum="1" HelperContent="Max Download Count" Text="{Binding MaxCapacity,Mode=OneTime}" Width="150"/>
+                        <StackPanel Orientation="Horizontal">
+                            <HDMControls:LabelTextBox x:Name="maxFileSize" IsNumericalInput="True" Margin="3 0 0 0" Minimum="0" Text="{Binding MaxOccupied,Mode=OneTime}" HelperContent="Max files size" Width="140"/>
+                            <Label Content="GB" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+            </StackPanel>
+            <DockPanel Margin="0 0 0 2" SnapsToDevicePixels="True" Grid.Row="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Border x:Name="Reset" MouseLeftButtonDown="Reset_MouseLeftButtonDown" CornerRadius="3" Background="{DynamicResource ObsoleteBrush}" Margin="6">
+                        <Label Content="{xico:Material Kind=Refresh}" Foreground="Orange"/>
+                        <Border.ToolTip>
+                            <ToolTip Content="this will only reset Stackmode Limitations and Schedulations no other changes will apply to Settings."/>
+                        </Border.ToolTip>
+                    </Border>
+                    <Border x:Name="Save" MouseLeftButtonDown="Save_MouseLeftButtonDown"  CornerRadius="3" Background="{DynamicResource ObsoleteBrush}" Margin="6">
+                        <Label Content="{xico:Material Kind=ContentSave}" Foreground="RoyalBlue"/>
+                    </Border>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Page>

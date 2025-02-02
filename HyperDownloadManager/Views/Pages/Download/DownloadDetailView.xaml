@@ -1,0 +1,148 @@
+﻿<Page x:Class="HyperDownloadManager.Views.Pages.Download.DownloadDetailView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HyperDownloadManager.Views.Pages.Download"
+      xmlns:oxy="http://oxyplot.org/wpf"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      mc:Ignorable="d" 
+      d:DesignHeight="554" d:DesignWidth="900"
+      Title="DetailDownload" Background="{DynamicResource BoxBrush}">
+
+    <Grid Margin="5 10 5 5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="30"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" Grid.Column="0" CornerRadius="5" Style="{DynamicResource TopStack}" x:Name="Backtomain" MouseLeftButtonDown="Backtomain_Click">
+            <Label HorizontalContentAlignment="Center"  HorizontalAlignment="Center" VerticalContentAlignment="Center"  Content="{xico:Material Kind=ArrowLeft}"/>
+        </Border>
+        <Border HorizontalAlignment="Center" Grid.Row="0" Grid.Column="2" Style="{DynamicResource TopStack}" x:Name="NewWindow" MouseLeftButtonDown="NewWindow_Click">
+            <Label HorizontalAlignment="Center" Content="{xico:Material Kind=DockWindow}" Foreground="{DynamicResource ForegroundBrush}"/>
+        </Border>
+        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="248"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            <Grid Visibility="{Binding ElementName=speedChart, Path=Visibility,Converter={StaticResource ReverseVisiblity}}" MinWidth="570" Margin="5,5,5,7" Grid.RowSpan="2">
+                <StackPanel Opacity="0.4" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" >
+                        <Label Content="{xico:Material Kind=ChartPpf,Height=40,Width=40}" Foreground="{StaticResource AccentBrush}"/>
+                        <Label Content="Chart Disabled" FontSize="40"/>
+                    </StackPanel>
+                    <Label Content="To activate charts goto Settings > GeneralSettings > UseCharts"/>
+                </StackPanel>
+            </Grid>
+            <oxy:PlotView IsMouseWheelEnabled="False" x:Name="speedChart" Model="{Binding}" Foreground="{DynamicResource ForegroundBrush}" Background="Transparent" MinWidth="570" Margin="5,5,5,7" Grid.RowSpan="2"/>
+            <StackPanel VerticalAlignment="Center" Margin="0,10,0,7" x:Name="InfoPanel" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+                <Label Content="Session Info" Foreground="{DynamicResource PrimaryBrush}"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="1">
+                    <Label Content="{xico:BootstrapIcons Kind=ArrowDown}" Foreground="SeaGreen"/>
+                    <Label Content="Speed: "/>
+                    <Label Content="{Binding Current_Speed.DataValue,Converter={StaticResource FloattoString}}"/>
+                    <Label Content="{Binding Current_Speed.DataUnit}" x:Name="SpeedUnit"/>
+                    <Label Content="/s"/>
+                </StackPanel>
+                <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Grid.Row="1">
+                    <Label Content="{xico:Material Kind=ProgressDownload}" Foreground="RoyalBlue"/>
+                    <Label Content="Completed: "/>
+                    <Label Content="{Binding Current_Percent,Converter={StaticResource FloattoString}}"/>
+                    <Label Content="%"/>
+                </StackPanel>
+                <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Grid.Row="1">
+                    <Label Content="{xico:Material Kind=File}"/>
+                    <Label Content="Total: "/>
+                    <Label Content="{Binding DownloadedSize.DataValue ,Converter={StaticResource FloattoString}}" x:Name="downloaded"/>
+                    <Label Content="{Binding DownloadedSize.DataUnit}"/>
+                </StackPanel>
+                <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Grid.Row="1">
+                    <Label Content="{xico:Material Kind=Timer}"/>
+                    <Label Content="Time Left: "/>
+                    <Label Content="{Binding RemainingTime, Converter={StaticResource TimeSpantoString}}"/>
+                </StackPanel>
+                <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Grid.Row="1">
+                    <Label Content="{xico:Material Kind=Earth}"/>
+                    <Label Content="Ping: "/>
+                    <Label Content="{Binding IOCore.Ping}"/>
+                    <Label Content="ms"/>
+                </StackPanel>
+                <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Grid.Row="1">
+                    <Label Content="{xico:BootstrapIcons Kind=PeopleFill}"/>
+                    <Label Content="Connections: "/>
+                    <Label Content="1"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center" Orientation="Vertical" Grid.Column="0" Margin="10 0 0 0" Grid.Row="1" Grid.RowSpan="2">
+                <Label Content="File info" Foreground="{DynamicResource PrimaryBrush}"/>
+                <StackPanel Orientation="Horizontal" Margin="0 2 0 0">
+                    <Image Source="{Binding Icon}" Width="20" Height="20" Margin="2 0 0 0"/>
+                    <Label Content="File Name: "/>
+                    <Label Content="{Binding Current_FileName}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                    <Label Content="{xico:Material Kind=Server}"/>
+                    <Label Content="Server Name: "/>
+                    <Label Content="{Binding Current_Server}" x:Name="Servername"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                    <Label Content="{xico:Material Kind=FileDownload}"/>
+                    <Label Content="File Size: "/>
+                    <Label Content="{Binding FileSize.DataValue,Converter={StaticResource FloattoString}}"/>
+                    <Label Content="{Binding FileSize.DataUnit}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                    <Label Content="{xico:Material Kind=Refresh}"/>
+                    <Label Content="Resume Ability : "/>
+                    <Label Content="{Binding ResumeSupport}" Foreground="{Binding Path=ResumeSupport ,Converter={StaticResource BooltoBrush}}" VerticalAlignment="Center" FontFamily="Bahnschrift" FontSize="14"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Width="248" VerticalAlignment="Center" Grid.Column="2" Grid.Row="3" Orientation="Vertical">
+                <Label Content="Control Panel" Foreground="{DynamicResource PrimaryBrush}"/>
+                <StackPanel>
+                    <Button x:Name="ResumeDownload" Click="ResumeDownload_Click"  Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Margin="15 5 15 0">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen"/>
+                            <Label Content="Resume Download"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="PauseDownload" Click="PauseDownload_Click"  Background="{DynamicResource ObsoleteBrush}" Visibility="{Binding ElementName=ResumeDownload,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Margin="15 5 15 0">
+                        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <Label Content="{xico:Material Kind=Pause}" Foreground="Orange"/>
+                            <Label Content="Pause Download"/>
+                            <Label Content="{xico:Material Kind=Alert}" Visibility="{Binding ResumeSupport,Converter={StaticResource BooltoReverseVisiblity}}" Foreground="Orange" Opacity="0.2">
+                                <Label.ToolTip>
+                                    <ToolTip Content="Server does not support Resume."/>
+                                </Label.ToolTip>
+                            </Label>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <Button x:Name="DeleteDownload" Click="DeleteDownload_Click" Margin="15 5 15 0">
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <Label Content="{xico:Material Kind=Delete}" Foreground="IndianRed"/>
+                        <Label Content="Delete Download"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="DownloadSettings" Click="DownloadSettings_Click" Margin="15 5 15 15">
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                        <Label Content="{xico:BootstrapIcons Kind=GearFill}" Foreground="Orange"/>
+                        <Label Content="Settings"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <!--<ProgressBar VerticalAlignment="Top" Grid.Row="1" Margin="30 10 0 0" BorderThickness="0.5" BorderBrush="{DynamicResource BorderBrush}" Background="Transparent" Value="20" Height="18" MinWidth="740" Foreground="SeaGreen" Width="840"/>-->
+        </Grid>
+    </Grid>
+</Page>

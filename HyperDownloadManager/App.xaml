@@ -2,9 +2,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:HyperDownloadManager"
+             xmlns:converters="clr-namespace:HyperDownloadManager.Converters"
              xmlns:System="clr-namespace:System;assembly=mscorlib"
-             StartupUri="MainWindow.xaml">
+             StartupUri="MainWindow.xaml" Startup="Application_Startup">
     <Application.Resources>
+        
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Themes/DarkTheme.xaml"/>
@@ -21,6 +23,18 @@
             <FontFamily x:Key="DefaultFont">pack://application:,,,/Resources/Fonts/#Heebo-VariableFont_wght</FontFamily>
             <System:Double x:Key="Height">10</System:Double>
             <System:Double x:Key="Width">10</System:Double>
+            <converters:BooltoBrush x:Key="BooltoBrush"/>
+            <converters:LongTostring x:Key="LongtoString"/>
+            <converters:SizeUnittoString x:Key="SizeUnittoString"/>
+            <converters:BooltoReverseVisiblity x:Key="BooltoReverseVisiblity"/>
+            <converters:FloattoString x:Key="FloattoString"/>
+            <converters:BooltoVisiblity x:Key="BooltoVisiblity"/>
+            <converters:TimeSpantoString x:Key="TimeSpantoString"/>
+            <converters:DownloadStatetoBrush x:Key="DownloadStatetoBrush"/>
+            <converters:ReverseVisiblity x:Key="ReverseVisiblity"/>
+            <converters:DoubletoString x:Key="DoubletoString"/>
+            <converters:ReverseBool x:Key="ReverseBool"/>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,0 +1,221 @@
+﻿<Page x:Class="HyperDownloadManager.Dialogs.DowloadDialog.NewDownloadDialog"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="HyperDownloadManager.Dialogs.DowloadDialog"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
+      xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
+      mc:Ignorable="d"
+      d:DesignHeight="200" d:DesignWidth="450"
+      Title="NewDownload" MaxHeight="200">
+
+    <Border Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="5" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="40"/>
+            </Grid.RowDefinitions>
+            <Border x:Name="alertbox" Focusable="True" Visibility="Collapsed" FocusVisualStyle="{x:Null}" Height="40" Margin="40 0 40 0" CornerRadius="3" Opacity="0" Background="#000" Panel.ZIndex="1" Grid.RowSpan="2">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="{xico:Material Kind=Information}" x:Name="infoicon" Visibility="Visible" Foreground="RoyalBlue"/>
+                    <Label Content="{xico:Material Kind=Alert}" Visibility="{Binding ElementName=infoicon,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Foreground="Orange"/>
+                    <TextBlock Text="Information" x:Name="alertText"/>
+                </StackPanel>
+            </Border>
+            <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 2 0 0">
+                <StackPanel Visibility="{Binding ElementName=multidownloadGrid,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" x:Name="topinfostack" Orientation="Horizontal" Margin="0 5 0 0" >
+                    <HDMControls:Spiner Width="20" Height="20" x:Name="LoadingSpiner" Visibility="{Binding ElementName=Fileextimg,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Margin="10 0 10 0"/>
+                    <Image x:Name="Fileextimg" Visibility="Visible"  Width="35" Height="35" Margin="10 0 10 0"/>
+                    <Label Content="" x:Name="filename" Foreground="{DynamicResource ForegroundBrush}" MaxWidth="250"/>
+                    <Label Foreground="{DynamicResource ForegroundBrush}" x:Name="filesize" Margin="2 0 0 0" VerticalAlignment="Center" FontFamily="Bahnschrift" FontSize="14"/>
+                    <Label Foreground="{DynamicResource ForegroundBrush}" x:Name="fileszunit" Margin="2 0 0 0" VerticalAlignment="Center" FontFamily="Bahnschrift" FontSize="14"/>
+                    <StackPanel.ToolTip>
+                        <ToolTip>
+                            <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                                <Label Content="{xico:Material Kind=Refresh}" />
+                                <Label Content="Resume Ability: "/>
+                                <Label Content="" x:Name="resumabil"/>
+                            </StackPanel>
+                        </ToolTip>
+                    </StackPanel.ToolTip>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                    <Label Content="{xico:Material Kind=Link}"/>
+                    <HDMControls:LabelTextBox Visibility="{Binding ElementName=multidownloadGrid,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" HelperContent="Url" Width="370" TextBoxBase.TextChanged="Link_TextChanged" PreviewKeyDown="Link_KeyDown" x:Name="Link"/>
+                    <Grid x:Name="multidownloadGrid" Visibility="Collapsed">
+                        <Border AllowDrop="True" DragLeave="qdownloadgrid_DragLeave" DragEnter="qdownloadgrid_DragEnter" Drop="qdownloadgrid_Drop" x:Name="DropMessage" Visibility="Collapsed" CornerRadius="3" Margin="10 0 10 0" Height="40" Background="{DynamicResource ObsoleteBrush}" Panel.ZIndex="1" Opacity="0.8">
+                            <StackPanel VerticalAlignment="Center">
+                                <StackPanel x:Name="DropMessageText" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Label Content="{xico:Material Kind=Pin}" Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="Drop the Link Here"/>
+                                </StackPanel>
+                                <StackPanel Visibility="{Binding ElementName=DropMessageText,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <HDMControls:Spiner Width="20"  Height="20" Margin="10 0 10 0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border VerticalAlignment="Bottom" AllowDrop="True" DragLeave="qdownloadgrid_DragLeave" DragEnter="qdownloadgrid_DragEnter" Drop="qdownloadgrid_Drop" Visibility="{Binding ElementName=qdownloadgrid,Path=HasItems,Converter={StaticResource BooltoReverseVisiblity}}" CornerRadius="3" Margin="10 0 10 0" Height="40" Background="{DynamicResource ObsoleteBrush}" Panel.ZIndex="1" Opacity="0.8">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Label Content="{xico:Material Kind=Group}" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Drag Link Here to get Start"/>
+                            </StackPanel>
+                        </Border>
+                        <DataGrid BorderThickness="0" AllowDrop="True" DragLeave="qdownloadgrid_DragLeave" DragEnter="qdownloadgrid_DragEnter" Drop="qdownloadgrid_Drop" Visibility="Visible" MaxHeight="200" Height="200" RowHeaderWidth="0" Width="370" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource BorderBrush}" VerticalGridLinesBrush="{DynamicResource BorderBrush}" IsReadOnly="True" SelectionUnit="FullRow" Background="{DynamicResource BackgroundBrush}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" CanUserResizeRows="False" x:Name="qdownloadgrid" SelectionMode="Single">
+                            <DataGrid.Resources>
+                                <ContextMenu x:Key="rowContextMenu">
+                                    <MenuItem x:Name="DeleteSelctedDownload" Click="DeleteSelctedDownload_Click">
+                                        <MenuItem.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="{xico:Material Kind=Delete}" Foreground="IndianRed"/>
+                                                <TextBlock Text="Remove link"/>
+                                            </StackPanel>
+                                        </MenuItem.Header>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </DataGrid.Resources>
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                                    <Setter Property="FontFamily" Value="Bahnschrift"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="ContextMenu" Value="{DynamicResource rowContextMenu}"/>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                                    <Setter Property="FontFamily" Value="Bahnschrift"/>
+                                    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+                                    <Setter Property="Margin" Value="2,0,0,0"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource ObsoleteBrush}"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Width="200">
+                                    <DataGridTemplateColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{xico:Material Kind=File}"/>
+                                            <Label Content="FileName"/>
+                                        </StackPanel>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Source="{Binding Icon}" Width="25" Height="25" Margin="10 0 10 0"/>
+                                                <Label Content="{Binding FileDescriptorView.Filename}" Foreground="{Binding Resumable,Converter={StaticResource BooltoBrush}}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="100">
+                                    <DataGridTemplateColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{xico:Material Kind=FileCompare}"/>
+                                            <Label Content="File Size"/>
+                                        </StackPanel>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Label Content="{Binding FileSize.DataValue}"/>
+                                                <Label Content="{Binding FileSize.DataUnit}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Width="80">
+                                    <DataGridTemplateColumn.Header>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Label Content="{xico:Material Kind=Antenna}"/>
+                                            <Label Content="Ping"/>
+                                        </StackPanel>
+                                    </DataGridTemplateColumn.Header>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Label Content="{Binding Ping}"/>
+                                                <Label Content="ms"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                    <Label Content="{xico:Material Kind=Group,Width=20,Height=20}" MouseLeftButtonDown="multilinkmode_MouseLeftButtonDown" x:Name="multilinkmode" Style="{DynamicResource ButtonicLabel}" Visibility="Visible" Foreground="{DynamicResource AccentBrush}" Margin="10 0 0 0"/>
+                    <Label Content="{xico:Material Kind=Ungroup,Width=20,Height=20}" Visibility="{Binding ElementName=multilinkmode,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" x:Name="singlelinkmode" Style="{DynamicResource ButtonicLabel}" MouseLeftButtonDown="multilinkmode_MouseLeftButtonDown" Foreground="{DynamicResource AccentBrush}" Margin="10 0 0 0"/>
+                    <StackPanel Orientation="Horizontal" Visibility="Collapsed">
+                        <Label Content="0" Margin="0" x:Name="pinglabel"/>
+                        <Label Content="ms" Margin="0" />
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                    <Label Content="{xico:Material Kind=Folder}" />
+                    <HDMControls:LabelTextBox HelperContent="Folder" x:Name="Filepath" Width="370"/>
+                    <Label Content="{xico:Material Kind=Folder,Width=20,Height=20}" Style="{DynamicResource ButtonicLabel}" x:Name="selectfolder" Foreground="Orange" MouseLeftButtonDown="selectfolder_MouseLeftButtonDown" Margin="10 0 0 0"/>
+                </StackPanel>
+                <StackPanel Orientation="Vertical" x:Name="Settings" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Margin="0 20 0 0">
+                        <StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{xico:Material Kind=Web}" />
+                                    <ComboBox x:Name="ProxyType" Width="80" SelectedIndex="0" Margin="5 0 0 0">
+                                        <ComboBoxItem Content="Http"/>
+                                        <ComboBoxItem Content="Socks4"/>
+                                        <ComboBoxItem Content="Socks5"/>
+                                    </ComboBox>
+                                    <HDMControls:LabelTextBox Margin="3 0 0 0" HelperContent="Host" x:Name="proxyhost" Width="200"/>
+                                    <HDMControls:LabelTextBox Margin="3 0 0 0" IsNumericalInput="True" Minimum="0" Maximum="65535"  HelperContent="Port" x:Name="proxyport" Width="100"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel x:Name="ContainmentSettings" Orientation="Horizontal" Margin="0 20 0 0">
+                        <Label Content="{xico:Material Kind=Group}" />
+                        <ComboBox Width="100" SelectedIndex="0" Visibility="{Binding ElementName=ContainersCombo,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Margin="5 0 0 0" x:Name="Stackmode">
+                            <ComboBoxItem Content="Normal"/>
+                            <ComboBoxItem Content="Direct"/>
+                            <ComboBoxItem Content="Reverse"/>
+                            <ComboBoxItem Content="Random"/>
+                        </ComboBox>
+                        <ComboBox Margin="3 0 0 0" Width="120" Visibility="Visible" x:Name="ContainersCombo" SelectionChanged="ContainersCombo_SelectionChanged"/>
+                        <HDMControls:LabelTextBox Margin="3 0 0 0" Width="200" x:Name="containername" HelperContent="Container Name"  Visibility="{Binding ElementName=ContainersCombo,Path=Visibility,Converter={StaticResource ReverseVisiblity}}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
+                        <Label Content="{xico:Material Kind=Timer}" />
+                        <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="StartConditionCombo">
+                            <ComboBoxItem Content="No Scheduling"/>
+                            <ComboBoxItem Content="Schedule with Download" x:Name="scheduleDownloaditem"/>
+                            <ComboBoxItem Content="Schedule with Container" x:Name="scheduleContaineritem"/>
+                            <ComboBoxItem Content="Schedule with all"/>
+                            <ComboBoxItem Content="Schedule with Timer" x:Name="scheduleTimeritem"/>
+                            <ComboBoxItem Content="Schedule on Date" x:Name="scheduleDateitem"/>
+                        </ComboBox>
+                        <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
+                            <ComboBox x:Name="ConditionDownload" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleDownloaditem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                            <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                            <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                            <ComboBox x:Name="containerSettingcombo" Width="100" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleContaineritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+
+            </StackPanel>
+            <DockPanel Margin="0 0 0 2" SnapsToDevicePixels="True" Grid.Row="1">
+                <Label HorizontalAlignment="Center" DockPanel.Dock="Right" Style="{DynamicResource ButtonicLabel}" Content="{xico:Material Kind=Play,Width=20,Height=20}" x:Name="AddDownloadLabel" IsEnabled="True" MouseLeftButtonDown="AddDownloadLabel_MouseLeftButtonDown"  Margin="0 0 10 0" Visibility="Visible" Foreground="{DynamicResource AccentBrush}"/>
+                <Label HorizontalAlignment="Center" DockPanel.Dock="Right" Visibility="{Binding ElementName=AddDownloadLabel,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Content="{xico:Material Kind=timer,Width=20,Height=20}" x:Name="ScheduleDownloadLabel" VerticalAlignment="Center" Style="{DynamicResource ButtonicLabel}" Margin="0 0 10 0" Foreground="{DynamicResource AccentBrush}"/>
+                <Label HorizontalAlignment="Right" DockPanel.Dock="Right" Content="{xico:BootstrapIcons Kind=GearFill,Width=20,Height=20}" x:Name="expandSettings" Style="{DynamicResource ButtonicLabel}" Foreground="{DynamicResource AccentBrush}" MouseLeftButtonDown="expandSettings_MouseLeftButtonDown" Margin="0 0 10 0"/>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Page>

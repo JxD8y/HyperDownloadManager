@@ -1,0 +1,27 @@
+﻿<Page x:Class="HyperDownloadManager.Views.Info"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HyperDownloadManager.Views"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      mc:Ignorable="d"
+      d:DesignHeight="641" d:DesignWidth="353"
+      Title="Info">
+
+    <Border BorderBrush="{DynamicResource BorderBrush}" Background="{StaticResource BackgroundBrush}" BorderThickness=".5" CornerRadius="8">
+        <Grid Background="Transparent" Margin="5">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Image VerticalAlignment="Center" x:Name="IconHolder" Stretch="None" Margin="0 0 10 0"/>
+                <Label Content="HDM Project" FontSize="38" FontFamily="Gabriola" FontWeight="Bold"/>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Developer: Jxd8y" Margin="10 -15 0 0" FontFamily="Bahnschrift SemiLight Condensed" VerticalAlignment="Center" FontSize="20"/>
+                    <Label Content="{xico:Material Kind=Github}" Margin="0 -15 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <Label Content="{xico:BootstrapIcons Kind=Telegram}" Margin="0 -15 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <Label Content="{xico:BootstrapIcons Kind=Twitter}" Margin="0 -15 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                </StackPanel>
+                <Label Content="--Version: 0.1 Alpha" Margin="0 0 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Page>

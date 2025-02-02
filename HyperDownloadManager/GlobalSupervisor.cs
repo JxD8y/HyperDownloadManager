@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Dialogs;
 using System.Windows;
+using HyperDownloadManager.Views;
+using HyperDownloadManager.ViewModels.Settings;
+using HyperDownloadManager.Views.Pages.Setting;
+using HyperDownloadManager.ViewModels;
+using HyperDownloadManager.Log;
+using HyperDownloadManager.ViewModels.Download.Container;
+using HyperDownloadManager.ViewModels.Download;
 
 namespace HyperDownloadManager
 {
@@ -27,7 +34,7 @@ namespace HyperDownloadManager
         public static Downloads? DownloadPage { get; set; }
         public static Settings? SettingsPage { get; set; }
         public static DialogBox? CurrentShowingDialog { get; set; }
-        public static LogPage? Logpage { get; set; }
+        public static Logs? Logpage { get; set; }
         public static Info? InfoPage { get; set; }
         public static MainWindow? mainwindow { get; set; }
         public static GeneralSettingsViewModel? GeneralSettingsViewModel { get { return SettingSupervisor.GeneralSettings; } }
@@ -36,7 +43,8 @@ namespace HyperDownloadManager
         public static GeneralSettingsView? GeneralSettingPage { get; set; }
         public static NetworkSettingsView? NetworkSettingPage { get; set; }
         public static ThemeSettingsView? ThemeSettingsPage { get; set; }
-        public static GeneralContextViewModel? GeneralContextViewModel { get; set; } = new GeneralContextViewModel();
+        public static MainViewModel? MainViewModel { get; set; } = new MainViewModel();
+
         private static Random Random = new Random();
         public static int GetRandom(int max, int min = 0)
         {
@@ -46,9 +54,9 @@ namespace HyperDownloadManager
         {
             try
             {
-                Paths.CreateDirs();
-                Logpage = new LogPage();
-                Load_Logs(Paths.GetPathDirectoryInfo("Logs"));
+                PathManager.CreateDirs();
+                Logpage = new Logs();
+                LogManager.Load_Logs(PathManager.GetPathDirectoryInfo("Logs"));
                 SettingSupervisor.LoadSettings();
                 InfoPage = new Info();
                 ContainerManager.LoadContainers();
@@ -58,11 +66,11 @@ namespace HyperDownloadManager
                 GeneralSettingPage = new GeneralSettingsView(GeneralSettingsViewModel);
                 ThemeSettingsPage = new ThemeSettingsView(ThemeSettingsViewModel);
                 SettingsPage = new Settings();
-                Log(MessageLevel.Info, LogSection.Init, "Initiation Completed");
+                LogManager.Log(MessageLevel.Info, LogSection.Init, "Initialization Completed");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"fail to initiate the app\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"fail to initialize the app\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Process.GetCurrentProcess().Kill();
             }
         }

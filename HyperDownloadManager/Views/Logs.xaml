@@ -1,0 +1,67 @@
+﻿<Page x:Class="HyperDownloadManager.Views.Logs"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:HyperDownloadManager.Views"
+      xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      mc:Ignorable="d" 
+      d:DesignHeight="641" d:DesignWidth="353"
+      Title="Log" Background="{DynamicResource BackgroundBrush}">
+
+    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness=".5" CornerRadius="8">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="0" Margin="6">
+                <Button Click="Savelogs_Click" x:Name="Savelogs" Margin="3">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{xico:Material Kind=Floppy}" Foreground="RoyalBlue"/>
+                        <Label Content="Save Logs" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="Deletecurrentlog_Click" x:Name="Deletecurrentlog" Margin="3">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{xico:Material Kind=Delete}" Foreground="IndianRed"/>
+                        <Label Content="Remove All" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <DataGrid GridLinesVisibility="Vertical" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="4" HeadersVisibility="Column" Padding="2" IsReadOnly="True" ItemsSource="{Binding logmodelView}" x:Name="Loglist" Grid.Row="2" Background="{DynamicResource BackgroundBrush}">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                        <Setter Property="Margin" Value="2"/>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+                        <Setter Property="Margin" Value="2"/>
+                        <Setter Property="IsEditing" Value="False"/>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.ItemContainerStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="DetailsVisibility" Value="Collapsed"/>
+                    </Style>
+                </DataGrid.ItemContainerStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="{xico:Material Kind=AlertBox}" Width="0.3*" Binding="{Binding logLevel}"/>
+                    <DataGridTextColumn Header="{xico:Material Kind=AlertRhombus}" Width="0.3*" Binding="{Binding logsection}"/>
+                    <DataGridTextColumn Header="{xico:Material Kind=Timer}" Width="0.3*" Binding="{Binding AccureTime}"/>
+                    <DataGridTextColumn Header="{xico:Material Kind=Message}" Width="1*" Binding="{Binding Log}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</Page>

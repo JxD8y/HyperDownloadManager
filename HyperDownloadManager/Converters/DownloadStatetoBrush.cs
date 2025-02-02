@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using HyperDownloadManager.ViewModels.Download;
 
 namespace HyperDownloadManager.Converters
 {
