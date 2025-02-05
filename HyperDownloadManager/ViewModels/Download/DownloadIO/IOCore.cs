@@ -19,17 +19,16 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
         public bool isStreamOpen { get; set; } = false;
         public BitmapSource? Icon { get; set; }
         public DownloadViewModel model { get; set; } = new DownloadViewModel();
+        public long FileSize { get { if (fileStream == null) return 0; else return fileStream.Length; } }
 
         public event EventHandler<EventArgs>? OnFileMaxSize;
         #endregion
-        private long? fileSize = 0;
         public IOCore() { }
         public IOCore(DownloadViewModel? viewModel)
         {
             if (viewModel is DownloadViewModel)
             {
                 this.model = viewModel;
-                this.fileSize = this.model.FileSize?.OriginData;
                 if (this.model.ConfigViewModel is ConfigViewModel)
                     this.model.ConfigViewModel.ConfigUpdated += ConfigViewModel_ConfigUpdated;
             }
@@ -154,7 +153,7 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
                 }
             }
         }
-        public void writeToFile(byte[] data, int count)
+        public void writeToFile(byte[]? data, int count)
         {
             if (data == null) 
                 throw new ArgumentNullException("data is null");

@@ -5,12 +5,13 @@ using HyperDownloadManager.Log;
 using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.DataUnit;
 using HyperDownloadManager.ViewModels.Download.Conditions;
+using HyperDownloadManager.ViewModels.Download.Container;
 using HyperDownloadManager.ViewModels.Download.DownloadCore;
 using HyperDownloadManager.ViewModels.Download.DownloadIO;
-using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,29 +23,19 @@ using Timer = System.Timers.Timer;
 namespace HyperDownloadManager.ViewModels.Download
 {
 
-    public class DownloadSupervisor : ViewModel
+    public class DownloadSupervisor
     {
         #region Properties
-        [BsonIgnore]
-        public string LastException { get; set; } = "";
-        private bool errorOccurred = false;
-        [BsonIgnore]
-        public bool ErrorOccurred { get { return errorOccurred; } set { errorOccurred = value; OnPropertyChanged(); } }
-        [BsonIgnore]
-        public IDownloadCore? DownloadCore = null;
-        public DownloadType DownloadType { get; set; } = DownloadType.HttpDownload;
-        private bool isWorking;
-        [BsonIgnore]
-        public bool IsWorking { get { return isWorking; } set { isWorking = value; OnPropertyChanged(); } }
-        private bool isCompleted;
-        [BsonIgnore]
-        public bool IsCompleted { get { return isCompleted; } set { isCompleted = value; OnPropertyChanged(); } }
-        [BsonIgnore]
-        public DownloadViewModel DownloadViewModel { get; set; } = new DownloadViewModel();
-        [BsonIgnore]
+
         public StartCondition? StartCondition { get; set; }
-        private IOCore ioSupervisor { get { return DownloadViewModel.IOCore; } }
-        private ConfigViewModel ConfigViewModel { get { return DownloadViewModel.ConfigViewModel; } }
+        public IOCore IOCore = new IOCore();
+        public IDownloadCore? DownloadCore = null;
+        private DownloadViewModel model = new DownloadViewModel();
+
+        private bool _isWorking;
+        private bool isWorking { get { return _isWorking; } set { if (this.model != null) { this.model.IsWorking = value; } _isWorking = value; } }
+        private bool _isCompleted;
+        private bool isCompleted { get { return _isCompleted; } set { if (this.model != null) { this.model.IsCompleted = value; } _isCompleted = value; } }
 
         private Timer UnitMaxCheck = new Timer();
         private Timer SpeedTimer = new Timer(1000);
@@ -60,34 +51,35 @@ namespace HyperDownloadManager.ViewModels.Download
         private bool speedOn = false;
         private int speedLockTimes = 0;
         private DateTime End;
-        private bool IOEventsAssigned = false;
+        private bool IOEventsAssigned = false;//N: ?
+
         #endregion
-        [BsonCtor]
         public DownloadSupervisor() { }
         public DownloadSupervisor(DownloadViewModel? downloadView)
         {
             if (downloadView != null)
             {
-                DownloadViewModel = downloadView;
+                IOCore = new IOCore(downloadView);
+                this.model = downloadView;
                 UnitMaxCheck.Elapsed += UnitMax_Elapsed;
                 UnitMaxCheck.Interval = UnitCheckerInterval * 1000;
                 DownloadCore = new HttpDownloadCore(downloadView.ConfigViewModel);
-                if (ConfigViewModel == null)
+                if (this.model.ConfigViewModel == null)
                     throw new NullReferenceException("ConfigViewModel was null");
-                ConfigViewModel.ConfigUpdated += ConfigViewModel_ConfigUpdated;
+                this.model.ConfigViewModel.ConfigUpdated += ConfigViewModel_ConfigUpdated;
                 NetworkUtility.OnNetworkConnectivityChanged += NetworkWatchDog_OnNetworkConnectivityChanged;
-                if (ioSupervisor.fileStream != null && !IOEventsAssigned)
+                if (IOCore.fileStream != null && !IOEventsAssigned)
                 {
-                    ioSupervisor.fileStream.OnMaxFile += FileStream_OnMaxFile;
-                    ioSupervisor.fileStream.OnStreamTermination += FileStream_OnStreamTermination;
+                    this.IOCore.fileStream.OnMaxFile += FileStream_OnMaxFile;
+                    this.IOCore.fileStream.OnStreamTermination += FileStream_OnStreamTermination;
                     IOEventsAssigned = true;
                 }
-                IsWorking = false;
-                IsCompleted = false;
+                this.isWorking = false;
+                this.isCompleted = false;
             }
             else
             {
-                throw new NullReferenceException("DownloadViewModel was null");
+                throw new NullReferenceException("downloadViewModel was null");
             }
         }
 
@@ -95,12 +87,12 @@ namespace HyperDownloadManager.ViewModels.Download
         bool stopByConnectionChange = false;
         private void NetworkWatchDog_OnNetworkConnectivityChanged(object? sender, bool e)
         {
-            if (!e && this.IsWorking)
+            if (!e && this.isWorking)
             {
                 this.Stop();
                 stopByConnectionChange = true;
             }
-            if (e && !this.IsWorking && stopByConnectionChange)
+            if (e && !this.isWorking && stopByConnectionChange)
             {
                 stopByConnectionChange = false;
                 this.Start();
@@ -108,7 +100,7 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         private void FileStream_OnStreamTermination(object? sender, StreamEventArgs e)
         {
-            if (ConfigViewModel.StartConditionInfo.AutoType != AutoStartConditionType.Instant)
+            if (this.model?.ConfigViewModel.StartConditionInfo.ConditionType != AutoStartConditionType.Instant)
             {
                 ConditionCancelToken.Cancel();
                 return;
@@ -116,8 +108,8 @@ namespace HyperDownloadManager.ViewModels.Download
             if (DownloadCore != null)
                 DownloadCore.Pause();
             StopTimers();
-            IsWorking = false;
-            DownloadManager.SetState(DownloadViewModel, DownloadState.Paused);
+            this.isWorking = false;
+            DownloadManager.SetState(this.model, DownloadState.Paused);
             AlertUser($"download stopped because another part need the stream.", MessageLevel.Warning);
         }
 
@@ -128,98 +120,111 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         private void ConfigViewModel_ConfigUpdated(object? sender, List<object> e)
         {
-            if (ioSupervisor.Resumable)
-            {
-                this.Stop();
+            if(this.model.ResumeSupport)
+            {   this.Stop();
                 this.DownloadCore = null;
                 this.Start();
             }
         }
         private async void DownloadCore_OnCompleted(object? sender, EventArgs ev)
         {
-            DownloadManager.SetState(DownloadViewModel, DownloadState.Completed);
-            this.StopTimers();
-            try
+            if (this.model is DownloadViewModel)
             {
-                ioSupervisor.ClearTempFile();
-            }
-            catch (Exception ex)
-            {
-                await DialogManager.ShowMessageBox($"Error occurred while finalizing download: \n{ex.Message}", MessageLevel.Warning, ButtonOrder.OK);
-                this.Stop();
-            }
-            switch (DownloadViewModel.ConfigViewModel.CompleteType)
-            {
-                case FinishType.None:
-                    ShowDialog();
-                    break;
-                case FinishType.Shutdown:
-                    Shutdown();
-                    break;
+                DownloadManager.SetState(this.model, DownloadState.Completed);
+                this.StopTimers();
+                try
+                {
+                    IOCore?.ClearTempFile();
+                }
+                catch (Exception ex)
+                {
+                    await DialogManager.ShowMessageBox($"Error occurred while finalizing download: \n{ex.Message}", MessageLevel.Warning, ButtonOrder.OK);
+                    this.Stop();
+                }
+                switch (this.model.ConfigViewModel.CompleteType)
+                {
+                    case FinishType.None:
+                        ShowDialog();
+                        break;
+                    case FinishType.Shutdown:
+                        Shutdown();
+                        break;
+                }
             }
         }
         #endregion
         #region DownloadControls
         private async void DoCondition()
         {
-            DownloadState downloadState = DownloadViewModel.Current_State;
-            DownloadManager.SetState(DownloadViewModel, DownloadState.AwaitingOnCondition);
-            await Task.Run(WaitUntilConditionFinish);
-            DownloadViewModel.ConfigViewModel.StartConditionInfo = new StartConditionInfo();
-            DownloadManager.SetState(DownloadViewModel, downloadState);
-            DownloadManager.UpdateDownload(DownloadViewModel);
+            if (this.model is DownloadViewModel)
+            {
+                DownloadState downloadState = this.model.CurrentState;
+                DownloadManager.SetState(this.model, DownloadState.AwaitingOnCondition);
+                await Task.Run(WaitUntilConditionFinish);
+                this.model.ConfigViewModel.StartConditionInfo = new StartConditionInfo();
+                DownloadManager.SetState(this.model, downloadState);
+                DownloadManager.UpdateDownload(this.model);
+            }
         }
         private IoState CheckStreamStatus()
         {
-            if (!this.ioSupervisor.isStreamOpen)
+            if (this.IOCore is IOCore && this.model is DownloadViewModel)
             {
-                ioSupervisor.OpenFile();
-                if (ioSupervisor.IoState != IoState.FileOk && !ioSupervisor.isStreamOpen && ioSupervisor.fileStream == null)
+                if (!this.IOCore.isStreamOpen)
                 {
-                    return IoState.FileNotOpen;
+                    this.IOCore.OpenFile();
+                    if (this.IOCore.IoState != IoState.FileOk && !this.IOCore.isStreamOpen && this.IOCore.fileStream == null)
+                    {
+                        return IoState.FileNotOpen;
+                    }
+                }
+                
+                long? fileSize = this.IOCore.fileStream?.Length;
+                if (fileSize == this.model.FileSize.OriginData)
+                    return IoState.FileIsComplete;
+                else
+                {
+                    return IoState.FileOk;
                 }
             }
-            long fileSize = ioSupervisor.fileStream.Length;
-            if (fileSize == ioSupervisor.fileSize.OriginData)
-                return IoState.FileIsComplete;
-            else
-            {
-                return IoState.FileOk;
-            }
+            return IoState.FileNotOpen;
         }
         private void LunchCore()
         {
-            DownloadCore = CoreFactory.CreateDownloadCore(ConfigViewModel, this.DownloadType);
-            switch (DownloadType)
+            if (this.model is DownloadViewModel)
             {
-                case DownloadType.HttpDownload:
-                    if (DownloadCore == null)
-                    {
-                        AlertUser("DownloadCore was null.", MessageLevel.Error, true);
-                        return;
-                    }
-                    DownloadCore.ResumeSupport = this.ioSupervisor.Resumable;
-                    DownloadCore.OnDataReceived += DownloadCore_OnDataReceived;
-                    DownloadCore.OnCompleted += DownloadCore_OnCompleted;
-                    StartHttpDownload((HttpDownloadCore)DownloadCore);
-                    break;
-                case DownloadType.FtpDownload:
-                    break;
-                case DownloadType.TorrentDownload:
-                    break;
+                DownloadCore = CoreFactory.CreateDownloadCore(this.model.ConfigViewModel, this.model.DownloadType);
+                switch (this.model.DownloadType)
+                {
+                    case DownloadType.HttpDownload:
+                        if (DownloadCore == null)
+                        {
+                            AlertUser("fail to create download core. aborting...", MessageLevel.Error);
+                            return;
+                        }
+                        DownloadCore.ResumeSupport = this.model.ResumeSupport;
+                        DownloadCore.OnDataReceived += DownloadCore_OnDataReceived;
+                        DownloadCore.OnCompleted += DownloadCore_OnCompleted;
+                        StartHttpDownload((HttpDownloadCore)DownloadCore);
+                        break;
+                    case DownloadType.FtpDownload:
+                        break;
+                    case DownloadType.TorrentDownload:
+                        break;
+                }
             }
         }
         public async void Start(bool IgnoreCondition = false)
         {
-            if (!this.IsWorking && !ErrorOccurred && this.DownloadViewModel.Current_State != DownloadState.Verifying && this.DownloadViewModel.Current_State != DownloadState.Downloading)
+            if (!this.isWorking && !this.model.ErrorOccurred && this.model.CurrentState != DownloadState.Verifying && this.model.CurrentState != DownloadState.Downloading)
             {
-                if (ioSupervisor.fileStream != null && !IOEventsAssigned)
+                if (this.IOCore.fileStream != null && !IOEventsAssigned)
                 {
-                    ioSupervisor.fileStream.OnMaxFile += FileStream_OnMaxFile;
-                    ioSupervisor.fileStream.OnStreamTermination += FileStream_OnStreamTermination;
+                    this.IOCore.fileStream.OnMaxFile += FileStream_OnMaxFile;
+                    this.IOCore.fileStream.OnStreamTermination += FileStream_OnStreamTermination;
                     IOEventsAssigned = true;
                 }
-                if (DownloadViewModel.Current_State == DownloadState.AwaitingOnCondition)
+                if (this.model.CurrentState == DownloadState.AwaitingOnCondition)
                 {
                     if (await PromptUser("This download is scheduled to run.\nDo you want to start it now?"))
                     {
@@ -231,27 +236,24 @@ namespace HyperDownloadManager.ViewModels.Download
                 {
                     this.DoCondition();
                 }
-                DownloadViewModel.StartTime = DateTime.Now;
+                this.model.StartTime = DateTime.Now;
                 IoState streamStatus = this.CheckStreamStatus();
-                if (streamStatus == IoState.FileOk && ioSupervisor.fileStream.Length > 0)
+                if (streamStatus == IoState.FileOk)
                 {
-                    DownloadManager.SetState(DownloadViewModel, DownloadState.Verifying);
-                    this.LunchCore();
-                }
-                else if (streamStatus == IoState.FileOk)
-                {
+                    if(this.IOCore.FileSize > 0)
+                        DownloadManager.SetState(this.model, DownloadState.Verifying);
                     this.LunchCore();
                 }
                 else if (streamStatus == IoState.FileIsComplete)
                 {
-                    DownloadManager.SetState(DownloadViewModel, DownloadState.Completed);
+                    DownloadManager.SetState(this.model, DownloadState.Completed);
                     if (await PromptUser("This download already completed.\nWant to see?"))
                     {
-                        IOUtility.OpenExplorer(ioSupervisor.saveDirectory);
+                        IOUtility.OpenExplorer(this.model.FileSavePath);
                     }
                     return;
                 }
-                else if (streamStatus == IoState.FileOk && this.IsCompleted)//this situation happen if and only if the file of download remove when application is running
+                else if (streamStatus == IoState.FileOk && this.isCompleted)
                 {
                     this.LunchCore();
                 }
@@ -260,12 +262,12 @@ namespace HyperDownloadManager.ViewModels.Download
                     AlertUser($"Cannot start download\nfile is in use", MessageLevel.Error, true);
                 }
             }
-            else if (this.ErrorOccurred)
+            else if (this.model.ErrorOccurred)
             {
                 if (this.ProcessError())
                 {
-                    this.ErrorOccurred = false;
-                    this.LastException = "";
+                    this.model.ErrorOccurred = false;
+                    this.model.ErrorMessage = "";
                     this.Start(IgnoreCondition);
                 }
             }
@@ -274,85 +276,80 @@ namespace HyperDownloadManager.ViewModels.Download
         {
             try
             {
-                long fileSize = ioSupervisor.fileStream.Length;
-                bool StartedYet = fileSize > 0;
-                if (StartedYet)
+                long fileSize = this.IOCore.FileSize;
+                if (fileSize > 0)
                 {
                     if (!await this.VerifyByRecursiveCheck())
                     {
                         if (await PromptUser("fail to verify downloaded segments\nStart over?"))
                         {
-                            ioSupervisor.ResetFileData();
-                            await core.GetFrom(0, ioSupervisor.fileSize.OriginData);
-                            DownloadManager.SetState(DownloadViewModel, DownloadState.Downloading);
-                            IsWorking = true;
+                            this.IOCore.ResetFileData();
+                            await core.GetFrom(0, this.model.FileSize.OriginData);
+                            DownloadManager.SetState(this.model, DownloadState.Downloading);
+                            this.isWorking = true;
                         }
                         else
                         {
                             this.Reset();
-                            DownloadManager.SetState(DownloadViewModel, DownloadState.Error);
+                            DownloadManager.SetState(this.model, DownloadState.Error);
                             AlertUser("User ignored corrupted file.", MessageLevel.Warning);
                             return;
                         }
                     }
                     else
                     {
-                        await this.DownloadCore.GetFrom(fileSize, ioSupervisor.fileSize.OriginData);
-                        DownloadManager.SetState(DownloadViewModel, DownloadState.Downloading);
-                        IsWorking = true;
+                        await core.GetFrom(fileSize, this.model.FileSize.OriginData);
+                        DownloadManager.SetState(this.model, DownloadState.Downloading);
+                        this.isWorking = true;
                     }
                 }
                 else
                 {
-                    await core.GetFrom(0, ioSupervisor.fileSize.OriginData);
-                    DownloadManager.SetState(DownloadViewModel, DownloadState.Downloading);
-                    IsWorking = true;
+                    await core.GetFrom(0, this.model.FileSize.OriginData);
+                    DownloadManager.SetState(this.model, DownloadState.Downloading);
+                    this.isWorking = true;
                 }
                 this.StartTimers();
             }
             catch (Exception ex)
             {
                 this.AlertUser(ex.Message, MessageLevel.Error, true);
-                DownloadManager.SetState(DownloadViewModel, DownloadState.Error);
-                IsWorking = false;
+                DownloadManager.SetState(this.model, DownloadState.Error);
+                isWorking = false;
             }
         }
         public void Stop()
         {
-            if (DownloadViewModel.Current_State == DownloadState.Downloading)
+            if (this.model.CurrentState == DownloadState.Downloading)
             {
-                if (ConfigViewModel.StartConditionInfo.AutoType != AutoStartConditionType.Instant)
+                if (this.model.ConfigViewModel.StartConditionInfo.ConditionType != AutoStartConditionType.Instant)
                 {
                     ConditionCancelToken.Cancel();
                     return;
                 }
-                DownloadCore.Pause();
-                ioSupervisor.CloseFile();
+                DownloadCore?.Pause();
+                this.IOCore.CloseFile();
                 StopTimers();
-                IsWorking = false;
-                DownloadManager.SetState(DownloadViewModel, DownloadState.Paused);
+                this.isWorking = false;
+                DownloadManager.SetState(this.model, DownloadState.Paused);
             }
         }
         #region ResetFunctions
-        private async void Reset()
+        private void Reset()
         {
             try
             {
-                ioSupervisor.ResetSupervisor();
+                this.IOCore.Reset();
                 this.ResetSupervisor();
-                this.IsWorking = false;
+                this.isWorking = false;
             }
             catch (Exception ex)
             {
                 AlertUser($"An error occurred in reset: {ex.Message}", MessageLevel.Error, true);
-                _Cleanse();
+                this.IOCore.CloseFile();
+                DownloadCore?.Pause();
+                this.StopTimers();
             }
-        }
-        private void _Cleanse()
-        {
-            ioSupervisor.CloseFile();
-            DownloadCore.Pause();
-            this.StopTimers();
         }
         public void ResetSupervisor()
         {
@@ -361,42 +358,48 @@ namespace HyperDownloadManager.ViewModels.Download
         #endregion
         public async void WaitUntilConditionFinish()
         {
-            switch (ConfigViewModel.StartConditionInfo.AutoType)
+            switch (this.model.ConfigViewModel.StartConditionInfo.ConditionType)
             {
                 case AutoStartConditionType.Instant:
                     return;
                 case AutoStartConditionType.AbsoluteTime:
-                    StartCondition = new AbsoluteTimeStartCondition(DownloadViewModel)
+                    StartCondition = new AbsoluteTimeStartCondition(this.model)
                     {
-                        StartAt = ConfigViewModel.StartConditionInfo.StartAt
+                        StartAt = this.model.ConfigViewModel.StartConditionInfo.StartAt
                     };
-                    await StartCondition.WaitUntilDone(DownloadViewModel, ConditionCancelToken.Token);
-                    ConfigViewModel.StartConditionInfo.AutoType = AutoStartConditionType.Instant;
+                    await StartCondition.WaitUntilDone(this.model, ConditionCancelToken.Token);
+                    this.model.ConfigViewModel.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
                     break;
                 case AutoStartConditionType.RelativeTime:
-                    StartCondition = new RelativeTimeStartCondition(DownloadViewModel)
+                    StartCondition = new RelativeTimeStartCondition(this.model)
                     {
-                        StartIn = ConfigViewModel.StartConditionInfo.StartIn
+                        StartIn = this.model.ConfigViewModel.StartConditionInfo.StartIn
                     };
-                    await StartCondition.WaitUntilDone(DownloadViewModel, ConditionCancelToken.Token);
-                    ConfigViewModel.StartConditionInfo.AutoType = AutoStartConditionType.Instant;
+                    await StartCondition.WaitUntilDone(this.model, ConditionCancelToken.Token);
+                    this.model.ConfigViewModel.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
                     break;
                 case AutoStartConditionType.DownloadStateChange:
-                    StartCondition = new DownloadCompletedCondition(DownloadViewModel)
+                    DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(this.model.ConfigViewModel.StartConditionInfo.DownloadId);
+                    if (viewModel != null)
                     {
-                        DownloadView = DownloadManager.GetDownloadViewModel(ConfigViewModel.StartConditionInfo.DownloadId),
-                        dlState = DownloadState.Completed
-                    };
-                    await StartCondition.WaitUntilDone(DownloadViewModel, ConditionCancelToken.Token);
-                    ConfigViewModel.StartConditionInfo.AutoType = AutoStartConditionType.Instant;
+                        StartCondition = new DownloadCompletedCondition(this.model)
+                        {
+                            DownloadView = viewModel,
+                            dlState = DownloadState.Completed
+                        };
+                        await StartCondition.WaitUntilDone(this.model, ConditionCancelToken.Token);
+                        this.model.ConfigViewModel.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
+                    }
+                    else
+                        return;
                     break;
                 //case AutoStartConditionType.AllDownloadFinish:
-                //    StartCondition = new ContainerCompletedCondition(DownloadViewModel)
+                //    StartCondition = new ContainerCompletedCondition(this.model)
                 //    {
-                //        ContainerViewModel = DownloadViewModel.Container
+                //        ContainerViewModel = this.model.Container
                 //    };
-                //    await StartCondition.WaitUntilDone(DownloadViewModel, ConditionCancelToken.Token);
-                //    ConfigViewModel.StartConditionInfo.AutoType = AutoStartConditionType.None;
+                //    await StartCondition.WaitUntilDone(this.model, ConditionCancelToken.Token);
+                //    ConfigViewModel.StartConditionInfo.ConditionType = AutoStartConditionType.None;
                 //    break;
             }
         }
@@ -405,7 +408,7 @@ namespace HyperDownloadManager.ViewModels.Download
 
         private bool ProcessError()
         {
-            if (this.ErrorOccurred)
+            if (this.model.IsErrorOccurred)
             {
                 if (CheckStreamStatus() == IoState.FileNotOpen)
                 {
@@ -423,12 +426,12 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         public async Task<bool> VerifyByRecursiveCheck()
         {
-            if (ioSupervisor.Resumable)
+            if (this.model.ResumeSupport && DownloadCore is IDownloadCore)
             {
                 long buff = NetworkUtility.BUFFERSIZE;
                 bool safeIntegrity = false;
                 int chunk = 1;
-                long chunks = ioSupervisor.fileStream.Length / buff;
+                long chunks = this.IOCore.FileSize / buff;
                 int maxChunk = 20;
                 Dictionary<int, byte[]> corruptedSegments = new Dictionary<int, byte[]>();
                 do
@@ -438,13 +441,13 @@ namespace HyperDownloadManager.ViewModels.Download
                         byte[] IOBuffer = new byte[buff];
                         int offset = -1;
                         //reading data from file:
-                        if (ioSupervisor.fileStream.Length <= chunk * buff)
+                        if (this.IOCore.FileSize <= chunk * buff)
                             offset = 0;
-                        else if (ioSupervisor.fileStream.Length > chunk * buff)
-                            offset = (int)Math.Clamp(ioSupervisor.fileStream.Length - (chunk * buff), int.MinValue, int.MaxValue);//ensure that no overflow occur in long to int conversion
+                        else if (this.IOCore.FileSize > chunk * buff)
+                            offset = (int)Math.Clamp(this.IOCore.FileSize - (chunk * buff), int.MinValue, int.MaxValue);//ensure that no overflow occur in long to int conversion
                         if (offset <= 0)
                             break; //the check process reached the eof
-                        IOBuffer = ioSupervisor.readFileBytes(offset, (int)buff);
+                        IOBuffer = this.IOCore.readFileBytes(offset, (int)buff);
                         byte[]? NetBuffer = new byte[buff];
                         NetBuffer = await DownloadCore.GetBytes(offset, (int)buff);
                         if (NetBuffer == null)
@@ -456,7 +459,7 @@ namespace HyperDownloadManager.ViewModels.Download
                         else
                         {
                             chunk += 1;
-                            DownloadViewModel.Current_Percent = IOUtility.CalculatePercent(chunk, chunks + 5);
+                            this.model.CurrentPercent = IOUtility.CalculatePercent(chunk, chunks + 5);
                             corruptedSegments.Add(chunk, NetBuffer);//adding the healthy chunk into list
                         }
                     }
@@ -469,20 +472,19 @@ namespace HyperDownloadManager.ViewModels.Download
                 //repairing byte chunks:
                 for (int i = 0; i < corruptedSegments.Count; i++)
                 {
-                    DownloadViewModel.Current_Percent = IOUtility.CalculatePercent(i + 5, corruptedSegments.Count + 5);
+                    this.model.CurrentPercent = IOUtility.CalculatePercent(i + 5, corruptedSegments.Count + 5);
                     var segment = corruptedSegments.ElementAt(i);
                     int _chunk = segment.Key;
                     byte[] healthyChunk = segment.Value;
                     if (healthyChunk != null)
                     {
                         int offset = 0;
-                        if (ioSupervisor.fileStream.Length <= _chunk * buff)
+                        if (this.IOCore.FileSize <= _chunk * buff)
                             offset = 0;
-                        else if (ioSupervisor.fileStream.Length > _chunk * buff)
-                            offset = (int)Math.Clamp(ioSupervisor.fileStream.Length - (_chunk * buff), int.MinValue, int.MaxValue);
-                        ioSupervisor.writeToFile(healthyChunk, offset, (int)buff);
+                        else if (this.IOCore.FileSize > _chunk * buff)
+                            offset = (int)Math.Clamp(this.IOCore.FileSize - (_chunk * buff), int.MinValue, int.MaxValue);
+                        this.IOCore.writeToFile(healthyChunk, offset, (int)buff);
                     }
-                    return true;
                 }
                 return true;
             }
@@ -495,10 +497,10 @@ namespace HyperDownloadManager.ViewModels.Download
 
         private void ShowDialog()
         {
-            GlobalSupervisor.DownloadPage.Dispatcher.Invoke(() =>
+            GlobalSupervisor.DownloadPage?.Dispatcher.Invoke(() =>
             {
-                DownloadFinishedDialog endDialog = new DownloadFinishedDialog(DownloadViewModel);
-                DialogManager.ShowDialog($"Finished: {DownloadViewModel.DownloadName}", endDialog, DialogMode.Window);
+                DownloadFinishedDialog endDialog = new DownloadFinishedDialog(this.model);
+                DialogManager.ShowDialog($"Finished: {this.model.DownloadName}", endDialog, DialogMode.Window);
             });
         }
         private async void Shutdown()
@@ -517,7 +519,10 @@ namespace HyperDownloadManager.ViewModels.Download
         {
             if (DownloadManager.GetUnworkingUncompleted() < 0)
             {
-                DownloadViewModel.Container.StartAllDownload();
+                if (this.model.Container is ContainerViewModel)
+                {
+                    this.model.Container.StartAllDownload();
+                }
             }
             else
             {
@@ -529,11 +534,11 @@ namespace HyperDownloadManager.ViewModels.Download
         private void DownloadCore_OnDataReceived(object? sender, Download.DataReceivedEventArgs e)
         {
             ReceivedBytes = e.ReceivedBytes;
-            DownloadViewModel.DownloadedSize = new UnitValue(ReceivedBytes);
-            DownloadViewModel.Current_Percent = IOUtility.CalculatePercent(e.ReceivedBytes, ioSupervisor.fileSize.OriginData);
+            this.model.DownloadedSize = new UnitValue(ReceivedBytes);
+            this.model.CurrentPercent = (float)(((float)e.ReceivedBytes / (float)e.DataLength) * 100);
             try
             {
-                this.ioSupervisor.writeToFile(e.Data, e.DataLength);
+                this.IOCore.writeToFile(e.Data, e.DataLength);
             }
             catch (Exception ex)
             {
@@ -567,13 +572,13 @@ namespace HyperDownloadManager.ViewModels.Download
         {
             try
             {
-                if ((DownloadViewModel?.Current_Speed.OriginData - LastReceivedBytes) > 100)
+                if ((this.model.CurrentSpeed.OriginData - LastReceivedBytes) > 100)
                 {
                     speedOn = true;
                     DateTime Std = DateTime.UtcNow;
-                    ioSupervisor.Ping = NetworkUtility.GetServerPing(ioSupervisor.Url.Host);
+                    this.model.Ping = NetworkUtility.GetServerPing(this.model.CurrentUrl);
                 }
-                LastReceivedBytes = DownloadViewModel.Current_Speed.OriginData;
+                LastReceivedBytes = this.model.CurrentSpeed.OriginData;
             }
             catch { }
         }
@@ -582,39 +587,42 @@ namespace HyperDownloadManager.ViewModels.Download
         {
             try
             {
-                long _speed = (ReceivedBytes - AgoReceivedBytes);
-                if (_speed == 0)
+                if (this.DownloadCore is IDownloadCore)
                 {
-                    speedLockTimes += 1;
-                    if (speedLockTimes >= 20)
+                    long _speed = (ReceivedBytes - AgoReceivedBytes);
+                    if (_speed == 0)
                     {
-                        if (this.DownloadCore.ResumeSupport)
+                        speedLockTimes += 1;
+                        if (speedLockTimes >= 20)
                         {
-                            this.Stop();
-                            this.Start(false);
+                            if (this.DownloadCore.ResumeSupport)
+                            {
+                                this.Stop();
+                                this.Start(false);
+                            }
                         }
                     }
+                    else
+                    {
+                        speedLockTimes = 0;
+                    }
+                    currentSpeed = _speed;
+                    AgoReceivedBytes = ReceivedBytes;
+                    this.model.ElapsedTime = ElapsedStopWatch.Elapsed;
+                    this.model.CurrentSpeed = new UnitValue(currentSpeed);
+                    int remainTime = (int)((this.model.FileSize.OriginData / currentSpeed) - (ReceivedBytes / currentSpeed));
+                    if (speedOn)
+                    {
+                        DateTime Std = DateTime.UtcNow;
+                        End = Std.AddSeconds(remainTime);
+                    }
+                    TimeSpan remainingTime = End - DateTime.UtcNow;
+                    if (remainingTime >= TimeSpan.Zero)
+                    {
+                        this.model.RemainingTime = remainingTime;
+                    }
+                    this.model.DetailPage?.ChartUpdate();
                 }
-                else
-                {
-                    speedLockTimes = 0;
-                }
-                currentSpeed = _speed;
-                AgoReceivedBytes = ReceivedBytes;
-                DownloadViewModel.ElapsedTime = ElapsedStopWatch.Elapsed;
-                DownloadViewModel.Current_Speed = new UnitValue(currentSpeed);
-                int remainTime = (int)((DownloadViewModel.FileSize.Value.OriginData / currentSpeed) - (ReceivedBytes / currentSpeed));
-                if (speedOn)
-                {
-                    DateTime Std = DateTime.UtcNow;
-                    End = Std.AddSeconds(remainTime);
-                }
-                TimeSpan remainingTime = End - DateTime.UtcNow;
-                if (remainingTime >= TimeSpan.Zero)
-                {
-                    DownloadViewModel.RemainingTime = remainingTime;
-                }
-                DownloadViewModel.DetailPage.ChartUpdate();
             }
             catch { }
         }
@@ -622,11 +630,11 @@ namespace HyperDownloadManager.ViewModels.Download
         #region Notifications
         public async void AlertUser(string message, MessageLevel level, bool notify = false, bool log = true)
         {
-            string Message = $"{level}, Download name: {DownloadViewModel.DownloadName}, {message}";
+            string Message = $"{level}, Download name: {this.model.DownloadName}, {message}";
             if (level == MessageLevel.Error)
             {
-                this.ErrorOccurred = true;
-                this.LastException = message;
+                this.model.IsErrorOccurred = true;
+                this.model.ErrorMessage = message;
             }
             if (notify)
                 await DialogManager.ShowMessageBox(Message, level, ButtonOrder.OK);
