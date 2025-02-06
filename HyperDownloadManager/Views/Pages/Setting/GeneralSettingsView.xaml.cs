@@ -28,19 +28,19 @@ namespace HyperDownloadManager.Views.Pages.Setting
     /// </summary>
     public partial class GeneralSettingsView : Page
     {
-        GeneralSettingsViewModel viewModel;
-        GeneralSettingsViewModel preSaveViewModel = new GeneralSettingsViewModel();
+        GeneralSettingsViewModel model = new GeneralSettingsViewModel();
+        GeneralSettingsViewModel tempModel = new GeneralSettingsViewModel();
         int dragContainerId = 0;
-        public GeneralSettingsView(GeneralSettingsViewModel model)
+        public GeneralSettingsView(GeneralSettingsViewModel viewModel)
         {
             InitializeComponent();
-            viewModel = model;
-            DataContext = viewModel;
+            this.model = viewModel;
+            this.DataContext = this.model;
             UpdateComboBoxes();
         }
         private void UpdateComboBoxes()
         {
-            switch (viewModel.MinUnitPrefix)
+            switch (this.model.MinUnitPrefix)
             {
                 case Unit.Byte:
                     MinUnit.SelectedIndex = 0;
@@ -58,7 +58,7 @@ namespace HyperDownloadManager.Views.Pages.Setting
                     MinUnit.SelectedIndex = 4;
                     break;
             }
-            switch (viewModel.DragState)
+            switch (this.model.DragState)
             {
                 case DownloadState.Downloading:
                     dragEvent.SelectedIndex = 0;
@@ -69,7 +69,7 @@ namespace HyperDownloadManager.Views.Pages.Setting
             }
             foreach (ContainerViewModel containerViewModel in ContainerManager.Containers)
             {
-                dragContainer.Items.Add(new ComboBoxItem() { Content = containerViewModel.Name, Tag = containerViewModel.Id, IsSelected = containerViewModel.Id == viewModel.DragContainer });
+                dragContainer.Items.Add(new ComboBoxItem() { Content = containerViewModel.Name, Tag = containerViewModel.Id, IsSelected = containerViewModel.Id == this.model.DragContainer });
             }
         }
         private void MinUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -77,19 +77,19 @@ namespace HyperDownloadManager.Views.Pages.Setting
             switch (MinUnit.SelectedIndex)
             {
                 case 0:
-                    preSaveViewModel.MinUnitPrefix = Unit.Byte;
+                    this.tempModel.MinUnitPrefix = Unit.Byte;
                     break;
                 case 1:
-                    preSaveViewModel.MinUnitPrefix = Unit.Kb;
+                    this.tempModel.MinUnitPrefix = Unit.Kb;
                     break;
                 case 2:
-                    preSaveViewModel.MinUnitPrefix = Unit.Mb;
+                    this.tempModel.MinUnitPrefix = Unit.Mb;
                     break;
                 case 3:
-                    preSaveViewModel.MinUnitPrefix = Unit.Gb;
+                    this.tempModel.MinUnitPrefix = Unit.Gb;
                     break;
                 case 4:
-                    preSaveViewModel.MinUnitPrefix = Unit.Tb;
+                    this.tempModel.MinUnitPrefix = Unit.Tb;
                     break;
             }
         }
@@ -99,10 +99,10 @@ namespace HyperDownloadManager.Views.Pages.Setting
             switch (dragEvent.SelectedIndex)
             {
                 case 0:
-                    preSaveViewModel.DragState = DownloadState.Downloading;
+                    this.tempModel.DragState = DownloadState.Downloading;
                     break;
                 case 1:
-                    preSaveViewModel.DragState = DownloadState.Paused;
+                    this.tempModel.DragState = DownloadState.Paused;
                     break;
             }
         }
@@ -113,18 +113,19 @@ namespace HyperDownloadManager.Views.Pages.Setting
         }
         private void ChangeDownloadFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.FolderBrowserDialog fbDialog = new System.Windows.Forms.FolderBrowserDialog();
-            if (fbDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            FolderBrowserDialog fbDialog = new FolderBrowserDialog();
+            if (fbDialog.ShowDialog() == DialogResult.OK)
             {
-                preSaveViewModel.DefaultDownloadFolder = fbDialog.SelectedPath;
+                this.tempModel.DefaultDownloadFolder = fbDialog.SelectedPath;
             }
         }
         #region ControlPanelFunctions
         public async void Restore()
         {
-            if (await DialogManager.ShowMessageBox("Do you want to reset the (General Settings)?", MessageLevel.Warning, ButtonOrder.YESNO, true) == MessageBoxStatus.YES)
+            if (await DialogManager.ShowMessageBox("Do you want to reset General settings?", MessageLevel.Warning, ButtonOrder.YESNO, true) == MessageBoxStatus.YES)
             {
-                SettingSupervisor.SaveGeneralSettings(new GeneralSettingsViewModel());
+                SettingSupervisor.GeneralSettings = new GeneralSettingsViewModel();
+                SettingSupervisor.SaveGeneralSettings();
                 UpdateComboBoxes();
             }
         }
@@ -138,21 +139,21 @@ namespace HyperDownloadManager.Views.Pages.Setting
                 }
                 else
                 {
-                    preSaveViewModel.DragContainer = this.dragContainerId;
+                    this.tempModel.DragContainer = this.dragContainerId;
                 }
-                preSaveViewModel.LogInMain = showlogcheck.IsChecked.Value;
-                preSaveViewModel.UseChart = usechartcheck.IsChecked.Value;
-                preSaveViewModel.NotifyOnState = shownotificationcheck.IsChecked.Value;
-                preSaveViewModel.TopMost = topmostcheck.IsChecked.Value;
-                preSaveViewModel.StartUp = startupcheck.IsChecked.Value;
-                preSaveViewModel.RunInBack = runinbackcheck.IsChecked.Value;
-                preSaveViewModel.AutoUrlClip = autourlproccheck.IsChecked.Value;
-                preSaveViewModel.MaxClipDownloadSize = int.Parse(maxClipSizeText.Text);
-                preSaveViewModel.UseBit = useBitMeasurement.IsChecked.Value;
-                preSaveViewModel.SaveTemp = tempdownloadcheck.IsChecked.Value;
-                preSaveViewModel.AllowDrag = allowDragCheck.IsChecked.Value;
-                preSaveViewModel.DragContainer = (int)((dragContainer.SelectedItem as ComboBoxItem).Tag);
-                SettingSupervisor.SaveGeneralSettings(preSaveViewModel);
+                this.tempModel.LogInMain = showlogcheck.IsChecked ?? false;
+                this.tempModel.UseChart = usechartcheck.IsChecked ?? false;
+                this.tempModel.NotifyOnState = shownotificationcheck.IsChecked ?? false;
+                this.tempModel.TopMost = topmostcheck.IsChecked ?? false;
+                this.tempModel.StartUp = startupcheck.IsChecked ?? false;
+                this.tempModel.RunInBack = runinbackcheck.IsChecked ?? false;
+                this.tempModel.UseBit = useBitMeasurement.IsChecked ?? false;
+                this.tempModel.SaveTemp = tempdownloadcheck.IsChecked ?? false;
+                this.tempModel.AllowDrag = allowDragCheck.IsChecked ?? false;
+                if(dragContainer.SelectedItem is ComboBoxItem item)
+                    this.tempModel.DragContainer = (int)(item.Tag);
+                SettingSupervisor.GeneralSettings = tempModel;
+                SettingSupervisor.SaveGeneralSettings();
                 await DialogManager.ShowMessageBox("Settings Updated Successfully!", MessageLevel.Info, ButtonOrder.OK, false);
             }
             catch (Exception ex)

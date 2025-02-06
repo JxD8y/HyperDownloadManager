@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
 using HyperDownloadManager.Repository;
+using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.Download.DownloadCore;
 using HyperDownloadManager.ViewModels.Proxy;
 using LiteDB;
@@ -15,12 +17,12 @@ namespace HyperDownloadManager.ViewModels.Settings
 {
     public static class SettingSupervisor
     {
-        private static int clipBoardMaxSize = 0;
-        public static GeneralSettingsViewModel? GeneralSettings { get; set; } = new GeneralSettingsViewModel();
-        public static NetworkSettingsViewModel? NetworkSetting { get; set; } = new NetworkSettingsViewModel();
-        public static ThemeSettingsViewModel? ThemeSetting { get; set; } = new ThemeSettingsViewModel();
-        public static event EventHandler<EventArgs>? OnSettingsChanged;
-        #region SettingTasks
+        public static GeneralSettingsViewModel GeneralSettings { get; set; } = new GeneralSettingsViewModel();
+        public static NetworkSettingsViewModel NetworkSetting { get; set; } = new NetworkSettingsViewModel();
+        public static ThemeSettingsViewModel ThemeSetting { get; set; } = new ThemeSettingsViewModel();
+
+        public static event EventHandler<EventArgs?>? OnSettingsChanged;
+
         public static void SetStartupState(bool state)
         {
             try
@@ -31,50 +33,25 @@ namespace HyperDownloadManager.ViewModels.Settings
                     if (state)
                     {
                         string path = System.Windows.Forms.Application.ExecutablePath;
-                        registryKey?.SetValue("DeepDownload", path);
+                        registryKey?.SetValue("HyperDownloadManager", path);
                     }
                     else
                     {
-                        if (registryKey.GetValue("DeepDownload") != null)
+                        if (registryKey?.GetValue("HyperDownloadManager") != null)
                         {
-                            registryKey?.DeleteValue("DeepDownload");
+                            registryKey?.DeleteValue("HyperDownloadManager");
                         }
                     }
                 }
             }
             catch (Exception ex) { LogManager.Log(MessageLevel.Error, LogSection.Download, $"Fail to set startup state: {ex.Message}", true); }
         }
-        public static void AutoCheckClipboard(int maxSize, bool state)
-        {
-
-        }
-        public static void RestoreDefaultNetworkSettings()
-        {
-            NetworkSetting = new NetworkSettingsViewModel();
-            NetworkSetting.BufferSize = 2042;
-            NetworkSetting.MaxConnectionsPreServer = 1;
-            NetworkSetting.EnsureSiteReturn200 = true;
-            NetworkSetting.ResumeAfterError = true;
-            NetworkSetting.MaxBytePreSecond = 1;
-            NetworkSetting.DefaultHeaders = CoreFactory.NecessaryHeaders.FirstOrDefault();
-            NetworkSetting.ProxyViewModel = new ProxyViewModel();
-            NetworkSetting.Id = new BsonValue(Guid.NewGuid());
-        }
-        public static void RestoreDefaultThemeSettings()
-        {
-            ThemeSetting = new ThemeSettingsViewModel();
-            ThemeSetting.DarkMode = true;
-            ThemeSetting.Id = new BsonValue(Guid.NewGuid());
-        }
-        #endregion
-        #region SettingRepo
         public static void LoadSettings()
         {
             LoadGeneralSettings();
             LoadNetSettings();
             LoadThemeSettings();
         }
-        #region GeneralSettings
         public static void LoadGeneralSettings()
         {
             var List = LitedbRepo<GeneralSettingsViewModel>.Get(LitedbRepo<GeneralSettingsViewModel>.GeneralSettingsColName);
@@ -82,11 +59,11 @@ namespace HyperDownloadManager.ViewModels.Settings
             {
                 if (List.Count > 0)
                 {
-                    GeneralSettings = List.FirstOrDefault();
+                    GeneralSettings = List[0];
                 }
                 else
                 {
-                    SaveGeneralSettings(new GeneralSettingsViewModel());
+                    SaveGeneralSettings();
                 }
             }
             catch (Exception ex)
@@ -94,46 +71,45 @@ namespace HyperDownloadManager.ViewModels.Settings
                 LogManager.Log(MessageLevel.Error, LogSection.Setting, $"Fail to load GeneralSettings: {ex.Message}");
             }
         }
-        public static void SaveGeneralSettings(GeneralSettingsViewModel viewModel)
+        public static void SaveGeneralSettings()
         {
             try
             {
-                if (viewModel != null)
+                if (GeneralSettings == null)
+                    GeneralSettings = new GeneralSettingsViewModel();
+
+                var generalSettings = LitedbRepo<GeneralSettingsViewModel>.Get(LitedbRepo<GeneralSettingsViewModel>.GeneralSettingsColName);
+                if (generalSettings.Count == 0)
                 {
-                    var generalSettings = LitedbRepo<GeneralSettingsViewModel>.Get(LitedbRepo<GeneralSettingsViewModel>.GeneralSettingsColName);
-                    if (generalSettings.Count == 0)
-                    {
-                        BsonValue? id = LitedbRepo<GeneralSettingsViewModel>.Add(viewModel, LitedbRepo<GeneralSettingsViewModel>.GeneralSettingsColName);
-                    }
-                    else
-                    {
-                        LitedbRepo<GeneralSettingsViewModel>.Update(GeneralSettings.Id, viewModel, LitedbRepo<GeneralSettingsViewModel>.GeneralSettingsColName);
-                    }
-                    GeneralSettings = viewModel;
-                    if (OnSettingsChanged != null)
-                        OnSettingsChanged(viewModel, null);
+                    LitedbRepo<GeneralSettingsViewModel>.Add(GeneralSettings, LitedbRepo<GeneralSettingsViewModel>.GeneralSettingsColName);
                 }
-                else { SaveGeneralSettings(new GeneralSettingsViewModel()); }
+                else
+                {
+                    if (GeneralSettings.Id != null)
+                        LitedbRepo<GeneralSettingsViewModel>.Update(GeneralSettings.Id, GeneralSettings, LitedbRepo<GeneralSettingsViewModel>.GeneralSettingsColName);
+                    else
+                        throw new Exception("General Setting id was null");
+                }
+                GeneralSettings = GeneralSettings;
+                if (OnSettingsChanged != null)
+                    OnSettingsChanged(GeneralSettings, null);
             }
             catch (Exception ex)
             {
                 LogManager.Log(MessageLevel.Error, LogSection.Setting, $"Fail to save GeneralSettings: {ex.Message}");
             }
         }
-        #endregion
-        #region NetSettingLoader
         public static void LoadNetSettings()
         {
-            List<NetworkSettingsViewModel> _gs = LitedbRepo<NetworkSettingsViewModel>.Get(LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
+            List<NetworkSettingsViewModel> list = LitedbRepo<NetworkSettingsViewModel>.Get(LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
             try
             {
-                if (_gs.Count() > 0)
+                if (list.Count() > 0)
                 {
-                    NetworkSetting = _gs.First();
+                    NetworkSetting = list[0];
                 }
                 else
                 {
-                    RestoreDefaultNetworkSettings();
                     SaveNetSettings();
                 }
             }
@@ -141,47 +117,38 @@ namespace HyperDownloadManager.ViewModels.Settings
         }
         public static void SaveNetSettings()
         {
-            if (NetworkSetting != null)
-            {
-                try
-                {
-                    var netsetting = LitedbRepo<NetworkSettingsViewModel>.Get(LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
-                    if (netsetting.Count == 0)
-                    {
-                        LiteDB.BsonValue id = LitedbRepo<NetworkSettingsViewModel>.Add(NetworkSetting, LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
-                    }
-                    else
-                    {
-                        LitedbRepo<NetworkSettingsViewModel>.Update(NetworkSetting.Id, NetworkSetting, LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
-                    }
-                }
-                catch (Exception ex) { LogManager.Log(MessageLevel.Error, LogSection.Setting, $"Fail to Save NetSettings: {ex.Message}"); }
-            }
-            else { LoadNetSettings(); SaveNetSettings(); }
-        }
-        #endregion
-        #region ThemeSettingLoader
-        public static void LoadThemeSettings()
-        {
-            List<ThemeSettingsViewModel> _gs = LitedbRepo<ThemeSettingsViewModel>.Get(LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
             try
             {
-                if (_gs.Count() > 0)
+                if (NetworkSetting == null)
+                    NetworkSetting = new NetworkSettingsViewModel();
+
+                var netSettings = LitedbRepo<NetworkSettingsViewModel>.Get(LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
+                if (netSettings.Count == 0)
                 {
-                    ThemeSetting.DarkMode = _gs.First().DarkMode;
-                    ThemeSetting.Id = _gs.First().Id;
-                    if (ThemeSetting.DarkMode)
-                    {
-                        ThemeSetting.ToDark(true);
-                    }
-                    else
-                    {
-                        ThemeSetting.ToLight(true);
-                    }
+                    LitedbRepo<NetworkSettingsViewModel>.Add(NetworkSetting, LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
                 }
                 else
                 {
-                    RestoreDefaultThemeSettings();
+                    if(NetworkSetting.Id != null)
+                        LitedbRepo<NetworkSettingsViewModel>.Update(NetworkSetting.Id, NetworkSetting, LitedbRepo<NetworkSettingsViewModel>.NetSettingsColName);
+                    else
+                        throw new Exception("Network Setting id was null");
+                }
+            }
+            catch (Exception ex) { LogManager.Log(MessageLevel.Error, LogSection.Setting, $"Fail to Save Network Settings: {ex.Message}"); }
+        }
+        public static void LoadThemeSettings()
+        {
+            List<ThemeSettingsViewModel> list = LitedbRepo<ThemeSettingsViewModel>.Get(LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
+            try
+            {
+                if (list.Count() > 0)
+                {
+                    ThemeSetting = list[0];
+                    ThemeSetting.ApplyTheme();
+                }
+                else
+                {
                     SaveThemeSettings();
                 }
             }
@@ -189,25 +156,25 @@ namespace HyperDownloadManager.ViewModels.Settings
         }
         public static void SaveThemeSettings()
         {
-            if (ThemeSetting != null)
-            {
                 try
                 {
-                    var themesetting = LitedbRepo<ThemeSettingsViewModel>.Get(LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
-                    if (themesetting.Count == 0)
+                    if (ThemeSetting == null)
+                        ThemeSetting = new ThemeSettingsViewModel();
+
+                    var themeSetting = LitedbRepo<ThemeSettingsViewModel>.Get(LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
+                    if (themeSetting.Count == 0)
                     {
-                        LiteDB.BsonValue id = LitedbRepo<ThemeSettingsViewModel>.Add(ThemeSetting, LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
+                        LitedbRepo<ThemeSettingsViewModel>.Add(ThemeSetting, LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
                     }
                     else
                     {
-                        LitedbRepo<ThemeSettingsViewModel>.Update(ThemeSetting.Id, ThemeSetting, LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
+                        if(ThemeSetting.Id != null)
+                            LitedbRepo<ThemeSettingsViewModel>.Update(ThemeSetting.Id, ThemeSetting, LitedbRepo<ThemeSettingsViewModel>.ThemeSettingsColName);
+                        else
+                            throw new Exception("Theme Setting id was null");
                     }
                 }
                 catch (Exception ex) { LogManager.Log(MessageLevel.Error, LogSection.Setting, $"Fail to Save ThemeSettings: {ex.Message}"); }
-            }
-            else { LoadThemeSettings(); SaveThemeSettings(); }
         }
-        #endregion
-        #endregion
     }
 }

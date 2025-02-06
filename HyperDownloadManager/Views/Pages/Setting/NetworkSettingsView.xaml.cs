@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using HyperDownloadManager.Dialogs;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
+using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.DataUnit;
 using HyperDownloadManager.ViewModels.Download.DownloadCore;
 using HyperDownloadManager.ViewModels.Proxy;
@@ -26,26 +27,23 @@ namespace HyperDownloadManager.Views.Pages.Setting
     /// </summary>
     public partial class NetworkSettingsView : Page
     {
-        NetworkSettingsViewModel viewmodel = null;
-        public NetworkSettingsView(NetworkSettingsViewModel model)
+        NetworkSettingsViewModel model = new NetworkSettingsViewModel();
+        public NetworkSettingsView(NetworkSettingsViewModel viewModel)
         {
             InitializeComponent();
-            viewmodel = model;
-            DataContext = model;
+            model = viewModel;
+            this.DataContext = this.model;
         }
-        private void headerresetbut_Click(object sender, RoutedEventArgs e)
+        private void HeaderReset_Click(object sender, RoutedEventArgs e)
         {
-            foreach (string line in CoreFactory.NecessaryHeaders)
-            {
-                this.viewmodel.AddHeader(line);
-            }
+            this.model.Headers = NetworkUtility.ListToString(CoreFactory.NecessaryHeaders);
         }
 
         public async void Restore()
         {
-            if (await DialogManager.ShowMessageBox("Do you want to Restore the Network Settings?", MessageLevel.Warning, ButtonOrder.YESNO, true) == MessageBoxStatus.YES)
+            if (await DialogManager.ShowMessageBox("Do you want to reset the Network settings?", MessageLevel.Warning, ButtonOrder.YESNO, true) == MessageBoxStatus.YES)
             {
-                SettingSupervisor.LoadNetSettings();
+                SettingSupervisor.NetworkSetting = new NetworkSettingsViewModel(); 
                 SettingSupervisor.SaveNetSettings();
             }
         }
@@ -54,23 +52,23 @@ namespace HyperDownloadManager.Views.Pages.Setting
         {
             if (this.proxyType.SelectedIndex == 0)
             {
-                this.viewmodel.ProxyViewModel.ProxyType = ProxyType.None;
+                this.model.ProxyViewModel.ProxyType = ProxyType.None;
             }
             else
             {
                 switch (this.proxyType.SelectedIndex)
                 {
                     case 1:
-                        this.viewmodel.ProxyViewModel.ProxyType = ProxyType.Http;
+                        this.model.ProxyViewModel.ProxyType = ProxyType.Http;
                         break;
                     case 2:
-                        this.viewmodel.ProxyViewModel.ProxyType = ProxyType.Socks4;
+                        this.model.ProxyViewModel.ProxyType = ProxyType.Socks4;
                         break;
                     case 3:
-                        this.viewmodel.ProxyViewModel.ProxyType = ProxyType.Socks5;
+                        this.model.ProxyViewModel.ProxyType = ProxyType.Socks5;
                         break;
                 }
-                this.viewmodel.ProxyViewModel = new ProxyViewModel()
+                this.model.ProxyViewModel = new ProxyViewModel()
                 {
                     ProxyAddress = proxyHost.Text,
                     Port = Convert.ToUInt32(proxyPort.Text),
@@ -78,30 +76,27 @@ namespace HyperDownloadManager.Views.Pages.Setting
                     Pass = proxypass.Text
                 };
             }
-            this.viewmodel.DefaultHeaders = "";
-            if (defheadertext.Text != "")
+            this.model.Headers = "";
+            if (this.headers.Text != "")
             {
-                foreach (string line in defheadertext.Text.Split('\n'))
+                foreach (string line in this.headers.Text.Split('\n'))
                 {
-                    this.viewmodel.AddHeader(line);
-                }//TODO
-            }
-            else
-            {
-                foreach (string line in CoreFactory.Headers)
-                {
-                    this.viewmodel.AddHeader(line);
+                    this.model.AddHeader(line);
                 }
             }
-            this.viewmodel.EnsureSiteReturn200 = this.site200check.IsChecked.Value;
-            this.viewmodel.ResumeAfterError = this.autoresumcheck.IsChecked.Value;
-            this.viewmodel.MaxConnectionsPreServer = Convert.ToUInt32(this.Connectionspreserver.Text);
-            if (Convert.ToUInt32(maxspeed.Text) != 1)
-                this.viewmodel.MaxBytePreSecond = (uint)UnitConverter.ConvertToByte(Unit.Kb, Convert.ToUInt32(maxspeed.Text));
             else
-                this.viewmodel.MaxBytePreSecond = 1;
+            {
+                this.model.Headers = NetworkUtility.ListToString(CoreFactory.NecessaryHeaders);
+            }
+            this.model.EnsureSiteReturn200 = this.site200check.IsChecked ?? false;
+            this.model.ResumeAfterError = this.autoresumcheck.IsChecked ?? false;
+            this.model.MaxConnectionsPreServer = Convert.ToUInt32(this.Connectionspreserver.Text);
+            if (Convert.ToUInt32(maxspeed.Text) != 1)
+                this.model.MaxBytePreSecond = (uint)UnitConverter.ConvertToByte(Unit.Kb, Convert.ToUInt32(maxspeed.Text));
+            else
+                this.model.MaxBytePreSecond = 1;
             SettingSupervisor.SaveNetSettings();
-            await DialogManager.ShowMessageBox("Network Settings Updated Successfully!", MessageLevel.Info, ButtonOrder.OK, false);
+            await DialogManager.ShowMessageBox("Network settings updated successfully!", MessageLevel.Info, ButtonOrder.OK, false);
         }
     }
 }

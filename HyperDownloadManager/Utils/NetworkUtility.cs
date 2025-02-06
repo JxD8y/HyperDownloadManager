@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
@@ -107,7 +108,15 @@ namespace HyperDownloadManager.Utils
                 return -1;
             }
         }
-
+        public static string ListToString(List<string> list)
+        {
+            string merged = "";
+            foreach(string item in list)
+            {
+                merged += item + '\n';
+            }
+            return merged;
+        }
         internal static bool CheckProxy(ProxyViewModel proxyViewModel)
         {
             throw new NotImplementedException();

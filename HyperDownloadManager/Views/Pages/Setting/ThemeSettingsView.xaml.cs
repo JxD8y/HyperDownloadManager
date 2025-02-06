@@ -22,21 +22,23 @@ namespace HyperDownloadManager.Views.Pages.Setting
     /// </summary>
     public partial class ThemeSettingsView : Page
     {
-        ThemeSettingsViewModel SettingView = null;
-        public ThemeSettingsView(ThemeSettingsViewModel model)
+        ThemeSettingsViewModel model = new ThemeSettingsViewModel();
+        public ThemeSettingsView(ThemeSettingsViewModel viewModel)
         {
             InitializeComponent();
-            SettingView = model;
-            DataContext = SettingView;
+            this.model = viewModel;
+            this.DataContext = model;
         }
         private void night_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            SettingView.ToDark();
+            this.model.ThemeMode = HDMTheme.Dark;
+            this.model.ApplyTheme();
         }
 
         private void day_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            SettingView.ToLight();
+            this.model.ThemeMode = HDMTheme.Light;
+            this.model.ApplyTheme();
         }
     }
 }

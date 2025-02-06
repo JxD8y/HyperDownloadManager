@@ -12,55 +12,37 @@ namespace HyperDownloadManager.ViewModels.Settings
 {
     public class ThemeSettingsViewModel : ViewModel
     {
-        private bool _dark = true;
+
+        private HDMTheme theme = HDMTheme.Dark;
+        public ThemeSettingsViewModel()
+        {
+            this.ThemeMode = HDMTheme.Dark;
+            this.Id = new BsonValue(Guid.NewGuid());
+        }
 
         [BsonIgnore]
         public static Theme LightTheme = new Theme("CustomLight", "CustomLight", "Light", "White", (Color)Application.Current.Resources["WBackgroundColor"], (Brush)Application.Current.Resources["BackgroundBrush"], true, false);
         [BsonIgnore]
         public static Theme DarkTheme = new Theme("CustomDark", "CustomDark", "Dark", "Black", (Color)Application.Current.Resources["DObsoleteColor"], (Brush)Application.Current.Resources["DObsoleteBrush"], true, false);
-        public bool DarkMode { get { return _dark; } set { _dark = value; OnPropertyChanged(); } }
+        public HDMTheme ThemeMode { get { return theme; } set { theme = value; OnPropertyChanged(); } }
         [BsonIgnore]
         public Theme CurrentTheme { get; set; } = DarkTheme;
         [BsonId]
-        public BsonValue Id { get; set; }
+        public BsonValue? Id { get; set; }
 
-        public void ToDark(bool warmup = false) //Theme switch is changed !
+        public void ApplyTheme()
         {
-            Application.Current.Resources["BorderBrush"] = new SolidColorBrush((Color)Application.Current.Resources["DBorderColor"]);
-            Application.Current.Resources["BackgroundBrush"] = new SolidColorBrush((Color)Application.Current.Resources["DBackgroundColor"]);
-            Application.Current.Resources["ForegroundBrush"] = new SolidColorBrush((Color)Application.Current.Resources["DForegroundColor"]);
-            Application.Current.Resources["SecondaryBrush"] = new SolidColorBrush((Color)Application.Current.Resources["DSecondryColor"]);
-            Application.Current.Resources["PrimaryBrush"] = new SolidColorBrush((Color)Application.Current.Resources["DPrimaryColor"]);
-            Application.Current.Resources["BoxBrush"] = new SolidColorBrush((Color)Application.Current.Resources["DBoxColor"]);
-            Application.Current.Resources["ObsoleteBrush"] = new SolidColorBrush((Color)Application.Current.Resources["DObsoleteColor"]);
-            Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)Application.Current.Resources["AccentColor"]);
-            DarkMode = true;
-            CurrentTheme = DarkTheme;
-            if (!warmup)
+            ResourceDictionary themeResource = new ResourceDictionary();
+            switch (this.ThemeMode)
             {
-                ThemeManager.Current.ChangeTheme(Application.Current, CurrentTheme);
-                SettingSupervisor.SaveThemeSettings();
-                GlobalSupervisor.SettingsPage.UpdateLabelsColor();
+                case HDMTheme.Dark:
+                    themeResource.Source = new Uri("Themes/DarkTheme.xaml");
+                    break;
+                case HDMTheme.Light:
+                    themeResource.Source = new Uri("Themes/LightTheme.xaml");
+                    break;
             }
-        }
-        public void ToLight(bool warmup = false)
-        {
-            Application.Current.Resources["BorderBrush"] = new SolidColorBrush((Color)Application.Current.Resources["WBorderColor"]);
-            Application.Current.Resources["BackgroundBrush"] = new SolidColorBrush((Color)Application.Current.Resources["WBackgroundColor"]);
-            Application.Current.Resources["ForegroundBrush"] = new SolidColorBrush((Color)Application.Current.Resources["WForegroundColor"]);
-            Application.Current.Resources["SecondaryBrush"] = new SolidColorBrush((Color)Application.Current.Resources["WSecondryColor"]);
-            Application.Current.Resources["PrimaryBrush"] = new SolidColorBrush((Color)Application.Current.Resources["WPrimaryColor"]);
-            Application.Current.Resources["BoxBrush"] = new SolidColorBrush((Color)Application.Current.Resources["WBoxColor"]);
-            Application.Current.Resources["ObsoleteBrush"] = new SolidColorBrush((Color)Application.Current.Resources["WObsoleteColor"]);
-            Application.Current.Resources["AccentBrush"] = new SolidColorBrush((Color)Application.Current.Resources["AccentColor"]);
-            DarkMode = false;
-            CurrentTheme = LightTheme;
-            if (!warmup)
-            {
-                ThemeManager.Current.ChangeTheme(Application.Current, CurrentTheme);
-                SettingSupervisor.SaveThemeSettings();
-                GlobalSupervisor.SettingsPage.UpdateLabelsColor();
-            }
+            Application.Current.Resources[0] = themeResource;
         }
     }
 }

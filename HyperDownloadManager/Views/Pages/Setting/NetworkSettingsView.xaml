@@ -35,8 +35,8 @@
             <Label Content="Https Configuration"/>
         </StackPanel>
         <StackPanel Margin="10 5 0 0" Orientation="Vertical">
-            <HDMControls:LabelTextBox Text="{Binding DefaultHeaders}" HelperContent="Headers" Margin="5 10 10 0" Height="200" x:Name="defheadertext"/>
-            <Button Content="Reset to Default" Margin="5 10 10 0" x:Name="headerresetbut" Click="headerresetbut_Click"/>
+            <HDMControls:LabelTextBox Text="{Binding Headers}" HelperContent="Headers" Margin="5 10 10 0" Height="200" x:Name="headers"/>
+            <Button Content="Reset to Default" Margin="5 10 10 0" x:Name="headerReset" Click="HeaderReset_Click"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
             <Label Content="{xico:Material Kind=Earth}"/>
