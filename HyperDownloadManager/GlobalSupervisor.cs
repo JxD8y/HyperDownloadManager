@@ -14,6 +14,7 @@ using HyperDownloadManager.ViewModels;
 using HyperDownloadManager.Log;
 using HyperDownloadManager.ViewModels.Download.Container;
 using HyperDownloadManager.ViewModels.Download;
+using System.Runtime.CompilerServices;
 
 namespace HyperDownloadManager
 {
@@ -34,16 +35,16 @@ namespace HyperDownloadManager
         public static Downloads? DownloadPage { get; set; }
         public static Settings? SettingsPage { get; set; }
         public static DialogBox? CurrentShowingDialog { get; set; }
-        public static Logs? Logpage { get; set; }
+        public static Logs? LogPage { get; set; }
         public static Info? InfoPage { get; set; }
-        public static MainWindow? mainwindow { get; set; }
-        public static GeneralSettingsViewModel? GeneralSettingsViewModel { get { return SettingSupervisor.GeneralSettings; } }
-        public static NetworkSettingsViewModel? NetworkSettingsViewModel { get { return SettingSupervisor.NetworkSetting; } }
-        public static ThemeSettingsViewModel? ThemeSettingsViewModel { get { return SettingSupervisor.ThemeSetting; } }
-        public static GeneralSettingsView? GeneralSettingPage { get; set; }
-        public static NetworkSettingsView? NetworkSettingPage { get; set; }
-        public static ThemeSettingsView? ThemeSettingsPage { get; set; }
-        public static MainViewModel? MainViewModel { get; set; } = new MainViewModel();
+        public static MainWindow MainWindow { get; set; } = new MainWindow();
+        public static GeneralSettingsViewModel GeneralSettingsViewModel { get { return SettingSupervisor.GeneralSettings; } }
+        public static NetworkSettingsViewModel NetworkSettingsViewModel { get { return SettingSupervisor.NetworkSetting; } }
+        public static ThemeSettingsViewModel ThemeSettingsViewModel { get { return SettingSupervisor.ThemeSetting; } }
+        public static GeneralSettingsView GeneralSettingPage { get; set; } = new GeneralSettingsView(GeneralSettingsViewModel);
+        public static NetworkSettingsView NetworkSettingPage { get; set; } = new NetworkSettingsView(NetworkSettingsViewModel);
+        public static ThemeSettingsView ThemeSettingsPage { get; set; } = new ThemeSettingsView(ThemeSettingsViewModel);
+        public static MainViewModel MainViewModel { get; set; } = new MainViewModel();
 
         private static Random Random = new Random();
         public static int GetRandom(int max, int min = 0)
@@ -55,16 +56,13 @@ namespace HyperDownloadManager
             try
             {
                 PathManager.CreateDirs();
-                Logpage = new Logs();
+                LogPage = new Logs();
                 LogManager.Load_Logs(PathManager.GetPathDirectoryInfo("Logs"));
                 SettingSupervisor.LoadSettings();
                 InfoPage = new Info();
                 ContainerManager.LoadContainers();
                 DownloadManager.LoadDownloads();
                 DownloadPage = new Downloads();
-                NetworkSettingPage = new NetworkSettingsView(NetworkSettingsViewModel);
-                GeneralSettingPage = new GeneralSettingsView(GeneralSettingsViewModel);
-                ThemeSettingsPage = new ThemeSettingsView(ThemeSettingsViewModel);
                 SettingsPage = new Settings();
                 LogManager.Log(MessageLevel.Info, LogSection.Init, "Initialization Completed");
             }

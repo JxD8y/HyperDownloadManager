@@ -28,29 +28,28 @@ namespace HyperDownloadManager.Views.Pages.Download
     /// </summary>
     public partial class DownloadDetailView : Page
     {
-        public int Id { get; set; }
+        public int Id { get; private set; }
         public bool IsSeparateWindowOpen;
 
-        private DownloadViewModel downloadViewModel;
-        private TimeSpan Stime;
+        private DownloadViewModel model = new DownloadViewModel();
+        private TimeSpan sTime;
         private PlotModel Plot = new PlotModel();
-        public DownloadDetailView(int id)
+        public DownloadDetailView(DownloadViewModel viewModel)
         {
-            Id = id;
             InitializeComponent();
+            this.model = viewModel;
+            this.Id = viewModel.Id;
+            this.DataContext = model;
+
             Plot = CreatePlotModel(((SolidColorBrush)App.Current.Resources["SecondaryBrush"]).Color, ((SolidColorBrush)App.Current.Resources["AccentBrush"]).Color);
             speedChart.DataContext = Plot;
-            Plot.MouseDown += (s, e) =>
-            {
-                if (e.ChangedButton == OxyMouseButton.Left)
-                {
-                    speedChart.ActualController.UnbindMouseDown(OxyMouseButton.Left);
-                }
-            };
+            speedChart.ActualController.UnbindMouseDown(OxyMouseButton.Left);
+
             if (GlobalSupervisor.GeneralSettingsViewModel.UseChart)
                 speedChart.Visibility = Visibility.Visible;
             else
                 speedChart.Visibility = Visibility.Collapsed;
+
         }
         private PlotModel CreatePlotModel(Color SecondaryBrush, Color AccentColor)
         {
@@ -101,85 +100,74 @@ namespace HyperDownloadManager.Views.Pages.Download
             });
             return plotModel;
         }
-        private void Backtomain_Click(object sender, RoutedEventArgs e)
+        private void BackToMain_Click(object sender, RoutedEventArgs e)
         {
-            GlobalSupervisor.mainwindow.mainFrame.Content = GlobalSupervisor.DownloadPage;
-        }
-
-        public void SetdataContext(DownloadViewModel downloadViewModel)
-        {
-            this.DataContext = downloadViewModel;
-            this.downloadViewModel = downloadViewModel;
-        }
-        private void Ps_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DownloadManager.SetStop(Id);
-        }
-
-        private void Rn_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DownloadManager.SetStart(Id);
+            GlobalSupervisor.MainWindow.mainFrame.Content = GlobalSupervisor.DownloadPage;
         }
         public void ChartUpdate()
         {
-            speedChart.Dispatcher.Invoke(new Action(() =>
+            if (GlobalSupervisor.GeneralSettingsViewModel.UseChart)
             {
-                Stime = TimeSpan.FromSeconds(Stime.TotalSeconds + 1);
-                if (Plot.Series.Count != 0)
+                speedChart.Dispatcher.Invoke(new Action(() =>
                 {
-                    AreaSeries? speedPoints = (Plot.Series[0] as AreaSeries);
-                    if (speedPoints != null)
+                    sTime = TimeSpan.FromSeconds(sTime.TotalSeconds + 1);
+                    if (Plot.Series.Count != 0)
                     {
-                        float speed = UnitConverter.ToMb(downloadViewModel.Current_Speed.OriginData);
-                        speedPoints.Points.Add(new DataPoint(Stime.TotalSeconds, speed));
-                        Plot.DefaultYAxis.Zoom(0, 2 * speed);
-                        Plot.InvalidatePlot(true);
+                        AreaSeries? speedPoints = (Plot.Series[0] as AreaSeries);
+                        if (speedPoints != null)
+                        {
+                            float speed = UnitConverter.ToMb(this.model.CurrentSpeed.OriginData);
+                            speedPoints.Points.Add(new DataPoint(sTime.TotalSeconds, speed));
+                            Plot.DefaultYAxis.Zoom(0, 2 * speed);
+                            Plot.InvalidatePlot(true);
+                        }
                     }
-                }
-            }));
+                }));
+            }
         }
         private void NewWindow_Click(object sender, RoutedEventArgs e)
         {
-            DownloadWindow sp = new DownloadWindow((this.DataContext as DownloadViewModel).Current_FileName);
-            sp.MainFrame.Content = this;
+            DownloadWindow downloadWindow = new DownloadWindow(this.model);
+            downloadWindow.MainFrame.Content = this;
             NewWindow.Visibility = Visibility.Collapsed;
-            Backtomain.Visibility = Visibility.Collapsed;
-            (this.DataContext as DownloadViewModel).IsSeparateWindowOpen = true;
-            GlobalSupervisor.mainwindow.mainFrame.Content = GlobalSupervisor.DownloadPage;
-            (this.DataContext as DownloadViewModel).DownloadWindow = sp;
-            sp.Show();
+            BackToMain.Visibility = Visibility.Collapsed;
+            this.model.IsSeparateWindowOpen = true;
+            GlobalSupervisor.MainWindow.mainFrame.Content = GlobalSupervisor.DownloadPage;
+            this.model.DownloadWindow = downloadWindow;
+            downloadWindow.Show();
         }
 
         private void DownloadSettings_Click(object sender, RoutedEventArgs e)
         {
-            DialogManager.ShowDialog("Download Settings", downloadViewModel.DownloadSettingsPage, DialogMode.InApp);
+            if(this.model.DownloadSettingsPage != null)
+                DialogManager.ShowDialog("Download Settings", this.model.DownloadSettingsPage, DialogMode.InApp);
         }
 
         private void ResumeDownload_Click(object sender, RoutedEventArgs e)
         {
-            if (!downloadViewModel.Supervisor.IsWorking)
-                DownloadManager.SetStart(downloadViewModel.Id);
+            if (!this.model.IsWorking)
+                DownloadManager.SetStart(this.model.Id);
         }
 
         private void PauseDownload_Click(object sender, RoutedEventArgs e)
         {
-            if (downloadViewModel.Current_State == DownloadState.Downloading || downloadViewModel.Current_State == DownloadState.Verifying)
-                DownloadManager.SetStop(downloadViewModel.Id);
+            if (this.model.CurrentState == DownloadState.Downloading || this.model.CurrentState == DownloadState.Verifying)
+                DownloadManager.SetStop(this.model.Id);
         }
 
         private async void DeleteDownload_Click(object sender, RoutedEventArgs e)
         {
-            if (await DialogManager.ShowMessageBox("are you sure to Remove this Download", MessageLevel.Warning, ButtonOrder.YESNO) == MessageBoxStatus.YES)
+            if (await DialogManager.ShowMessageBox("Are you sure to remove this download?", MessageLevel.Warning, ButtonOrder.YESNO) == MessageBoxStatus.YES)
             {
-                DownloadManager.SetStop(downloadViewModel.Id);
-                DownloadManager.Remove(downloadViewModel.Id);
-                if (downloadViewModel.IsSeparateWindowOpen)
+                DownloadManager.SetStop(this.model.Id);
+                DownloadManager.Remove(this.model.Id);
+                if (this.model.IsSeparateWindowOpen)
                 {
-                    downloadViewModel.DownloadWindow.Close();
+                    this.model.DownloadWindow?.Close();
                 }
                 else
                 {
-                    GlobalSupervisor.mainwindow.mainFrame.Content = GlobalSupervisor.DownloadPage;
+                    GlobalSupervisor.MainWindow.mainFrame.Content = GlobalSupervisor.DownloadPage;
                 }
             }
         }

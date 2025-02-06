@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
+using HyperDownloadManager.ViewModels.Download;
 using HyperDownloadManager.Views.Pages.Download;
 using MahApps.Metro.Controls;
 
@@ -23,18 +24,27 @@ namespace HyperDownloadManager
     /// </summary>
     public partial class DownloadWindow : MetroWindow
     {
-        public DownloadWindow(string title)
+        public DownloadViewModel model { get; private set; } = new DownloadViewModel();
+        public DownloadWindow(DownloadViewModel viewModel)
         {
+            if (viewModel == null)
+                throw new ArgumentNullException("DownloadViewModel was null");
+
             InitializeComponent();
-            this.Title = title;
+            this.model = viewModel;
+            if (this.model.DownloadName != null)
+                this.Title = this.model.DownloadName;
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try
             {
-                (((DownloadDetailView)MainFrame.Content).DataContext as DownloadDetailView).IsSeparateWindowOpen = false;
-                ((DownloadDetailView)MainFrame.Content).NewWindow.Visibility = Visibility.Visible;
-                ((DownloadDetailView)MainFrame.Content).Backtomain.Visibility = Visibility.Visible;
+                if(this.model.DetailPage is DownloadDetailView)
+                {
+                    this.model.IsSeparateWindowOpen = false;
+                    this.model.DetailPage.NewWindow.Visibility = Visibility.Visible;
+                    this.model.DetailPage.BackToMain.Visibility = Visibility.Visible;
+                }
             }
             catch (Exception ex)
             {
