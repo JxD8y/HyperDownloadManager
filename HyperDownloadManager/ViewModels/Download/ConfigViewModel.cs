@@ -18,15 +18,24 @@ namespace HyperDownloadManager.ViewModels.Download
         private FinishType finishType;
         private bool showFinalDialog;
         [BsonIgnore]
-        public DownloadViewModel? DownloadViewModel { get; set; }
+        public DownloadViewModel model { get; set; } = new DownloadViewModel();
         public StartConditionInfo StartConditionInfo = new StartConditionInfo();
         public ProxyViewModel? ProxyViewModel = new ProxyViewModel();
         public event EventHandler<List<object>>? ConfigUpdated;
         public ConfigViewModel()
         {
-            ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
-            Headers = GlobalSupervisor.NetworkSettingsViewModel.DefaultHeaders;
-            connections = GlobalSupervisor.NetworkSettingsViewModel.MaxConnectionsPreServer;
+            if (GlobalSupervisor.NetworkSettingsViewModel is NetworkSettingsViewModel)
+            {
+                ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
+                Headers = GlobalSupervisor.NetworkSettingsViewModel.DefaultHeaders;
+                connections = GlobalSupervisor.NetworkSettingsViewModel.MaxConnectionsPreServer;
+            }
+            else
+            {
+                ProxyViewModel = null;
+                Headers = "";
+                connections = 1;
+            }
             MaxFileSize = 0;
             SpeedLimit = 0;
             CompleteType = FinishType.None;
@@ -34,10 +43,21 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         public ConfigViewModel(DownloadViewModel downloadViewModel)
         {
-            this.DownloadViewModel = downloadViewModel;
-            ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
-            Headers = GlobalSupervisor.NetworkSettingsViewModel.DefaultHeaders;
-            connections = GlobalSupervisor.NetworkSettingsViewModel.MaxConnectionsPreServer;
+            if (downloadViewModel == null)
+                throw new ArgumentNullException("DownloadViewModel was null");
+            this.model = downloadViewModel;
+            if (GlobalSupervisor.NetworkSettingsViewModel is NetworkSettingsViewModel)
+            {
+                ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
+                Headers = GlobalSupervisor.NetworkSettingsViewModel.DefaultHeaders;
+                connections = GlobalSupervisor.NetworkSettingsViewModel.MaxConnectionsPreServer;
+            }
+            else
+            {
+                ProxyViewModel = null;
+                Headers = "";
+                connections = 1;
+            }
             MaxFileSize = 0;
             SpeedLimit = 0;
             CompleteType = FinishType.None;
@@ -49,14 +69,13 @@ namespace HyperDownloadManager.ViewModels.Download
         {
             if ((sender is NetworkSettingsViewModel) && sender != null)
             {
-                //changes in Network
+                if (this.model.ResumeSupport)
+                {
+                    this.model.Supervisor?.Stop();
+                    this.model.Supervisor?.Start(true);
+                }
             }
         }
-
-        [BsonIgnore]
-        public string CurrentFile { get { return DownloadViewModel.Current_FileName; } set { OnPropertyChanged(); } }
-        [BsonIgnore]
-        public string Url { get { return DownloadViewModel.Current_Url; } set { OnPropertyChanged(); } }
         public string AuthUser { get { return authUser; } set { authUser = value; OnPropertyChanged(); } }
         public string AuthPass { get { return authPass; } set { authPass = value; OnPropertyChanged(); } }
         public string Headers { get { return headers; } set { headers = value; OnPropertyChanged(); } }
@@ -72,7 +91,7 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         public bool ValidateStartUpSettings()
         {
-            switch (StartConditionInfo?.AutoType)
+            switch (StartConditionInfo?.ConditionType)
             {
                 case AutoStartConditionType.Instant:
                     return true;
@@ -115,9 +134,9 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         public bool UpdateSettingValue(ConfigViewModel newConfig)
         {
-            if (this.DownloadViewModel != null)
+            if (this.model != null)
             {
-                DownloadManager.UpdateDownload(this.DownloadViewModel);
+                DownloadManager.UpdateDownload(this.model);
                 if (this.ConfigUpdated != null)
                     ConfigUpdated(this, this ^ newConfig);
                 return true;
