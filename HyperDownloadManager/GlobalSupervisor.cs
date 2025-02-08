@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HyperDownloadManager.Dialogs.MessageBoxDialog;
-using HyperDownloadManager.Dialogs;
+﻿using System.Diagnostics;
 using System.Windows;
-using HyperDownloadManager.Views;
-using HyperDownloadManager.ViewModels.Settings;
-using HyperDownloadManager.Views.Pages.Setting;
-using HyperDownloadManager.ViewModels;
+using HyperDownloadManager.Dialogs;
+using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
-using HyperDownloadManager.ViewModels.Download.Container;
+using HyperDownloadManager.ViewModels;
 using HyperDownloadManager.ViewModels.Download;
-using System.Runtime.CompilerServices;
+using HyperDownloadManager.ViewModels.Download.Container;
+using HyperDownloadManager.ViewModels.Settings;
+using HyperDownloadManager.Views;
+using HyperDownloadManager.Views.Pages.Setting;
 
 namespace HyperDownloadManager
 {
@@ -32,6 +26,7 @@ namespace HyperDownloadManager
 
             }
         }
+        public static MainViewModel MainViewModel { get; set; } = new MainViewModel();
         public static Downloads? DownloadPage { get; set; }
         public static Settings? SettingsPage { get; set; }
         public static DialogBox? CurrentShowingDialog { get; set; }
@@ -44,7 +39,6 @@ namespace HyperDownloadManager
         public static GeneralSettingsView GeneralSettingPage { get; set; } = new GeneralSettingsView(GeneralSettingsViewModel);
         public static NetworkSettingsView NetworkSettingPage { get; set; } = new NetworkSettingsView(NetworkSettingsViewModel);
         public static ThemeSettingsView ThemeSettingsPage { get; set; } = new ThemeSettingsView(ThemeSettingsViewModel);
-        public static MainViewModel MainViewModel { get; set; } = new MainViewModel();
 
         private static Random Random = new Random();
         public static int GetRandom(int max, int min = 0)

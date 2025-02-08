@@ -12,7 +12,7 @@
 
     <Grid FocusVisualStyle="{x:Null}" x:Name="maingrid" Margin="0 2 0 0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="51"/>
+            <RowDefinition Height="50"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Grid.Column="0">
@@ -83,7 +83,7 @@
                                                     </StackPanel>
                                                 </MenuItem.Header>
                                             </MenuItem>
-                                            <MenuItem x:Name="Containersettingmenuitem" Visibility="{Binding IsMain,Converter={StaticResource BooltoReverseVisiblity}}" Click="Containersettingmenuitem_Click" Tag="{Binding Id}">
+                                            <MenuItem x:Name="ContainerSettingMenuItem" Visibility="{Binding IsMain,Converter={StaticResource BooltoReverseVisiblity}}" Click="ContainerSettingMenuItem_Click" Tag="{Binding Id}">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:BootstrapIcons Kind=GearFill}"/>
@@ -126,22 +126,22 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <ItemContainerTemplate>
-                            <Border BorderBrush="{Binding Current_State,Converter={StaticResource DownloadStatetoBrush}}" Background="{DynamicResource BackgroundBrush}" Height="30" MouseLeftButtonDown="ShowDownloadDetail" BorderThickness="1" Margin="5 2 5 2" Tag="{Binding Id}" CornerRadius="3">
+                            <Border BorderBrush="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" Background="{DynamicResource BackgroundBrush}" Height="30" MouseLeftButtonDown="ShowDownloadDetail" BorderThickness="1" Margin="5 2 5 2" Tag="{Binding Id}" CornerRadius="3">
                                 <Grid>
-                                    <ProgressBar Foreground="{Binding Current_State,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center" Opacity="0.9" Value="{Binding Current_Percent}" Background="{Binding Selected,Converter={StaticResource BooltoBrush}}" BorderThickness="0" Height="70" MinWidth="450"/>
+                                    <ProgressBar Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center" Opacity="0.9" Value="{Binding Current_Percent}" Background="{Binding Selected,Converter={StaticResource BooltoBrush}}" BorderThickness="0" Height="70" MinWidth="450"/>
                                     <Grid>
                                         <StackPanel Orientation="Horizontal" Panel.ZIndex="1" Opacity="1">
                                             <Image Source="{Binding Icon}" Width="25" Height="25" Margin="10 0 10 0"/>
                                             <Label Content="{Binding DownloadName}" MaxWidth="700" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 10 0">
-                                            <Label Content="{xico:BootstrapIcons Kind=Dot,Width=10,Height=10}" Foreground="{Binding Current_State,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center">
+                                            <Label Content="{xico:BootstrapIcons Kind=Dot,Width=10,Height=10}" Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center">
                                                 <Label.Style>
                                                     <Style TargetType="Label">
                                                         <Style.Triggers>
                                                             <MultiDataTrigger>
                                                                 <MultiDataTrigger.Conditions>
-                                                                    <Condition Binding="{Binding Current_State}" Value="{x:Static ViewModels:DownloadState.Downloading}"/>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Downloading}"/>
                                                                 </MultiDataTrigger.Conditions>
                                                                 <MultiDataTrigger.EnterActions>
                                                                     <BeginStoryboard x:Name="BlinkingStoryBoard">
@@ -156,9 +156,9 @@
                                                             </MultiDataTrigger>
                                                             <MultiDataTrigger>
                                                                 <MultiDataTrigger.Conditions>
-                                                                    <Condition Binding="{Binding Current_State}" Value="{x:Static ViewModels:DownloadState.Error}"/>
-                                                                    <Condition Binding="{Binding Current_State}" Value="{x:Static ViewModels:DownloadState.Paused}"/>
-                                                                    <Condition Binding="{Binding Current_State}" Value="{x:Static ViewModels:DownloadState.Completed}"/>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Error}"/>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Paused}"/>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Completed}"/>
                                                                 </MultiDataTrigger.Conditions>
                                                                 <MultiDataTrigger.EnterActions>
                                                                     <BeginStoryboard>
@@ -172,12 +172,12 @@
                                                     </Style>
                                                 </Label.Style>
                                             </Label>
-                                            <Label Content="{Binding Current_State}" Margin="-2 0 10 0" Foreground="{Binding Current_State,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center"/>
+                                            <Label Content="{Binding CurrentState}" Margin="-2 0 10 0" Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center"/>
                                             <Label Content="{xico:Material Kind=Timer}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
                                             <Label Content="{Binding RemainingTime ,Converter={StaticResource TimeSpantoString}}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
                                             <Label Content="{xico:Material Kind=Speedometer}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
-                                            <Label Content="{Binding Current_Speed.DataValue,Converter={StaticResource FloattoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                            <Label Content="{Binding Current_Speed.DataUnit}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                            <Label Content="{Binding CurrentSpeed.DataValue,Converter={StaticResource FloattoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                            <Label Content="{Binding CurrentSpeed.DataUnit}" Foreground="{DynamicResource ForegroundBrush}"/>
                                             <Label Content="/s" Foreground="{DynamicResource ForegroundBrush}"/>
                                             <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" x:Name="StartDownload" Tag="{Binding Id}" MouseLeftButtonDown="StartDownload_MouseLeftButtonDown" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}"/>
                                             <Label Content="{xico:Material Kind=Pause}" Foreground="Orange" x:Name="PauseDownload" Tag="{Binding Id}" MouseLeftButtonDown="PauseDownload_MouseLeftButtonDown"  Visibility="{Binding Visibility, ElementName=StartDownload,Converter={StaticResource ReverseVisiblity}}"/>
@@ -233,7 +233,7 @@
                                                 </MenuItem.Header>
                                             </MenuItem>
                                             <Separator/>
-                                            <MenuItem x:Name="pauselabelcontext" Tag="{Binding Id}" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauselabelcontext_Click">
+                                            <MenuItem x:Name="pauseLabelContext" Tag="{Binding Id}" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauseLabelContext_Click">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:Material Kind=Pause}" Foreground="Orange"/>
@@ -241,7 +241,7 @@
                                                     </StackPanel>
                                                 </MenuItem.Header>
                                             </MenuItem>
-                                            <MenuItem x:Name="startlabelcontext" Tag="{Binding Id}" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startlabelcontext_Click">
+                                            <MenuItem x:Name="startLabelContext" Tag="{Binding Id}" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startLabelContext_Click">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" />
@@ -249,7 +249,7 @@
                                                     </StackPanel>
                                                 </MenuItem.Header>
                                             </MenuItem>
-                                            <MenuItem x:Name="scheduledownloadcontext" Click="scheduledownloadcontext_Click" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}">
+                                            <MenuItem x:Name="scheduleDownloadContext" Click="scheduleDownloadContext_Click" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:Material Kind=AvTimer}" Foreground="RoyalBlue"/>
@@ -257,7 +257,7 @@
                                                     </StackPanel>
                                                 </MenuItem.Header>
                                             </MenuItem>
-                                            <MenuItem x:Name="downloadsettingscontext" Click="downloadsettingscontext_Click" Tag="{Binding Id}">
+                                            <MenuItem x:Name="downloadSettingsContext" Click="downloadSettingsContext_Click" Tag="{Binding Id}">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:BootstrapIcons Kind=GearFill}" Foreground="{StaticResource AccentBrush}"/>

@@ -1,21 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Linq;
+using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.Download;
 using HyperDownloadManager.ViewModels.Download.Container;
 using HyperDownloadManager.ViewModels.Settings;
@@ -28,7 +16,8 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
     public partial class NewContainerDialog : Page
     {
         private HashSet<DownloadViewModel> selectedDownloads = new HashSet<DownloadViewModel>();
-        private bool _isNotifyShowing, _userPathSelected = false;
+        private bool isNotifyShowing, userPathSelected = false;
+        private ContainerViewModel model = new ContainerViewModel();
         public NewContainerDialog()
         {
             InitializeComponent();
@@ -41,15 +30,16 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
             {
                 conditionContainerSchedule.Items.Add(new ComboBoxItem() { Content = $"{cvm.Name}: {cvm.Id}", Tag = cvm });
             }
-            path.Text = System.IO.Path.Combine(SettingSupervisor.GeneralSettings.DefaultDownloadFolder, ContainerManager.DefaultContainerName);
+            path.Text = SettingSupervisor.GeneralSettings.DefaultDownloadFolder ?? IOUtility.GetSystemDownloadFolder() ?? "";
+
             downloadButtonContent.Content = $"Add Download: (0)";
         }
         #region ALertEvents
         private async void ShowNotifyMessage(string message, bool warn = false, int duration = 1000)
         {
-            if (!_isNotifyShowing && alertbox != null)
+            if (!isNotifyShowing && alertbox != null)
             {
-                _isNotifyShowing = true;
+                isNotifyShowing = true;
                 if (warn)
                     infoicon.Visibility = Visibility.Collapsed;
                 this.alertText.Text = message;
@@ -60,7 +50,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 alertbox.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(200)));
                 alertbox.Visibility = Visibility.Collapsed;
                 infoicon.Visibility = Visibility.Visible;
-                _isNotifyShowing = false;
+                isNotifyShowing = false;
             }
         }
         #endregion
@@ -78,11 +68,11 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
             if (fileBrowse.ShowDialog() == DialogResult.OK)
             {
                 path.Text = fileBrowse.SelectedPath;
-                _userPathSelected = true;
+                userPathSelected = true;
             }
         }
 
-        private async void AddButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void AddButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!ContainerViewModel.ValidateName(name.Text))
             {
@@ -104,62 +94,51 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 ShowNotifyMessage("Path is empty or does not exist.", true);
                 return;
             }
-            if (StartConditionCombo.SelectedIndex == 2) //N: ?
+
+            model = ContainerManager.CreateContainer(name.Text, Convert.ToInt32(maxDownload.Text), path.Text);
+            model.AddRangeNodes(selectedDownloads);
+
+            model.MaxOccupied = Convert.ToInt32(maxFileSize.Text);
+
+            if (StartConditionCombo.SelectedIndex == 1)
             {
-                //if (!ContainerAutoStartViewModel.ValidateRelativeTime(TimerDownload.Value.Value))
-                //{
-                //    ShowNotifyMessage("cannot schedule for this time", true);
-                //    return;
-                //}
-            }
-            else if (StartConditionCombo.SelectedIndex == 3)
-            {
-                //if (!ContainerAutoStartViewModel.ValidateAbsoluteTime(DatePicker.Value.Value))
-                //{
-                //    ShowNotifyMessage("cannot schedule for this time", true);
-                //    return;
-                //}
-            }
-            else if (StartConditionCombo.SelectedIndex == 1)
-            {
-                if (conditionContainerSchedule.SelectedItem == null)
+                if (model.CreationTime.TimeOfDay >= TimerDownload.Value)
                 {
-                    ShowNotifyMessage("Please select a container for scheduling.", true);
+                    ShowNotifyMessage("cannot schedule for this time\ntry to reschedule the container in it's setting", true);
                     return;
                 }
             }
-            ContainerViewModel cvm = ContainerManager.CreateContainer(name.Text, Convert.ToInt32(maxDownload.Text), path.Text);
-            cvm.AddRangeNodes(selectedDownloads);
-            //switch (containerMode.SelectedIndex)
-            //{
-            //    case 0:
-            //        cvm.ContainerStackMode = ContainerStackMode.Normal;
-            //        break;
-            //    case 1:
-            //        cvm.ContainerStackMode = ContainerStackMode.Reverse;
-            //        break;
-            //    case 2:
-            //        cvm.ContainerStackMode = ContainerStackMode.Direct;
-            //        break;
-            //    case 3:
-            //        cvm.ContainerStackMode = ContainerStackMode.Random;
-            //        break;
-            //}
-            //if (StartConditionCombo.SelectedIndex == 2)
-            //{
-            //    await cvm.ContainerAutoStartViewModel.SetAutoStartMode(TimerDownload.Value.Value);
-            //}
-            //else if (StartConditionCombo.SelectedIndex == 3)
-            //{
-            //    await cvm.ContainerAutoStartViewModel.SetAutoStartMode(DatePicker.Value.Value);
+            else if (StartConditionCombo.SelectedIndex == 2)
+            {
+                if (model.CreationTime >= DatePicker.Value)
+                {
+                    ShowNotifyMessage("cannot schedule for this time\ntry to reschedule the container in it's setting", true);
+                    return;
+                }
+            }
 
-            //}
-            //else if (StartConditionCombo.SelectedIndex == 1)
-            //{
-            //    await cvm.ContainerAutoStartViewModel.SetAutoStartMode((conditionContainerSchedule.SelectedItem as ComboBoxItem).Tag as ContainerViewModel);
-            //}
-            ContainerManager.UpdateContainer(cvm);
-            ShowNotifyMessage("Container Created.", false, 3000);
+            if (StartConditionCombo.SelectedIndex == 1)
+            {
+                model.StartConditionInfo.StartMode = ContainerStartMode.RelativeTime;
+                model.StartConditionInfo.StartAt = TimerDownload.Value ?? DateTime.Now.TimeOfDay;
+            }
+            else if (StartConditionCombo.SelectedIndex == 2)
+            {
+                model.StartConditionInfo.StartMode = ContainerStartMode.AbsoluteTime;
+                model.StartConditionInfo.StartIn = DatePicker.Value ?? DateTime.Now;
+
+            }
+            else
+            {
+                model.StartConditionInfo.StartMode = ContainerStartMode.Instant;
+            }
+
+            ContainerManager.UpdateContainer(model);
+
+            if (model.StartConditionInfo.StartMode != ContainerStartMode.Instant)
+                model.StartAllDownload();
+            
+            ShowNotifyMessage("Container created", false, 3000);
             DialogManager.Close();
         }
         bool expanded = false;
@@ -182,21 +161,12 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
 
         private void addDownload_Click(object sender, RoutedEventArgs e)
         {
-            if (downloadGrid.SelectedItem != null)
+            if (downloadGrid.SelectedItem is DownloadViewModel viewModel)
             {
-                this.selectedDownloads.Add(downloadGrid.SelectedItem as DownloadViewModel);
+                this.selectedDownloads.Add(viewModel);
             }
             downloadGrid.UnselectAll();
             downloadButtonContent.Content = $"Add Download: ({selectedDownloads.Count})";
-        }
-
-        private void name_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (ContainerViewModel.ValidateName(name.Text))
-            {
-                if (!_userPathSelected)
-                    path.Text = System.IO.Path.Combine(SettingSupervisor.GeneralSettings.DefaultDownloadFolder, name.Text);
-            }
         }
     }
 }

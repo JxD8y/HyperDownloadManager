@@ -10,45 +10,35 @@ namespace HyperDownloadManager.ViewModels.Download.Conditions
     {
         public StartConditionInfo()
         {
-            AutoType = AutoStartConditionType.Instant;
+            ConditionType = AutoStartConditionType.Instant;
         }
-        private AutoStartConditionType triggerType;
-        private DateTime startAt;
-        private TimeSpan startIn;
-        private int downloadId;
-        private int containerId;
-        private DownloadState downloadState;
-        public AutoStartConditionType AutoType { get { return triggerType; } set { triggerType = value; OnPropertyChanged(); } }
-        public DateTime StartAt { get { return startAt; } set { startAt = value; OnPropertyChanged(); } }
-        public TimeSpan StartIn { get { return startIn; } set { startIn = value; OnPropertyChanged(); } }
-        public int DownloadId { get { return downloadId; } set { downloadId = value; OnPropertyChanged(); } }
-        public int ContainerId { get { return containerId; } set { containerId = value; OnPropertyChanged(); } }
-        public DownloadState dlState { get { return downloadState; } set { downloadState = value; OnPropertyChanged(); } }
+        public AutoStartConditionType ConditionType { get; set; }
+        public DateTime StartAt { get; set; }
+        public TimeSpan StartIn { get; set; }
+        public int DownloadId { get; set; }
+        public int ContainerId { get; set; }
+        public DownloadState DownloadState { get; set; }
         public static bool operator ==(StartConditionInfo left, StartConditionInfo right)
         {
-            if (left.triggerType == right.triggerType)
+            if (left.ConditionType == right.ConditionType)
             {
-                switch (left.AutoType)
+                switch (left.ConditionType)
                 {
                     case AutoStartConditionType.Instant:
                         return true;
                     case AutoStartConditionType.AbsoluteTime:
-                        if (left.startAt == right.startAt)
+                        if (left.ConditionType == right.ConditionType)
                             return true; break;
                     case AutoStartConditionType.RelativeTime:
-                        if (left.startIn == right.startIn)
+                        if (left.StartIn == right.StartIn)
                             return true;
                         break;
                     case AutoStartConditionType.DownloadStateChange:
-                        if (left.downloadId == right.downloadId)
+                        if (left.DownloadId == right.DownloadId)
                             return true;
                         break;
                     case AutoStartConditionType.AllDownloadFinish:
                         return true;
-                    //case AutoStartConditionType.ContainerFinish:
-                    //    if (left.containerId == right.containerId)
-                    //        return true;
-                    //    break;
                 }
                 return false;
             }

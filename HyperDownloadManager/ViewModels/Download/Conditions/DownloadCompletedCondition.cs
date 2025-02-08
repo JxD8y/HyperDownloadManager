@@ -12,7 +12,7 @@ namespace HyperDownloadManager.ViewModels.Download.Conditions
         {
         }
 
-        public DownloadViewModel DownloadView { get; set; }
+        public DownloadViewModel DownloadView { get; set; } = new DownloadViewModel();
         public DownloadState dlState { get; set; }
         public override bool Ready(DownloadViewModel downloadViewModel)
         {
@@ -21,8 +21,8 @@ namespace HyperDownloadManager.ViewModels.Download.Conditions
                 return true;
             }
             downloadViewModel.StartTime = DateTime.Now + DownloadView.RemainingTime;
-            Completed = DownloadView.Current_Percent;
-            return DownloadView.Current_State == dlState;
+            Completed = DownloadView.CurrentPercent;
+            return DownloadView.CurrentState == dlState;
         }
     }
 }

@@ -56,9 +56,6 @@ namespace HyperDownloadManager.ViewModels.Settings
         }
         [BsonId]
         public BsonValue? Id { get; set; }
-
-        //public bool AutoUrlClip { get { return autoPaste; } set { autoPaste = value; SettingSupervisor.AutoCheckClipboard(MaxClipDownloadSize, value); OnPropertyChanged(); } }
-        //public int MaxClipDownloadSize { get { return maxClipboardSize; } set { maxClipboardSize = value; SettingSupervisor.AutoCheckClipboard(value, AutoUrlClip); OnPropertyChanged(); } }
         
     }
 }

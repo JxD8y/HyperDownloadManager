@@ -28,10 +28,10 @@ namespace HyperDownloadManager.Views
     {
         public Logs()
         {
-            LogManager.OnLogAdd += Logviewer_Updater;
+            LogManager.OnLogAdd += LogViewer_Updater;
             InitializeComponent();
         }
-        public void Logviewer_Updater(LogViewModel lv)
+        public void LogViewer_Updater(LogViewModel lv)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace HyperDownloadManager.Views
             }
         }
 
-        private async void Deletecurrentlog_Click(object sender, RoutedEventArgs e)
+        private async void DeleteCurrentLog_Click(object sender, RoutedEventArgs e)
         {
             if (await DialogManager.ShowMessageBox("Do you want to clear all logs?", MessageLevel.Warning, ButtonOrder.YESNO, true) == MessageBoxStatus.YES)
             {
@@ -54,19 +54,15 @@ namespace HyperDownloadManager.Views
                 else
                 {
                     LogManager.Logs = new List<LogViewModel>();
-                    try { LogManager.CurrentLogStream.Close(); File.Delete(LogManager.CurrentLogFullname); } catch { System.Windows.MessageBox.Show("Fail to Remove Log File", "Error", MessageBoxButton.OK, MessageBoxImage.Error); return; }
+                    try { LogManager.CurrentLogStream?.Close(); File.Delete(LogManager.CurrentLogFullname); } catch { System.Windows.MessageBox.Show("Fail to Remove Log File", "Error", MessageBoxButton.OK, MessageBoxImage.Error); return; }
                     Loglist.Items.Clear();
                     if (!LogManager.CreateNewLogEntry()) { await DialogManager.ShowMessageBox("All logs cleared", MessageLevel.Info, ButtonOrder.OK, true); return; }
                     LogManager.Log(MessageLevel.Warning, LogSection.Log, "All logs cleared!");
                 }
             }
         }
-        private void openexplorerlog_Click(object sender, RoutedEventArgs e)
-        {
-            Process.Start("explorer.exe", $"/select, {LogManager.CurrentLogFullname}");
-        }
 
-        private async void Savelogs_Click(object sender, RoutedEventArgs e)
+        private async void SaveLogs_Click(object sender, RoutedEventArgs e)
         {
             try
             {

@@ -17,30 +17,29 @@ using HyperDownloadManager.ViewModels.Download.Container;
 using HyperDownloadManager.ViewModels.Download;
 using HyperDownloadManager.ViewModels.Download.DownloadCore;
 using HyperDownloadManager.ViewModels.Proxy;
-using static System.Windows.Forms.LinkLabel;
 using System.IO;
 using System.Windows.Media.Animation;
 using HyperDownloadManager.ViewModels.Download.DownloadIO;
 using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.Download.Conditions;
 
-namespace HyperDownloadManager.Dialogs.DowloadDialog
+namespace HyperDownloadManager.Dialogs.DownloadDialog
 {
     /// <summary>
     /// Interaction logic for NewDownloadDialog.xaml
     /// </summary>
     public partial class NewDownloadDialog : Page
     {
-        ObservableCollection<IOCore> DownloadList = new ObservableCollection<IOCore>();
-        BitmapSource? bmp_src = null;
-        IOCore? _ioSuper;
-        ConfigViewModel _defaultConfig = new ConfigViewModel();
-        ContainerViewModel? _downloadContainer = ContainerManager.CurrentContainer;
-        bool _singleDownload = true, _catching = false;
-        bool _isNotifyShowing = false;
-        bool _LinkMultimode = false;
-        bool TempCreation = false;
-        string _destinationFolder = "";
+        private BitmapSource? icon = null;
+        private ConfigViewModel defaultConfig = new ConfigViewModel();
+        private ContainerViewModel? downloadContainer = ContainerManager.CurrentContainer;
+        private ObservableCollection<DownloadUriInfo> MultiDownloadList = new ObservableCollection<DownloadUriInfo>();
+        private bool singleDownload = true, catching = false;
+        private bool isNotifyShowing = false;
+        private bool linkMultimode = false;
+        private bool tempCreation = false;
+        private string destinationFolder = "";
+        private DownloadUriInfo? remoteInfo;
         public NewDownloadDialog()
         {
             InitializeComponent();
@@ -60,23 +59,28 @@ namespace HyperDownloadManager.Dialogs.DowloadDialog
             {
                 foreach (DownloadViewModel downloadViewModel in DownloadManager.DownloadViewModels)
                 {
-                    if (downloadViewModel.Current_State != DownloadState.Completed)
+                    if (downloadViewModel.CurrentState != DownloadState.Completed)
                     {
                         ConditionDownload.Items.Add(new ComboBoxItem() { Content = $"{downloadViewModel.DownloadName}", Tag = downloadViewModel.Id });
                     }
                 }
             }
-            _destinationFolder = GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder;
-            Filepath.Text = _destinationFolder;
-            qdownloadgrid.ItemsSource = DownloadList;
-            TempCreation = GlobalSupervisor.GeneralSettingsViewModel.SaveTemp;
+            if (this.downloadContainer == null)
+                throw new NullReferenceException("Selected container was null");
+
+            destinationFolder = this.downloadContainer.Path;
+
+            FilePath.Text = destinationFolder;
+            multiDataDownloadGrid.ItemsSource = MultiDownloadList;
+
+            tempCreation = GlobalSupervisor.GeneralSettingsViewModel.SaveTemp;
         }
         #region ALertEvents
         private async void ShowNotifyMessage(string message, bool warn = false, int duration = 1000)
         {
-            if (!_isNotifyShowing && alertbox != null)
+            if (!isNotifyShowing && alertbox != null)
             {
-                _isNotifyShowing = true;
+                isNotifyShowing = true;
                 if (warn)
                     infoicon.Visibility = Visibility.Collapsed;
                 this.alertText.Text = message;
@@ -87,341 +91,306 @@ namespace HyperDownloadManager.Dialogs.DowloadDialog
                 alertbox.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(200)));
                 alertbox.Visibility = Visibility.Collapsed;
                 infoicon.Visibility = Visibility.Visible;
-                _isNotifyShowing = false;
+                isNotifyShowing = false;
             }
         }
         #endregion
         #region LinkEvents
-        private async Task<IOCore?> GetUriInfo(Uri url)
+        private async Task<DownloadUriInfo?> GetUriInfo(Uri url)
         {
             try
             {
-                _catching = true;
-                IOCore? urlInfo = await HttpDownloadCore.GetUrlInfo(url, _defaultConfig, _destinationFolder, TempCreation);
-                if (urlInfo == null)
+                catching = true;
+                DownloadUriInfo? uriInfo = await HttpDownloadCore.GetUrlInfo(url,this.defaultConfig);
+                if (uriInfo == null)
                 {
-                    ShowNotifyMessage("fail to catch data.", true);
+                    ShowNotifyMessage("fail to get file info", true);
                     return null;
                 }
                 long ping = NetworkUtility.GetServerPing(url.Host);
-                urlInfo.Ping = ping;
-                urlInfo.Icon = IOUtility.GetFileIcon(urlInfo.fileName);
-                _catching = false;
-                return urlInfo;
+                uriInfo.Ping = ping;
+                uriInfo.Icon = IOUtility.GetFileIcon(uriInfo.FileName);
+                catching = false;
+                return uriInfo;
             }
             catch (Exception ex)
             {
                 ShowNotifyMessage($"an error occurred {ex.Message}");
+                return null;
             }
-            return null;
         }
 
         private void Link_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                if (!_LinkMultimode)
+                if (!this.linkMultimode)
                 {
-                    if (IOCore.IsValidInfoCarrier(_ioSuper) && !_catching)
+                    if (remoteInfo != null && !catching)
                     {
-                        AddDownloadLabel_MouseLeftButtonDown(null, null);
+                        AddDownloadLabel_MouseLeftButtonDown(this, null);
                     }
                 }
             }
         }
         private async void Link_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!_LinkMultimode)
+            if (!linkMultimode)
             {
                 string link = Link.Text;
                 Uri _url;
                 if (NetworkUtility.isUrl(link, out _url))
                 {
-                    Fileextimg.Visibility = Visibility.Collapsed;
-                    _ioSuper = await GetUriInfo(_url);
-                    if (_ioSuper == null)
+                    FileIcon.Visibility = Visibility.Collapsed;
+                    remoteInfo = await GetUriInfo(_url);
+                    if (remoteInfo != null)
                     {
-                        ShowNotifyMessage($"Cannot load url.", true, 2000);
-                        return;
+                        filename.Content = IOUtility.AdjustFileNameString(remoteInfo.FileName);
+                        filesize.Content = remoteInfo.Size.DataValue.ToString("0.00");
+                        fileszunit.Content = remoteInfo.Size.DataUnit.ToString();
+                        pinglabel.Content = remoteInfo.Ping;
+                        resumabil.Content = remoteInfo.Resumable;
+                        this.FileIcon.Source = remoteInfo.Icon;
+                        FileIcon.Visibility = Visibility.Visible;
+                        if (!remoteInfo.Resumable)
+                        {
+                            ShowNotifyMessage($"this file does not have Pause ability", true, 2000);
+                        }
                     }
-                    filename.Content = IOUtility.AdjustFileNameString(_ioSuper.fileName);
-                    filesize.Content = _ioSuper.fileSize.DataValue.ToString("0.00");
-                    fileszunit.Content = _ioSuper.fileSize.DataUnit.ToString();
-                    pinglabel.Content = _ioSuper.Ping;
-                    resumabil.Content = _ioSuper.Resumable;
-                    this.Fileextimg.Source = _ioSuper.Icon;
-                    Fileextimg.Visibility = Visibility.Visible;
-                    if (!_ioSuper.Resumable)
-                    {
-                        ShowNotifyMessage($"this file does not have Pause ability", true, 2000);
-                    }
-                    if (IOCore.IsValidInfoCarrier(_ioSuper))
+                    else
                     {
                         AddDownloadLabel.IsEnabled = true;
-
                     }
                 }
             }
         }
         #endregion
         #region MultiDownloadEvents
-        private void DeleteSelctedDownload_Click(object sender, RoutedEventArgs e)
+        private void DeleteSelectedDownload_Click(object sender, RoutedEventArgs e)
         {
-            IOCore id = (IOCore)qdownloadgrid.SelectedItem;
-            if (DownloadList.Contains(id))
-                DownloadList.Remove(id);
-            if (DownloadList.Count == 0)
-            {
-                AddDownloadLabel.IsEnabled = false;
-            }
+            DownloadUriInfo info = (DownloadUriInfo)(multiDataDownloadGrid.SelectedItem);
+            if (MultiDownloadList.Contains(info))
+                MultiDownloadList.Remove(info);
         }
-        string _url = "";
-        private void qdownloadgrid_DragEnter(object sender, DragEventArgs e)
+        string url = "";
+        private void multiDownloadGrid_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.UnicodeText))
             {
                 DropMessage.Visibility = Visibility.Visible;
-                _url = (string)e.Data.GetData(DataFormats.UnicodeText);
+                url = (string)e.Data.GetData(DataFormats.UnicodeText);
             }
             else if (e.Data.GetDataPresent(DataFormats.Text))
             {
-                _url = (string)e.Data.GetData(DataFormats.Text);
+                url = (string)e.Data.GetData(DataFormats.Text);
                 DropMessage.Visibility = Visibility.Visible;
             }
         }
-        private void qdownloadgrid_DragLeave(object sender, DragEventArgs e)
+        private void multiDownloadGrid_DragLeave(object sender, DragEventArgs e)
         {
             DropMessage.Visibility = Visibility.Collapsed;
         }
-        private async void qdownloadgrid_Drop(object sender, DragEventArgs e)
+        private async void multiDownloadGrid_Drop(object sender, DragEventArgs e)
         {
             DropMessageText.Visibility = Visibility.Collapsed;
-            qdownloadgrid.AllowDrop = false;
+            multiDownloadGrid.AllowDrop = false;
             DropMessage.AllowDrop = false;
-            Uri _dropUri;
-            if (_url != "" && NetworkUtility.isUrl(_url, out _dropUri))
+            Uri dropUri;
+            if (url != "" && NetworkUtility.isUrl(url, out dropUri))
             {
-                _destinationFolder = Filepath.Text;
-                IOCore _ioSuperInfo = await GetUriInfo(_dropUri);
-                if (_ioSuperInfo != null && IOCore.IsValidInfoCarrier(_ioSuperInfo))
-                {
-                    DownloadList.Add(_ioSuperInfo);
-                }
+                destinationFolder = FilePath.Text;
+                DownloadUriInfo? remoteInfo = await GetUriInfo(dropUri);
+                if (remoteInfo != null)
+                    MultiDownloadList.Add(remoteInfo);
+
                 else
-                {
                     ShowNotifyMessage("fail to add Download.", true, 1500);
-                }
             }
-            qdownloadgrid.AllowDrop = true;
+            multiDownloadGrid.AllowDrop = true;
             DropMessage.AllowDrop = true;
             DropMessageText.Visibility = Visibility.Visible;
             DropMessage.Visibility = Visibility.Collapsed;
-            if (DownloadList.Count > 0)
+            if (MultiDownloadList.Count > 0)
             {
                 AddDownloadLabel.IsEnabled = true;
             }
-            _url = "";
+            url = "";
         }
         #endregion
+
         #region UiEvents
-        private void selectfolder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void selectFolder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             System.Windows.Forms.FolderBrowserDialog fbDialog = new System.Windows.Forms.FolderBrowserDialog();
             if (fbDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                Filepath.Text = fbDialog.SelectedPath;
-                _destinationFolder = fbDialog.SelectedPath;
-                //dynamic path change for single
-                if (_ioSuper != null)
-                {
-                    _ioSuper.fileSavePath = System.IO.Path.Combine(_destinationFolder, _ioSuper.fileName);
-                    if (IOCore.IsValidInfoCarrier(_ioSuper))
-                    {
-                        AddDownloadLabel.IsEnabled = true;
-                    }
-                }
-                if (!_singleDownload)
-                {
-                    foreach (var _ioSuperInfo in DownloadList)
-                    {
-                        _ioSuper.fileSavePath = System.IO.Path.Combine(_destinationFolder, _ioSuper.fileName);
-                    }
-                }
+                FilePath.Text = fbDialog.SelectedPath;
+                destinationFolder = fbDialog.SelectedPath;
+                if (remoteInfo != null)
+                    AddDownloadLabel.IsEnabled = true;
             }
         }
         private void ConditionDownload_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int? id = (int)(((sender as ComboBox).SelectedItem) as ComboBoxItem).Tag;
-            if (id != null)
+            if ((sender as ComboBox)?.SelectedItem is ComboBoxItem item)
             {
-                if (DownloadManager.GetDownloadViewModel(id.Value).Current_State == DownloadState.Completed)
+                int? id = (int)(item).Tag;
+                if (id != null && DownloadManager.GetDownloadViewModel(id.Value) is DownloadViewModel model)
                 {
-                    ShowNotifyMessage("Selected download is Completed and cannot be used as trigger", true);
-                    (sender as ComboBox).Items.Remove((sender as ComboBox).SelectedIndex);
-                    _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.Instant;
-                    return;
+                    if (model.CurrentState == DownloadState.Completed)
+                    {
+                        ShowNotifyMessage("Selected download is completed and cannot be used as trigger", true);
+                        (sender as ComboBox)?.Items.Remove((sender as ComboBox)?.SelectedIndex);
+                        defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
+                        return;
+                    }
+                    defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.DownloadStateChange;
+                    defaultConfig.StartConditionInfo.DownloadId = id.Value;
                 }
-                _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.DownloadStateChange;
-                _defaultConfig.StartConditionInfo.DownloadId = id.Value;
             }
         }
-        bool _expanded = false;
+        bool expanded = false;
         private void expandSettings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (!_expanded)
+            if (!expanded)
             {
                 this.Height = 380;
                 this.MaxHeight = this.Height;
                 Settings.Visibility = Visibility.Visible;
-                qdownloadgrid.Height = 70;
-                _expanded = true;
+                multiDownloadGrid.Height = 70;
+                expanded = true;
             }
             else
             {
 
-                if (!_LinkMultimode)
+                if (!linkMultimode)
                 {
-                    qdownloadgrid.Height = 70;
+                    multiDownloadGrid.Height = 70;
                     this.Height = 200;
                     this.MaxHeight = this.Height;
                 }
                 else
                 {
-                    qdownloadgrid.Height = 200;
+                    multiDownloadGrid.Height = 200;
                     this.Height = 320;
                     this.MaxHeight = this.Height;
                 }
                 Settings.Visibility = Visibility.Collapsed;
-                _expanded = false;
+                expanded = false;
             }
 
         }
-        private void multilinkmode_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void multiLinkMode_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (!_LinkMultimode)
+            if (!linkMultimode)
             {
-                multilinkmode.Visibility = Visibility.Collapsed;
-                _LinkMultimode = true;
+                multiLinkMode.Visibility = Visibility.Collapsed;
+                linkMultimode = true;
                 ContainersCombo.Visibility = Visibility.Collapsed;
-                multidownloadGrid.Visibility = Visibility.Visible;
+                multiDataDownloadGrid.Visibility = Visibility.Visible;
                 this.Height = 320;
-                qdownloadgrid.Height = 200;
+                multiDownloadGrid.Height = 200;
                 this.MaxHeight = this.Height;
                 Settings.Visibility = Visibility.Collapsed;
             }
             else
             {
-                multilinkmode.Visibility = Visibility.Visible;
-                _LinkMultimode = false;
+                multiDownloadGrid.Visibility = Visibility.Visible;
+                linkMultimode = false;
                 ContainersCombo.Visibility = Visibility.Visible;
-                multidownloadGrid.Visibility = Visibility.Collapsed;
+                multiDataDownloadGrid.Visibility = Visibility.Collapsed;
                 this.Height = 200;
                 this.MaxHeight = this.Height;
             }
         }
-
         #endregion
 
-        private void AddDownloadLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void AddDownloadLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) //incase of error DonwloadManager.Create will throw an exception DONOT Expect -1 in return!
         {
-            if (!_catching)
+            try
             {
-                if (_LinkMultimode)
+                if (!catching)
                 {
-                    if (string.IsNullOrEmpty(containername.Text))
+                    if (linkMultimode)
                     {
-                        ShowNotifyMessage("Container Name cannot be Empty", true);
-                        return;
-                    }
-                    if (!ContainerManager.ContainerExist(containername.Text))
-                    {
-                        _downloadContainer = ContainerManager.CreateContainer(containername.Text, DownloadList.Count + 10);
+                        if (string.IsNullOrEmpty(containername.Text))
+                        {
+                            ShowNotifyMessage("Container name cannot be empty", true);
+                            return;
+                        }
+
+                        if (!ContainerManager.ContainerExist(containername.Text))
+                        {
+                            downloadContainer = ContainerManager.CreateContainer(containername.Text, MultiDownloadList.Count + 10);
+                        }
+                        else
+                        {
+                            ShowNotifyMessage("A container with that name already exist", true);
+                            return;
+                        }
+
+                        if (!PrepareLocalSettings())
+                            return;
+
+                        foreach (DownloadUriInfo info in MultiDownloadList)
+                        {
+                            DownloadManager.Create(info, defaultConfig, downloadContainer);
+                        }
                     }
                     else
                     {
-                        ShowNotifyMessage("Container Name already exist", true);
-                        return;
-                    }
-                    //ContainerStackMode stackmode = ContainerStackMode.Normal;
-                    //switch (Stackmode.SelectedIndex)
-                    //{
-                    //    case 0:
-                    //        stackmode = ContainerStackMode.Normal;
-                    //        break;
-                    //    case 1:
-                    //        stackmode = ContainerStackMode.Direct;
-                    //        break;
-                    //    case 2:
-                    //        stackmode = ContainerStackMode.Reverse;
-                    //        break;
-                    //    case 3:
-                    //        stackmode = ContainerStackMode.Random;
-                    //        break;
-                    //}
-                    //_downloadContainer.ContainerStackMode = stackmode;
-                    if (!PrepareLocalSettings())
-                    {
-                        return;
-                    }
-                    foreach (IOCore ioSuperInfo in DownloadList)
-                    {
-                        if (!IOCore.IsValidInfoCarrier(ioSuperInfo))
+                        string saveDir = downloadContainer?.Path ?? "";
+                        if (Directory.Exists(FilePath.Text))
                         {
-                            ShowNotifyMessage("Invalid Download in List", true);
+                            if (FilePath.Text != downloadContainer?.Path || saveDir == "")
+                                saveDir = FilePath.Text;
+                        }
+                        else
+                        {
+                            ShowNotifyMessage("check the selected folder.", true);
                             return;
                         }
-                        DownloadManager.Create(ioSuperInfo, _defaultConfig, _downloadContainer);//In multi download mode the container path should be set to the path in newDownload Dialog
+                        if (remoteInfo != null)
+                        {
+                            if (!PrepareLocalSettings())
+                                return;
+                            if(downloadContainer != null)
+                                DownloadManager.Create(remoteInfo, defaultConfig, downloadContainer);
+                            else
+                            {
+                                ShowNotifyMessage("container is not set", true);
+                                return;
+                            }
+                            
+                        }
+                        else
+                        {
+                            ShowNotifyMessage("Check the Url and Selected Folder.", true);
+                            return;
+                        }
                     }
-                    GlobalSupervisor.mainwindow.CloseDialog(null, null);
                 }
                 else
                 {
-                    if (Directory.Exists(Filepath.Text))
-                    {
-                        if (System.IO.Path.GetDirectoryName(_ioSuper.fileSavePath) != Filepath.Text)
-                        {
-                            _ioSuper.fileSavePath = System.IO.Path.Combine(Filepath.Text, _ioSuper.fileName);
-                        }
-                    }
-                    else
-                    {
-                        ShowNotifyMessage("check the Selected Folder.", true);
-                        return;
-                    }
-                    if (IOCore.IsValidInfoCarrier(_ioSuper))
-                    {
-                        if (!PrepareLocalSettings())
-                        {
-                            return;
-                        }
-                        int? id = DownloadManager.Create(_ioSuper, _defaultConfig, _downloadContainer);
-                        if (id != null)
-                            DialogManager.Close();
-                        else
-                        {
-                            ShowNotifyMessage("Fail to create download.", true);
-                        }
-                    }
-                    else
-                    {
-                        ShowNotifyMessage("Check the Url and Selected Folder.", true);
-                        return;
-                    }
+                    ShowNotifyMessage("Wait until Server Send file info.", true);
+                    return;
                 }
             }
-            else
+            catch(Exception ex)
             {
-                ShowNotifyMessage("Wait until Server Send file info.", true);
+                ShowNotifyMessage(ex.Message, true);
                 return;
             }
+            GlobalSupervisor.MainWindow.CloseDialog(this, null);
         }
 
         private void ContainersCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            this.Filepath.Text = ((ContainersCombo.SelectedItem as ComboBoxItem).Tag as ContainerViewModel).Path;
+            if(ContainersCombo.SelectedItem is ComboBoxItem item)
+                this.FilePath.Text = ((ContainerViewModel)item.Tag).Path;
         }
 
-        private void filename_Loaded(object sender, RoutedEventArgs e)//C!~
+        private void filename_Loaded(object sender, RoutedEventArgs e)
         {
             if (filename != null)
             {
@@ -438,25 +407,25 @@ namespace HyperDownloadManager.Dialogs.DowloadDialog
 
         private bool PrepareLocalSettings()
         {
-            _defaultConfig = new ConfigViewModel();
-            ProxyType proxytype = ViewModels.Proxy.ProxyType.None;
+            defaultConfig = new ConfigViewModel();
+            ProxyType proxyType = ViewModels.Proxy.ProxyType.None;
             if (!string.IsNullOrEmpty(proxyhost.Text))
             {
                 switch (ProxyType.SelectedIndex)
                 {
                     case 0:
-                        proxytype = ViewModels.Proxy.ProxyType.Http;
+                        proxyType = ViewModels.Proxy.ProxyType.Http;
                         break;
                     case 1:
-                        proxytype = ViewModels.Proxy.ProxyType.Socks4;
+                        proxyType = ViewModels.Proxy.ProxyType.Socks4;
                         break;
                     case 2:
-                        proxytype = ViewModels.Proxy.ProxyType.Socks5;
+                        proxyType = ViewModels.Proxy.ProxyType.Socks5;
                         break;
                 }
                 if (!NetworkUtility.isUrl(proxyhost.Text))
                 {
-                    ShowNotifyMessage("Invalid Proxy Host Address.", true);
+                    ShowNotifyMessage("Invalid Proxy Host Address", true);
                     return false;
                 }
                 if (string.IsNullOrEmpty(proxyport.Text))
@@ -464,86 +433,78 @@ namespace HyperDownloadManager.Dialogs.DowloadDialog
                     ShowNotifyMessage("Proxy Port is empty", true);
                     return false;
                 }
-                if (!NetworkUtility.CheckProxy(new ProxyViewModel() { ProxyAddress = proxyhost.Text, ProxyType = proxytype, Port = UInt32.Parse(proxyport.Text) }))
+                if (!NetworkUtility.CheckProxy(new ProxyViewModel() { ProxyAddress = proxyhost.Text, ProxyType = proxyType, Port = UInt32.Parse(proxyport.Text) }))
                 {
                     ShowNotifyMessage("Proxy is not Working", true);
                     return false;
                 }
-                _defaultConfig.ProxyViewModel = new ProxyViewModel()
+                defaultConfig.ProxyViewModel = new ProxyViewModel()
                 {
                     ProxyAddress = proxyhost.Text,
-                    ProxyType = proxytype,
+                    ProxyType = proxyType,
                     Port = UInt32.Parse(proxyport.Text)
                 };
             }
-            if (GlobalSupervisor.NetworkSettingsViewModel.GlobalProxyExist() && !_defaultConfig.ProxyViewModel.ContainsProxy())
+            if (GlobalSupervisor.NetworkSettingsViewModel.GlobalProxyExist() && !(defaultConfig.ProxyViewModel?.ContainsProxy() ?? false))
             {
-                _defaultConfig.ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
+                defaultConfig.ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
             }
-            //container settings
-            if (!_LinkMultimode)
+
+            if (!linkMultimode)
             {
                 if (ContainersCombo.SelectedItem != null)
                 {
-                    this._downloadContainer = (ContainerViewModel)((ContainersCombo.SelectedItem as ComboBoxItem).Tag);
+                    if(ContainersCombo.SelectedItem is ComboBoxItem item)
+                        this.downloadContainer = (ContainerViewModel)((item).Tag);
                 }
                 else
                 {
-                    ShowNotifyMessage("Container Settings are Invalid", true);
+                    ShowNotifyMessage("Container settings are invalid", true);
                     return false;
                 }
             }
-            //Scheduling settings
+            
             switch (StartConditionCombo.SelectedIndex)
             {
                 case 0:
-                    _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.Instant;
+                    defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
                     break;
                 case 1:
                     {
-                        _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.DownloadStateChange;
-                        if (ConditionDownload.SelectedItem == null)
+                        defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.DownloadStateChange;
+
+                        if(ConditionDownload.SelectedItem is ComboBoxItem item)
+                            defaultConfig.StartConditionInfo.DownloadId = (int)(item).Tag;
+                        else
                         {
-                            ShowNotifyMessage("Select a Download for Scheduling", true);
+                            ShowNotifyMessage("Select a download for scheduling", true);
                             return false;
                         }
-                        _defaultConfig.StartConditionInfo.DownloadId = (int)(ConditionDownload.SelectedItem as ComboBoxItem).Tag;
                     }
                     break;
-                //case 2:
-                //    {
-                //        _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.ContainerFinish;
-                //        if (containerSettingcombo.SelectedItem == null)
-                //        {
-                //            ShowNotifyMessage("Select a Container for Scheduling", true);
-                //            return false;
-                //        }
-                //        _defaultConfig.StartConditionInfo.ContainerId = (int)(containerSettingcombo.SelectedItem as ComboBoxItem).Tag;
-                //    }
-                //    break;
+                case 2:
+                    defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.AllDownloadFinish;
+                    break;
                 case 3:
-                    _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.AllDownloadFinish;
+                    {
+                        defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.RelativeTime;
+                        if (TimerDownload.Value == null && TimerDownload.Value <= DateTime.Now.TimeOfDay)
+                        {
+                            ShowNotifyMessage("Download cannot schedule for this time", true);
+                            return false;
+                        }
+                        defaultConfig.StartConditionInfo.StartIn = TimerDownload.Value ?? DateTime.Now.TimeOfDay;
+                    }
                     break;
                 case 4:
                     {
-                        _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.RelativeTime;
-                        if (TimerDownload.Value == null && TimerDownload.Value <= DateTime.Now.TimeOfDay)
-                        {
-                            ShowNotifyMessage("Download cannot Schedule for this time", true);
-                            return false;
-                        }
-                        _defaultConfig.StartConditionInfo.StartIn = TimerDownload.Value.Value;
-                    }
-                    break;
-                case 5:
-                    {
-                        _defaultConfig.StartConditionInfo.AutoType = AutoStartConditionType.AbsoluteTime;
+                        defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.AbsoluteTime;
                         if (DatePicker.Value == null && DatePicker.Value <= DateTime.Now)
                         {
                             ShowNotifyMessage("Download cannot Schedule for this Date", true);
                             return false;
                         }
-                        _defaultConfig.StartConditionInfo.StartAt = DatePicker.Value.Value;
+                        defaultConfig.StartConditionInfo.StartAt = DatePicker.Value ?? DateTime.Now;
                     }
                     break;
             }

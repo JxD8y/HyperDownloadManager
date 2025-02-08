@@ -111,9 +111,7 @@
                                 </DataGridTemplateColumn.Header>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Label Content="{Binding Current_Percent,Converter={StaticResource FloattoString}}"/>
-                                        </StackPanel>
+                                        <Label Content="{Binding CurrentPercent,Converter={StaticResource FloattoString}}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -138,7 +136,6 @@
                         <Label Content="{xico:Material Kind=Timer}" />
                         <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="StartConditionCombo">
                             <ComboBoxItem Content="No Scheduling"/>
-                            <ComboBoxItem Content="Schedule with Container" x:Name="scheduleContaineritem"/>
                             <ComboBoxItem Content="Schedule with Timer" x:Name="scheduleTimeritem"/>
                             <ComboBoxItem Content="Schedule on Date" x:Name="scheduleDateitem"/>
                         </ComboBox>
@@ -147,15 +144,6 @@
                             <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                         </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
-                        <Label Content="{xico:BootstrapIcons Kind=stack}" />
-                        <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="containerMode">
-                            <ComboBoxItem Content="Normal"/>
-                            <ComboBoxItem Content="Reverse"/>
-                            <ComboBoxItem Content="Direct"/>
-                            <ComboBoxItem Content="Random"/>
-                        </ComboBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
                         <Label Content="{xico:Material Kind=FormatListGroup}" Foreground="IndianRed"/>

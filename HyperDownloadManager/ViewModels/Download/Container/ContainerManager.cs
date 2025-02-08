@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
 using HyperDownloadManager.Repository;
+using HyperDownloadManager.Utils;
 using LiteDB;
 
 namespace HyperDownloadManager.ViewModels.Download.Container
@@ -15,14 +16,16 @@ namespace HyperDownloadManager.ViewModels.Download.Container
     public static class ContainerManager
     {
         public const int ContainerMaxCapacity = 50;
-        public static ContainerViewModel? MainContainer = null;
+        public static ContainerViewModel MainContainer = new ContainerViewModel();
         public static ContainerViewModel? CurrentContainer = MainContainer;
         public static ObservableCollection<ContainerViewModel> Containers = new ObservableCollection<ContainerViewModel>() { };
         public static string DefaultContainerName = "Container-";
         public static event EventHandler<EventArgs>? OnSelectedContainerChanged;
         public static string MainContainerName { get; set; } = "All";
-        public static int CreateContainer(string name, BsonValue sid, int ContainerMax = ContainerMaxCapacity, string savePath = "")
+        public static int CreateContainer(string name, BsonValue? sid, int ContainerMax = ContainerMaxCapacity, string savePath = "")
         {
+            if (sid == null)
+                sid = new BsonValue(Guid.NewGuid());
             lock (sid)
             {
                 int id = GetLastContainerIndex() + 1;
@@ -36,7 +39,9 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 }
                 else
                 {
-                    container.Path = GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder;
+                    container.Path = GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder ?? IOUtility.GetSystemDownloadFolder() ?? "";
+                    if (container.Path == "")
+                        throw new Exception("cannot find system's default download directory");
                 }
                 SaveNewContainer(container);
                 return id;
@@ -56,53 +61,52 @@ namespace HyperDownloadManager.ViewModels.Download.Container
             lock (new object())
             {
                 int id = GetLastContainerIndex() + 1;
-                ContainerViewModel container = new ContainerViewModel(name, ContainerMax, id, null);
+                ContainerViewModel container = new ContainerViewModel(name, ContainerMax, id,null);
                 container.CreationTime = DateTime.Now;
                 container.Serialized_id = new BsonValue(Guid.NewGuid());
-                if (savePath != string.Empty)
+                if (savePath != "")
                 {
                     container.Path = savePath;
                 }
                 else
                 {
-                    DirectoryInfo directoryInfo = Directory.CreateDirectory(Path.Combine(GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder, name));
-                    container.Path = directoryInfo.FullName;
+                    container.Path = GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder ?? IOUtility.GetSystemDownloadFolder() ?? "";
+                    if (container.Path == "")
+                        throw new Exception("cannot find system's default download directory");
                 }
                 SaveNewContainer(container);
                 Containers.Add(container);
                 return container;
             }
         }
-        private static ContainerViewModel LoadContainer(ContainerViewModel dcm)
+        private static ContainerViewModel LoadContainer(ContainerViewModel viewModel)
         {
             lock (new object())
             {
-                ContainerViewModel container = new ContainerViewModel(dcm.Name, dcm.MaxCapacity, dcm.Id, null);
-                container.IsMain = dcm.IsMain;
-                container.Path = dcm.Path;
-                container.Description = dcm.Description;
-                container.MaxCapacity = dcm.MaxCapacity;
-                container.MaxOccupied = dcm.MaxOccupied;
-                container.Serialized_id = dcm.Serialized_id;
-                container.CreationTime = dcm.CreationTime;
+                ContainerViewModel container = new ContainerViewModel(viewModel.Name, viewModel.MaxCapacity, viewModel.Id, null);
+                container.IsMain = viewModel.IsMain;
+                container.Path = viewModel.Path;
+                container.Description = viewModel.Description;
+                container.MaxCapacity = viewModel.MaxCapacity;
+                container.MaxOccupied = viewModel.MaxOccupied;
+                container.Serialized_id = viewModel.Serialized_id;
+                container.CreationTime = viewModel.CreationTime;
                 if (container.IsMain)
                 {
-                    container.Path = GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder;
-                }
-                else
-                {
-                    container.Path = GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder;
+                    container.Path = GlobalSupervisor.GeneralSettingsViewModel.DefaultDownloadFolder ?? IOUtility.GetSystemDownloadFolder() ?? "";
+                    if (container.Path == "")
+                        throw new Exception("cannot find system's default download directory");
                 }
                 Containers.Add(container);
                 return container;
             }
         }
-        public static void HighlightDownload(int downloadid, int containerid)
+        public static void HighlightDownload(int downloadId, int containerId)
         {
-            ContainerViewModel dcm = GetContainer(containerid);
-            if (dcm != null)
+            ContainerViewModel viewModel = GetContainer(containerId);
+            if (viewModel != null)
             {
-                dcm.HighLightDownload(downloadid);
+                viewModel.HighLightDownload(downloadId);
             }
         }
         #region Oprations
@@ -184,21 +188,28 @@ namespace HyperDownloadManager.ViewModels.Download.Container
             if (download != null)
             {
                 ContainerViewModel? _container = download.Container;
-                bool deleted = _container.DeleteDownload(download);
-                if (!deleted)
-                    download.ContainerId = -1;
-                container.AddDownload(download, true);
+                if (_container != null)
+                {
+                    bool deleted = _container.DeleteDownload(download);
+                    if (!deleted)
+                        download.ContainerId = -1;
+                    container.AddDownload(download, true);
+                }
+                else
+                {
+                    LogManager.Log(MessageLevel.Error, LogSection.Database, $"fail to move download {download.DownloadName}: download is not in any container");
+                }
             }
         }
         #endregion
         #region ContainerRepo
-        public static BsonValue? SaveNewContainer(ContainerViewModel dcm)
+        public static BsonValue? SaveNewContainer(ContainerViewModel viewModel)
         {
             try
             {
-                if (dcm != null)
+                if (viewModel != null)
                 {
-                    return LitedbRepo<ContainerViewModel>.Add(dcm, LitedbRepo<ContainerViewModel>.ContainerColName);
+                    return LitedbRepo<ContainerViewModel>.Add(viewModel, LitedbRepo<ContainerViewModel>.ContainerColName);
                 }
                 return null;
             }
@@ -208,13 +219,15 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 return null;
             }
         }
-        public static void UpdateContainer(ContainerViewModel dcm)
+        public static void UpdateContainer(ContainerViewModel viewModel)
         {
-            lock (dcm)
+            if(viewModel.Serialized_id == null)
+                viewModel.Serialized_id = new BsonValue(Guid.NewGuid());
+            lock (viewModel)
             {
                 try
                 {
-                    LitedbRepo<ContainerViewModel>.Update(dcm.Serialized_id, dcm, LitedbRepo<ContainerViewModel>.ContainerColName);
+                    LitedbRepo<ContainerViewModel>.Update(viewModel.Serialized_id, viewModel, LitedbRepo<ContainerViewModel>.ContainerColName);
                 }
                 catch (Exception ex)
                 {
@@ -222,15 +235,22 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 }
             }
         }
-        public static void RemoveContainer(BsonValue id)
+        public static void RemoveContainer(BsonValue? id)
         {
-            try
+            if (id != null)
             {
-                LitedbRepo<ContainerViewModel>.Remove(id, LitedbRepo<ContainerViewModel>.ContainerColName);
+                try
+                {
+                    LitedbRepo<ContainerViewModel>.Remove(id, LitedbRepo<ContainerViewModel>.ContainerColName);
+                }
+                catch (Exception ex)
+                {
+                    LogManager.Log(MessageLevel.Error, LogSection.Database, $"Fail to Remove container: {ex.Message}");
+                }
             }
-            catch (Exception ex)
+            else
             {
-                LogManager.Log(MessageLevel.Error, LogSection.Database, $"Fail to Remove container: {ex.Message}");
+                LogManager.Log(MessageLevel.Error, LogSection.Database, $"Fail to remove container: Container SID was null");
             }
         }
         public static void ClearContainers()
@@ -253,11 +273,11 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 {
                     foreach (ContainerViewModel container in _containers)
                     {
-                        ContainerViewModel dcm = LoadContainer(container);
-                        if (dcm.IsMain)
+                        ContainerViewModel viewModel = LoadContainer(container);
+                        if (viewModel.IsMain)
                         {
-                            MainContainer = dcm;
-                            ChooseContainer(dcm.Id);
+                            MainContainer = viewModel;
+                            ChooseContainer(viewModel.Id);
                         }
                     }
                 }

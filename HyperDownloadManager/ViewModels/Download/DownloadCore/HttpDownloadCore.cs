@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using HyperDownloadManager.ViewModels.DataUnit;
 using HyperDownloadManager.ViewModels.Download.DownloadIO;
 using HyperDownloadManager.ViewModels.Proxy;
 
@@ -16,9 +17,6 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
     {
         #region Properties
         private HttpClient? httpClient;
-        private long sizeLimit = 0;
-        private long speedLimit = 0;
-        private uint connections = 1;
         private long receivedBytes = 0;
         private long agoReceivedBytes = 0;
         private bool corePrepared = false;
@@ -26,19 +24,25 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
         private byte[] buffer = new byte[2042];
         private HttpMessageHandler? httpHandler;
         private List<string>? workingHeaders;
-        public ConfigViewModel? ConfigViewModel { get; set; }
+        public ConfigViewModel ConfigViewModel { get; set; } = new ConfigViewModel();
         public bool IsWorking { get; set; }
         public bool Completed { get; set; }
         public bool ResumeSupport { get; set; }
         public event EventHandler<DataReceivedEventArgs>? OnDataReceived;
         public event EventHandler<EventArgs>? OnCompleted;
         #endregion
-        private static HttpClient infoClient = null;
-        public static async Task<IOCore?> GetUrlInfo(Uri uri, ConfigViewModel? configViewModel, string path, bool isTemp)
+        private static HttpClient? infoClient = null;
+        public static async Task<DownloadUriInfo?> GetUrlInfo(Uri uri, ConfigViewModel? configViewModel)
         {
-            if (uri == null) throw new ArgumentNullException("uri was null");
+            if (uri == null) 
+                throw new ArgumentNullException("uri was null");
+
+            if (configViewModel == null)
+                configViewModel = new ConfigViewModel();
+
             infoClient = new HttpClient();
             bool acceptRange = false;
+
             foreach (string Header in configViewModel.Headers.Split('\n'))
             {
                 if (!string.IsNullOrWhiteSpace(Header))
@@ -47,14 +51,17 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
                     infoClient.DefaultRequestHeaders.Add(parts[0], parts[1]);
                 }
             }
+
             infoClient.BaseAddress = uri;
             HttpResponseMessage resp = await infoClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
-            if (resp.Headers.AcceptRanges.Count > 0) { acceptRange = true; }
+
+            acceptRange = resp.Headers.AcceptRanges.Count > 0;
+
             if (resp.Content.Headers.ContentLength != null || resp.StatusCode == HttpStatusCode.OK)
             {
                 long size = resp.Content.Headers.ContentLength != null ? resp.Content.Headers.ContentLength.Value : 0;
-                IOCore? IOSuper = IOCore.CreateInfoSupervisor(size, acceptRange, path, resp.RequestMessage.RequestUri, isTemp);
-                return IOSuper;
+                DownloadUriInfo uriInfo = new DownloadUriInfo(acceptRange, new UnitValue(size), resp.RequestMessage?.RequestUri, null);
+                return uriInfo;
             }
             return null;
         }
@@ -65,30 +72,38 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
             else
                 this.ConfigViewModel = viewModel;
         }
-        public void ImportHeader(List<string> headers)
+        public void ImportHeader(List<string>? headers)
         {
             if (!IsWorking)
             {
-                if (httpClient != null)
+                if (headers != null)
                 {
-                    foreach (var header in headers)
+                    if (httpClient != null)
                     {
-                        string[] headerParts = header.Split(':');
-                        httpClient.DefaultRequestHeaders.Add(headerParts[0], headerParts[1]);
+                        foreach (var header in headers)
+                        {
+                            string[] headerParts = header.Split(':');
+                            httpClient.DefaultRequestHeaders.Add(headerParts[0], headerParts[1]);
+                        }
+                        workingHeaders = headers;
+                        corePrepared = true;
                     }
-                    workingHeaders = headers;
-                    corePrepared = true;
+                    else
+                    {
+                        workingHeaders = headers;
+                        corePrepared = false;
+                    }
                 }
                 else
                 {
-                    workingHeaders = headers;
-                    corePrepared = false;
+                    headers = CoreFactory.NecessaryHeaders;
+                    this.ImportHeader(headers);
                 }
             }
         }
         private void AddRangeHeader(long from, long to)
         {
-            if (!IsWorking)
+            if (!IsWorking && httpClient != null)
             {
                 httpClient.DefaultRequestHeaders.Range = new RangeHeaderValue();
                 httpClient.DefaultRequestHeaders.Range.Unit = "bytes";
@@ -102,50 +117,56 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
         {
             if (!IsWorking)
             {
-                switch (proxyViewModel.ProxyType)
+                if (proxyViewModel is ProxyViewModel)
                 {
-                    case ProxyType.None:
-                        httpHandler = new HttpClientHandler()
-                        {
-                            CookieContainer = new CookieContainer(),
-                            UseCookies = true,
-                            UseProxy = true,
-                            AllowAutoRedirect = true,
-                            MaxConnectionsPerServer = (int)ConfigViewModel.Connections
-                        };
-                        break;
-                    case ProxyType.Http:
-                        HttpClientHandler httpClientProxy = new HttpClientHandler() { Proxy = new WebProxy(proxyViewModel.ProxyAddress, (int)proxyViewModel.Port) };
-                        if (proxyViewModel.User != "")
-                        {
-                            httpClientProxy.Proxy.Credentials = new NetworkCredential(proxyViewModel.User, proxyViewModel.Pass);
-                        }
-                        httpClientProxy.CookieContainer = new CookieContainer();
-                        httpClientProxy.UseCookies = true;
-                        httpClientProxy.UseProxy = true;
-                        httpClientProxy.AllowAutoRedirect = true;
-                        httpClientProxy.MaxConnectionsPerServer = (int)ConfigViewModel.Connections;
-                        httpHandler = httpClientProxy;
-                        break;
-                    //case ProxyType.Socks4: N: support for socks proxies currently suspended
-                    //    ProxyClientHandler<Socks4> socks4ClientHandler = new ProxyClientHandler<Socks4>(new ProxySettings() { Host = proxyViewModel.ProxyAddress, Port = (int)proxyViewModel.Port, Credentials = new NetworkCredential(proxyViewModel.User, proxyViewModel.Pass) })
-                    //    {
-                    //        UseCookies = true,
-                    //        CookieContainer = new CookieContainer()
-                    //    };
-                    //    httpHandler = socks4ClientHandler;
-                    //    break;
-                    //case ProxyType.Socks5:
-                    //    ProxyClientHandler<Socks5> socks5ClientHandler = new ProxyClientHandler<Socks5>(new ProxySettings() { Host = proxyViewModel.ProxyAddress, Port = (int)proxyViewModel.Port, Credentials = new NetworkCredential(proxyViewModel.User, proxyViewModel.Pass) })
-                    //    {
-                    //        UseCookies = true,
-                    //        CookieContainer = new CookieContainer()
-                    //    };
-                    //    httpHandler = socks5ClientHandler;
-                    //    break;
+                    switch (proxyViewModel.ProxyType)
+                    {
+                        case ProxyType.None:
+                            httpHandler = new HttpClientHandler()
+                            {
+                                CookieContainer = new CookieContainer(),
+                                UseCookies = true,
+                                UseProxy = true,
+                                AllowAutoRedirect = true,
+                                MaxConnectionsPerServer = (int)ConfigViewModel.Connections
+                            };
+                            break;
+                        case ProxyType.Http:
+                            HttpClientHandler httpClientProxy = new HttpClientHandler() { Proxy = new WebProxy(proxyViewModel.ProxyAddress, (int)proxyViewModel.Port) };
+                            if (proxyViewModel.User != "")
+                            {
+                                httpClientProxy.Proxy.Credentials = new NetworkCredential(proxyViewModel.User, proxyViewModel.Pass);
+                            }
+                            httpClientProxy.CookieContainer = new CookieContainer();
+                            httpClientProxy.UseCookies = true;
+                            httpClientProxy.UseProxy = true;
+                            httpClientProxy.AllowAutoRedirect = true;
+                            httpClientProxy.MaxConnectionsPerServer = (int)ConfigViewModel.Connections;
+                            httpHandler = httpClientProxy;
+                            break;
+                            //case ProxyType.Socks4: N: support for socks proxies currently suspended
+                            //    ProxyClientHandler<Socks4> socks4ClientHandler = new ProxyClientHandler<Socks4>(new ProxySettings() { Host = proxyViewModel.ProxyAddress, Port = (int)proxyViewModel.Port, Credentials = new NetworkCredential(proxyViewModel.User, proxyViewModel.Pass) })
+                            //    {
+                            //        UseCookies = true,
+                            //        CookieContainer = new CookieContainer()
+                            //    };
+                            //    httpHandler = socks4ClientHandler;
+                            //    break;
+                            //case ProxyType.Socks5:
+                            //    ProxyClientHandler<Socks5> socks5ClientHandler = new ProxyClientHandler<Socks5>(new ProxySettings() { Host = proxyViewModel.ProxyAddress, Port = (int)proxyViewModel.Port, Credentials = new NetworkCredential(proxyViewModel.User, proxyViewModel.Pass) })
+                            //    {
+                            //        UseCookies = true,
+                            //        CookieContainer = new CookieContainer()
+                            //    };
+                            //    httpHandler = socks5ClientHandler;
+                            //    break;
+                    }
+                    corePrepared = false;
                 }
-                corePrepared = false;
-                //after any changes to Settings set the prepared to false to recreate the core.
+                else
+                {
+                    throw new ArgumentNullException("proxyViewModel was null");
+                }
             }
         }
         private void CreateHttpClient()
@@ -163,14 +184,15 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
         {
             if (!corePrepared)
                 CreateHttpClient();
-            if (!IsWorking)
+
+            if (!IsWorking && httpClient != null)
             {
                 if ((ResumeSupport && !Completed))
                 {
                     AddRangeHeader(offset, fileSize);
                 }
-                httpClient.BaseAddress = new Uri(ConfigViewModel.Url);
-                HttpResponseMessage responseMessage = await httpClient.GetAsync(ConfigViewModel.Url, HttpCompletionOption.ResponseHeadersRead);
+                httpClient.BaseAddress = new Uri(ConfigViewModel.model.CurrentUrl);
+                HttpResponseMessage responseMessage = await httpClient.GetAsync(ConfigViewModel.model.CurrentUrl, HttpCompletionOption.ResponseHeadersRead);
                 if ((ensure200 && responseMessage.StatusCode == HttpStatusCode.OK) || !ensure200 || (ensure200 && responseMessage.StatusCode == HttpStatusCode.PartialContent))
                 {
                     Stream siteContentStream = await responseMessage.Content.ReadAsStreamAsync();
@@ -182,7 +204,7 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
                 }
                 else
                 {
-                    throw new Exception("Site return code is not 200");
+                    throw new Exception("Site did not return in http 200");
                 }
             }
             else
@@ -196,23 +218,31 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
             {
                 if (!corePrepared)
                     CreateHttpClient();
-                this.AddRangeHeader(offset, offset + length);
-                HttpResponseMessage? resp = await httpClient.GetAsync(ConfigViewModel.Url, HttpCompletionOption.ResponseContentRead, CancellationToken.None);
-                this.resetClient();
-                if (!resp.IsSuccessStatusCode)
+                if (httpClient != null)
                 {
-                    throw new Exception("Site return code is not 200");
+
+                    this.AddRangeHeader(offset, offset + length);
+                    HttpResponseMessage? resp = await httpClient.GetAsync(ConfigViewModel.model.CurrentUrl, HttpCompletionOption.ResponseContentRead, CancellationToken.None);
+                    this.resetClient();
+                    if (!resp.IsSuccessStatusCode)
+                    {
+                        throw new Exception("Site did not return in http 200");
+                    }
+                    else
+                    {
+                        byte[] buffer = new byte[length];
+                        Stream? contentStream = resp.Content.ReadAsStream();
+                        if (contentStream.Read(buffer, 0, length) > 0)
+                        {
+                            return buffer;
+                        }
+                        else
+                            return null;
+                    }
                 }
                 else
                 {
-                    byte[] buffer = new byte[length];
-                    Stream? contentStream = resp.Content.ReadAsStream();
-                    if (contentStream.Read(buffer, 0, length) > 0)
-                    {
-                        return buffer;
-                    }
-                    else
-                        return null;
+                    throw new NullReferenceException("HttpClient was null");
                 }
             }
             else
@@ -226,14 +256,14 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
             {
                 await Task.Run(new Action(() =>
                 {
-                    Stream? downloadStream = (Stream)ar.AsyncState;
-                    int readBytes = downloadStream.EndRead(ar);
+                    Stream? downloadStream = (Stream?)ar.AsyncState;
+                    int readBytes = downloadStream?.EndRead(ar) ?? 0;
                     if (readBytes > 0)
                     {
                         agoReceivedBytes = receivedBytes;
                         receivedBytes += readBytes;
                         this.PerformWrite(readBytes);
-                        downloadStream.BeginRead(buffer, 0, buffer.Length, readCallBack, downloadStream);
+                        downloadStream?.BeginRead(buffer, 0, buffer.Length, readCallBack, downloadStream);
                     }
                     else if (readBytes == 0)
                     {

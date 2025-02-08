@@ -15,9 +15,9 @@ namespace HyperDownloadManager.ViewModels.Download.Container.Condition
             CreationTime = creationTime;
             StartIn = startIn;
         }
-        public override bool Ready(ContainerViewModel dcm)
+        public override bool Ready(ContainerViewModel viewModel)
         {
-            dcm.CompleteTime = DateTime.Now.TimeOfDay - StartIn;
+            viewModel.CompleteTime = DateTime.Now.TimeOfDay - StartIn;
             return (CreationTime + StartIn) < DateTime.Now;
         }
     }

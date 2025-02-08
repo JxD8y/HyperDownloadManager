@@ -393,14 +393,6 @@ namespace HyperDownloadManager.ViewModels.Download
                     else
                         return;
                     break;
-                //case AutoStartConditionType.AllDownloadFinish:
-                //    StartCondition = new ContainerCompletedCondition(this.model)
-                //    {
-                //        ContainerViewModel = this.model.Container
-                //    };
-                //    await StartCondition.WaitUntilDone(this.model, ConditionCancelToken.Token);
-                //    ConfigViewModel.StartConditionInfo.ConditionType = AutoStartConditionType.None;
-                //    break;
             }
         }
         #endregion
@@ -513,20 +505,6 @@ namespace HyperDownloadManager.ViewModels.Download
             else
             {
                 LogManager.Log(MessageLevel.Warning, LogSection.Download, $"Cannot shutdown: Running Downloads.");
-            }
-        }
-        private void ResumeAll()
-        {
-            if (DownloadManager.GetUnworkingUncompleted() < 0)
-            {
-                if (this.model.Container is ContainerViewModel)
-                {
-                    this.model.Container.StartAllDownload();
-                }
-            }
-            else
-            {
-                LogManager.Log(MessageLevel.Warning, LogSection.Database, $"Cannot resume all Download: no paused download exist.");
             }
         }
         #endregion

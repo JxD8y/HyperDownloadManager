@@ -15,12 +15,10 @@
                 <Image VerticalAlignment="Center" x:Name="IconHolder" Stretch="None" Margin="0 0 10 0"/>
                 <Label Content="HDM Project" FontSize="38" FontFamily="Gabriola" FontWeight="Bold"/>
                 <StackPanel Orientation="Horizontal">
-                    <Label Content="Developer: Jxd8y" Margin="10 -15 0 0" FontFamily="Bahnschrift SemiLight Condensed" VerticalAlignment="Center" FontSize="20"/>
                     <Label Content="{xico:Material Kind=Github}" Margin="0 -15 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <Label Content="{xico:BootstrapIcons Kind=Telegram}" Margin="0 -15 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <Label Content="{xico:BootstrapIcons Kind=Twitter}" Margin="0 -15 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <Label Content="Developer: Jxd8y" Margin="10 -15 0 0" FontFamily="Bahnschrift SemiLight Condensed" VerticalAlignment="Center" FontSize="20"/>
                 </StackPanel>
-                <Label Content="--Version: 0.1 Alpha" Margin="0 0 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Label Content="--Version: 1 Beta" Margin="0 0 0 0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
             </StackPanel>
         </Grid>
     </Border>

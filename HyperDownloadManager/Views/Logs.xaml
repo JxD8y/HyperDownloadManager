@@ -16,13 +16,13 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="0" Margin="6">
-                <Button Click="Savelogs_Click" x:Name="Savelogs" Margin="3">
+                <Button Click="SaveLogs_Click" x:Name="SaveLogs" Margin="3">
                     <StackPanel Orientation="Horizontal">
                         <Label Content="{xico:Material Kind=Floppy}" Foreground="RoyalBlue"/>
                         <Label Content="Save Logs" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Click="Deletecurrentlog_Click" x:Name="Deletecurrentlog" Margin="3">
+                <Button Click="DeleteCurrentLog_Click" x:Name="DeleteCurrentLog" Margin="3">
                     <StackPanel Orientation="Horizontal">
                         <Label Content="{xico:Material Kind=Delete}" Foreground="IndianRed"/>
                         <Label Content="Remove All" VerticalAlignment="Center"/>

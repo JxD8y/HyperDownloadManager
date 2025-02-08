@@ -17,7 +17,6 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
         public IoState IoState { get; set; } = IoState.FileNotOpen;
         public ThrottledStream? fileStream { get; set; }
         public bool isStreamOpen { get; set; } = false;
-        public BitmapSource? Icon { get; set; }
         public DownloadViewModel model { get; set; } = new DownloadViewModel();
         public long FileSize { get { if (fileStream == null) return 0; else return fileStream.Length; } }
 
@@ -110,6 +109,7 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
                     IoState = IoState.FileOk;
                     this.fileStream = stream;
                     this.fileStream.Position = this.fileStream.Length;
+                    this.model.DownloadedSize = new UnitValue(this.fileStream.Length);
                 }
                 else
                 {

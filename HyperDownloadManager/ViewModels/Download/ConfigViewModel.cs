@@ -27,7 +27,7 @@ namespace HyperDownloadManager.ViewModels.Download
             if (GlobalSupervisor.NetworkSettingsViewModel is NetworkSettingsViewModel)
             {
                 ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
-                Headers = GlobalSupervisor.NetworkSettingsViewModel.DefaultHeaders;
+                Headers = GlobalSupervisor.NetworkSettingsViewModel.Headers;
                 connections = GlobalSupervisor.NetworkSettingsViewModel.MaxConnectionsPreServer;
             }
             else
@@ -49,7 +49,7 @@ namespace HyperDownloadManager.ViewModels.Download
             if (GlobalSupervisor.NetworkSettingsViewModel is NetworkSettingsViewModel)
             {
                 ProxyViewModel = GlobalSupervisor.NetworkSettingsViewModel.ProxyViewModel;
-                Headers = GlobalSupervisor.NetworkSettingsViewModel.DefaultHeaders;
+                Headers = GlobalSupervisor.NetworkSettingsViewModel.Headers;
                 connections = GlobalSupervisor.NetworkSettingsViewModel.MaxConnectionsPreServer;
             }
             else
@@ -65,7 +65,7 @@ namespace HyperDownloadManager.ViewModels.Download
             SettingSupervisor.OnSettingsChanged += SettingSupervisor_OnSettingsChanged;
         }
 
-        private void SettingSupervisor_OnSettingsChanged(object? sender, EventArgs e)
+        private void SettingSupervisor_OnSettingsChanged(object? sender, EventArgs? e)
         {
             if ((sender is NetworkSettingsViewModel) && sender != null)
             {
@@ -134,15 +134,22 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         public bool UpdateSettingValue(ConfigViewModel newConfig)
         {
-            if (this.model != null)
-            {
-                DownloadManager.UpdateDownload(this.model);
-                if (this.ConfigUpdated != null)
-                    ConfigUpdated(this, this ^ newConfig);
-                return true;
-            }
-            else
-                return false;
+            DownloadManager.UpdateDownload(this.model);
+
+            this.AuthUser = newConfig.AuthUser;
+            this.AuthPass = newConfig.AuthPass;
+            this.Headers = newConfig.Headers;
+            this.MaxFileSize = newConfig.MaxFileSize;
+            this.SpeedLimit = newConfig.SpeedLimit;
+            this.Connections = newConfig.Connections;
+            this.StartConditionInfo = newConfig.StartConditionInfo;
+            this.CompleteType = newConfig.CompleteType;
+            this.ShowFinalDialog = newConfig.ShowFinalDialog;
+            this.ProxyViewModel = newConfig.ProxyViewModel;
+
+            if (this.ConfigUpdated != null)
+                ConfigUpdated(this, this ^ newConfig);
+            return true;
         }
         #endregion
     }

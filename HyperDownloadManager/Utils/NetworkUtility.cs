@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
 using HyperDownloadManager.ViewModels.Proxy;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace HyperDownloadManager.Utils
 {
@@ -66,16 +68,16 @@ namespace HyperDownloadManager.Utils
         }
         #endregion
         #region Utils
-        public static bool TryConvertToUri(string url, out Uri _url)
+        public static bool TryConvertToUri(string url, out Uri? uri)
         {
-            bool isurl = Uri.IsWellFormedUriString(url, UriKind.Absolute);
-            if (isurl)
+            bool isUrl = Uri.IsWellFormedUriString(url, UriKind.Absolute);
+            if (isUrl)
             {
-                Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out _url);
+                Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri);
             }
             else
-                _url = null;
-            return isurl;
+                uri = null;
+            return isUrl;
         }
         public static bool isUrl(string url)
         {
@@ -85,7 +87,7 @@ namespace HyperDownloadManager.Utils
             }
             return false;
         }
-        public static bool isUrl(string url, out Uri uri)
+        public static bool isUrl(string url, out Uri? uri)
         {
             uri = null;
             if (Regex.IsMatch(url, @"\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}\b") || Regex.IsMatch(url, @"((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)") || Regex.IsMatch(url, @"^([a-zA-Z0-9](?:(?:[a-zA-Z0-9-]*|(?<!-)\.(?![-.]))*[a-zA-Z0-9]+)?)$"))

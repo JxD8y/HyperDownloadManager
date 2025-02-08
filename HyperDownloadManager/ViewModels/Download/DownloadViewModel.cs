@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.DataUnit;
 using HyperDownloadManager.ViewModels.Download.Container;
 using HyperDownloadManager.ViewModels.Download.DownloadIO;
@@ -12,7 +15,7 @@ using LiteDB;
 
 namespace HyperDownloadManager.ViewModels.Download
 {
-    public class DownloadViewModel : ViewModel //N: Transfer all IOCore's props that needed to be serialized to this!
+    public class DownloadViewModel : ViewModel
     {
         public int Id { get; set; }
         public int ContainerId { get; set; }
@@ -21,9 +24,8 @@ namespace HyperDownloadManager.ViewModels.Download
         public BsonValue? Serialized_id { get; set; }
         [BsonIgnore]
         public ContainerViewModel? Container { get { return ContainerManager.GetContainer(this.ContainerId); } }
-        public IOCore IOCore { get; set; } = new IOCore();
         public DownloadSupervisor? Supervisor { get; set; }
-        public ConfigViewModel ConfigViewModel { get; set; } = new ConfigViewModel();
+        public ConfigViewModel? ConfigViewModel { get; set; }
         #region Pages
         [BsonIgnore]
         public DownloadDetailView? DetailPage { get; set; }
@@ -34,33 +36,37 @@ namespace HyperDownloadManager.ViewModels.Download
         [BsonIgnore]
         public bool IsSeparateWindowOpen { get; set; }
         #endregion
-        public DownloadViewModel(int id, IOCore ioCore, ConfigViewModel configViewModel, ContainerViewModel containerViewModel)
+        [BsonCtor]
+        public DownloadViewModel() { }
+        public DownloadViewModel(int id, ConfigViewModel configViewModel, ContainerViewModel containerViewModel)
         {
-            Id = id;
-            IOCore = ioCore;
-            IOCore.DownloadViewModel = this;
-            Current_State = DownloadState.Paused;
-            Current_Percent = 0;
-            this.ConfigViewModel = configViewModel;
-            configViewModel.DownloadViewModel = this;
-            Supervisor = new DownloadSupervisor(this);
-            DetailPage = new DownloadDetailView(id);
-            DownloadSettingsPage = new DownloadSettingsView(this);
-            DetailPage.SetdataContext(this);
+            this.Id = id;
             this.CreationDate = DateTime.Now;
-            DetailPage.SetdataContext(this);
+            this.CurrentState = DownloadState.Paused;
+            this.CurrentPercent = 0;
             this.ContainerId = containerViewModel.Id;
-        }
-        public DownloadViewModel()
-        {
-            IOCore = new IOCore();
-        }
 
+            this.ConfigViewModel = configViewModel;
+            configViewModel.model = this;
+
+            this.Supervisor = new DownloadSupervisor(this);
+
+            this.DetailPage = new DownloadDetailView(this);
+            this.DownloadSettingsPage = new DownloadSettingsView(this);
+        }
         #endregion
         #region Properties
+
+
+        [BsonIgnore]
+        private bool errorOccurred = false;
+        public bool ErrorOccurred { get { return errorOccurred; } set { errorOccurred = value; OnPropertyChanged(); } }
+        [BsonIgnore]
+        public string LastException { get; set; } = "";
+
         private UnitValue speed;
         [BsonIgnore]
-        public UnitValue Current_Speed
+        public UnitValue CurrentSpeed
         {
             get
             {
@@ -114,37 +120,81 @@ namespace HyperDownloadManager.ViewModels.Download
                 OnPropertyChanged();
             }
         }
-        public UnitValue? FileSize
+        UnitValue fileSize = new UnitValue();
+        public UnitValue FileSize
         {
             get
             {
-                return IOCore.fileSize;
+                return fileSize;
             }
+            set { fileSize = value; OnPropertyChanged(); }
         }
         [BsonIgnore]
-        public BitmapSource? Icon { get { return IOCore?.Icon; } set { IOCore.Icon = value; } }
+        public BitmapSource? Icon { get; set; }
 
-        private float _Current_Percent;
+        private float _CurrentPercent;
 
         [BsonIgnore]
-        public float Current_Percent { get { return _Current_Percent; } set { _Current_Percent = value; OnPropertyChanged(); } }
+        public float CurrentPercent { get { return _CurrentPercent; } set { _CurrentPercent = value; OnPropertyChanged(); } }
 
-        private DownloadState _Current_State;
-        public DownloadState Current_State { get { return _Current_State; } set { _Current_State = value; OnPropertyChanged(); } }
+        private DownloadState _CurrentState;
+        public DownloadState CurrentState { get { return _CurrentState; } set { _CurrentState = value; OnPropertyChanged(); } }
 
         private bool _Selected;
         [BsonIgnore]
         public bool Selected { get { return _Selected; } set { _Selected = value; OnPropertyChanged(); } }
+        private bool _working;
         [BsonIgnore]
-        public bool ResumeSupport { get { return IOCore.Resumable; } set { IOCore.Resumable = value; OnPropertyChanged(); } }
+        public bool IsWorking { get { return _working; } set { _working = value; OnPropertyChanged(); } }
+        private bool _completed;
         [BsonIgnore]
-        public string Current_Url { get { return IOCore.Url.OriginalString; } }
+        public bool IsCompleted { get { return _completed; } set { _completed = value; OnPropertyChanged(); } }
+
+        #region Network
+        bool _resumable = false;
+        public bool ResumeSupport { get { return _resumable; } set { _resumable = value; OnPropertyChanged(); } }
+        string _url = "";
+        public string CurrentUrl { get { return _url; } set { _url = value; OnPropertyChanged(); } }
+        public DownloadType DownloadType { get; set; } = DownloadType.HttpDownload;
         [BsonIgnore]
-        public string Current_Server { get { return IOCore.Url.Host; } }
+        public bool IsErrorOccurred { get; set; }
         [BsonIgnore]
-        public string Current_FileName { get { return IOCore.fileName; } }
+        public string? ErrorMessage { get; set; }
         [BsonIgnore]
-        public string DownloadName { get { return Current_FileName; } }
+        public long Ping { get; set; }
+        #endregion
+
+        #region FilePath
+        string? _fileSavePath;
+        public string? FileSavePath
+        {
+            get
+            {
+                return _fileSavePath;
+            }
+            set
+            {
+                this.CurrentSaveFileDirectory = Path.GetDirectoryName(value);
+                this.CurrentFileName = Path.GetFileName(value);
+                this.CurrentFileExtension = Path.GetExtension(value);
+            }
+        }
+
+        string? _fileName;
+        [BsonIgnore]
+        public string? CurrentFileName { get { return _fileName; } set { _fileName = value; OnPropertyChanged(); } }
+        string? _fileExtension;
+        [BsonIgnore]
+        public string? CurrentFileExtension { get { return _fileExtension; } set { _fileExtension = value; OnPropertyChanged(); } }
+        string? _saveDirectory;
+        [BsonIgnore]
+        public string? CurrentSaveFileDirectory { get { return _saveDirectory; } set { _saveDirectory = value; OnPropertyChanged(); } }
+        [BsonIgnore]
+        public bool IsTempFile { get { return CurrentFileExtension == IOUtility.TempExtension; } }
+        #endregion
+
+        [BsonIgnore]
+        public string? DownloadName { get { return CurrentFileName; } }
         public DateTime CreationDate { get; set; }
         public DateTime StartTime { get; set; }
         #endregion

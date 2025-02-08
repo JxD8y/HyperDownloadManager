@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:HyperDownloadManager.Views.Pages"
+      xmlns:local="clr-namespace:HyperDownloadManager.Dialogs.DownloadDialog"
       xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
       xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
@@ -28,7 +28,7 @@
 
                 <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                     <Label Content="{xico:Material Kind=Group}"/>
-                    <HDMControls:LabelTextBox HelperContent="Name" Width="150" x:Name="name" TextBoxBase.TextChanged="name_TextChanged"/>
+                    <HDMControls:LabelTextBox HelperContent="Name" Width="150" x:Name="name"/>
                     <HDMControls:LabelTextBox HelperContent="Description" Width="250" Margin="10 0 0 0" x:Name="Description"/>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="0 10 0 0">
@@ -147,15 +147,6 @@
                             <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                         </StackPanel>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
-                        <Label Content="{xico:BootstrapIcons Kind=stack}" />
-                        <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="containerMode">
-                            <ComboBoxItem Content="Normal"/>
-                            <ComboBoxItem Content="Reverse"/>
-                            <ComboBoxItem Content="Direct"/>
-                            <ComboBoxItem Content="Random"/>
-                        </ComboBox>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="10 10 0 0">
                         <Label Content="{xico:Material Kind=FormatListGroup}" Foreground="IndianRed"/>

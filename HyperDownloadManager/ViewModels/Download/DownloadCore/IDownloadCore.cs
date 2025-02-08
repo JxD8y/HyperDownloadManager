@@ -11,7 +11,7 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
     {
         public event EventHandler<DataReceivedEventArgs> OnDataReceived;
         public event EventHandler<EventArgs> OnCompleted;
-        public ConfigViewModel? ConfigViewModel { get; set; }
+        public ConfigViewModel ConfigViewModel { get; set; }
         public bool IsWorking { get; set; }
         public bool Completed { get; set; }
         public bool ResumeSupport { get; set; }

@@ -45,7 +45,7 @@ namespace HyperDownloadManager.Dialogs
             {
                 if (DialogMode == DialogMode.Window)
                 {
-                    GlobalSupervisor.mainwindow.Dispatcher.Invoke(() =>
+                    GlobalSupervisor.MainWindow.Dispatcher.Invoke(() =>
                     {
                         if (Title == null)
                             Title = "Message";
@@ -59,9 +59,9 @@ namespace HyperDownloadManager.Dialogs
                 }
                 else
                 {
-                    GlobalSupervisor.mainwindow.Dispatcher.Invoke(() =>
+                    GlobalSupervisor.MainWindow.Dispatcher.Invoke(() =>
                     {
-                        GlobalSupervisor.mainwindow.ShowDialog(DialogContent);
+                        GlobalSupervisor.MainWindow.ShowDialog(DialogContent);
                     });
                     while (this.messageBoxStatus == MessageBoxStatus.NONE)
                     {
@@ -76,11 +76,11 @@ namespace HyperDownloadManager.Dialogs
         {
             if (DialogMode == DialogMode.Window)
             {
-                this.Dialog.Close();
+                this.Dialog?.Close();
             }
             else
             {
-                GlobalSupervisor.mainwindow.CloseDialog();
+                GlobalSupervisor.MainWindow.CloseDialog();
             }
             this.messageBoxStatus = state;
         }

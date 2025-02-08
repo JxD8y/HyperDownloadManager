@@ -10,14 +10,14 @@ namespace HyperDownloadManager.ViewModels.Download.Container.Condition
     {
         public DateTime StartAt { get; set; }
         public DateTime CreationDate { get; set; }
-        public AbsoluteTimeContainerStartCondition(DateTime creationDate, DateTime startat)
+        public AbsoluteTimeContainerStartCondition(DateTime creationDate, DateTime startAt)
         {
             CreationDate = creationDate;
-            StartAt = startat;
+            StartAt = startAt;
         }
-        public override bool Ready(ContainerViewModel dcm)
+        public override bool Ready(ContainerViewModel viewModel)
         {
-            dcm.CompleteTime = StartAt - CreationDate;
+            viewModel.CompleteTime = StartAt - CreationDate;
             return StartAt < DateTime.Now;
         }
     }

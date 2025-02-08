@@ -9,7 +9,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using ControlzEx.Standard;
 using ControlzEx.Theming;
+using HyperDownloadManager.Dialogs;
+using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
 using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.Download;
@@ -25,8 +28,8 @@ namespace HyperDownloadManager
         public MainWindow()
         {
             InitializeComponent();
-            //LogManager.OnLogAdd += LogManager.on; 
-            GlobalSupervisor.mainwindow = this;
+            LogManager.OnLogAdd += LogManager_OnLogAdd;
+            GlobalSupervisor.MainWindow = this;
             ThemeManager.Current.ChangeTheme(System.Windows.Application.Current, GlobalSupervisor.ThemeSettingsViewModel.CurrentTheme);
             this.mainFrame.Content = GlobalSupervisor.DownloadPage;
             if (!GlobalSupervisor.UnderDebug)
@@ -40,11 +43,16 @@ namespace HyperDownloadManager
                     HDMNotifyIcon.Visibility = Visibility.Collapsed;
                 }
             }
-            //NetworkUtility.OnNetworkConnectivityChanged += NetworkWatchDog_OnNetworkConnectivityChanged; //N: ?
+            NetworkUtility.OnNetworkConnectivityChanged += NetworkWatchDog_OnNetworkConnectivityChanged;
             NetworkUtility.StartNetworkConnectivityObservation();
             this.DataContext = GlobalSupervisor.MainViewModel;
             this.Topmost = GlobalSupervisor.GeneralSettingsViewModel.TopMost;
             this.AllowDrop = GlobalSupervisor.GeneralSettingsViewModel.AllowDrag;
+        }
+
+        private void LogManager_OnLogAdd(LogViewModel lvm)
+        {
+            LastLoglabel.Content = $"{lvm.AccureTime}: {lvm.Log}";
         }
         #region NotifyIcon
         private void HDMNotifyIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)
@@ -57,10 +65,10 @@ namespace HyperDownloadManager
             HDMNotifyIcon.ContextMenu.Items.Clear();
             foreach (var itm in DownloadManager.DownloadViewModels)
             {
-                if (itm.Supervisor.DownloadCore.IsWorking && !itm.Supervisor.DownloadCore.Completed)
+                if (itm.IsWorking && !itm.IsCompleted)
                 {
                     MenuItem menuItem = new MenuItem();
-                    menuItem.Header = $"{itm.Current_Percent.ToString("0.0")}% " + itm.Current_FileName;
+                    menuItem.Header = $"{itm.CurrentPercent.ToString("0.0")}% " + itm.CurrentFileName;
                     menuItem.Tag = itm.Id;
                     menuItem.Click += DownloadMenuItem_Click;
                     HDMNotifyIcon.ContextMenu.Items.Add(menuItem);
@@ -74,24 +82,62 @@ namespace HyperDownloadManager
             HDMNotifyIcon.ContextMenu.Items.Add(closeMenuItem);
         }
 
-        private void AppCloseItem_Click(object sender, RoutedEventArgs e)
+        private async void AppCloseItem_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.MessageBox.Show("not implemented!");
+            string NonResume = "";
+            bool running = false;
+            foreach (DownloadViewModel viewModel in DownloadManager.DownloadViewModels)
+            {
+                running |= viewModel.IsWorking;
+                if (!viewModel.ResumeSupport)
+                    NonResume += viewModel.DownloadName + "\n";
+            }
+
+            this.Show();
+
+            if(NonResume != "")
+            {
+                MessageBoxStatus? result = await DialogManager.ShowMessageBox($"these downloads cannot be resumed again: {NonResume}\nAre you sure to close the application?", Dialogs.MessageBoxDialog.MessageLevel.Warning, Dialogs.MessageBoxDialog.ButtonOrder.YESNO, true);
+                if(result != null && result == MessageBoxStatus.YES)
+                {
+                    System.Windows.Application.Current.Shutdown(0);
+                }
+            }
+            else if(running){
+                MessageBoxStatus? result = await DialogManager.ShowMessageBox("There are some downloads running\nare you sure to close the application?", Dialogs.MessageBoxDialog.MessageLevel.Warning, Dialogs.MessageBoxDialog.ButtonOrder.YESNO, true);
+                if (result != null && result == MessageBoxStatus.YES)
+                {
+                    System.Windows.Application.Current.Shutdown(0);
+                }
+            }
+            else
+            {
+                MessageBoxStatus? result = await DialogManager.ShowMessageBox("Are you sure to close the application?", Dialogs.MessageBoxDialog.MessageLevel.Warning, Dialogs.MessageBoxDialog.ButtonOrder.YESNO, true);
+                if (result != null && result == MessageBoxStatus.YES)
+                {
+                    System.Windows.Application.Current.Shutdown(0);
+                }
+            }
         }
 
         private void DownloadMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItem = (sender as MenuItem);
-            int id = (int)menuItem.Tag;
-            DownloadViewModel downloadViewModel = DownloadManager.GetDownloadViewModel(id);
-            if (!(downloadViewModel.DetailPage.DataContext as DownloadViewModel).IsSeparateWindowOpen)
+            if (sender is MenuItem item)
             {
-                DownloadWindow sp = new DownloadWindow(downloadViewModel.Current_FileName);
-                sp.MainFrame.Content = downloadViewModel.DetailPage;
-                downloadViewModel.DetailPage.NewWindow.Visibility = Visibility.Collapsed;
-                downloadViewModel.DetailPage.Backtomain.Visibility = Visibility.Collapsed;
-                (downloadViewModel.DetailPage.DataContext as DownloadViewModel).IsSeparateWindowOpen = true;
-                sp.Show();
+                int id = (int)(item.Tag);
+                DownloadViewModel? downloadViewModel = DownloadManager.GetDownloadViewModel(id);
+                if (downloadViewModel != null)
+                {
+                    if (!downloadViewModel.IsSeparateWindowOpen && downloadViewModel.DetailPage != null)
+                    {
+                        DownloadWindow sp = new DownloadWindow(downloadViewModel);
+                        sp.MainFrame.Content = downloadViewModel.DetailPage;
+                        downloadViewModel.DetailPage.NewWindow.Visibility = Visibility.Collapsed;
+                        downloadViewModel.DetailPage.BackToMain.Visibility = Visibility.Collapsed;
+                        downloadViewModel.IsSeparateWindowOpen = true;
+                        sp.Show();
+                    }
+                }
             }
         }
         private void NetworkWatchDog_OnNetworkConnectivityChanged(object? sender, bool e)
@@ -115,18 +161,21 @@ namespace HyperDownloadManager
                 NetworkUtility.StopNetworkConnectivityObservation();
         }
         #endregion
-        public void ShowDialog(Page Dialog)
+        public void ShowDialog(Page? Dialog)
         {
-            ItemContainer.Visibility = Visibility.Visible;
-            mainframelayer.Visibility = Visibility.Visible;
-            //ContainerScrollbar.Visibility = Visibility.Visible;
-            mainFrame.Opacity = 0.5;
-            mainFrame.IsEnabled = false;
-            ItemContainer.Content = Dialog;
+            if (Dialog != null)
+            {
+                ItemContainer.Visibility = Visibility.Visible;
+                mainframelayer.Visibility = Visibility.Visible;
+                //ContainerScrollbar.Visibility = Visibility.Visible;
+                mainFrame.Opacity = 0.5;
+                mainFrame.IsEnabled = false;
+                ItemContainer.Content = Dialog;
+            }
         }
         public void CloseDialog()
         {
-            CloseDialog(null, null);
+            CloseDialog(this, null);
         }
         public void CloseDialog(object sender, MouseButtonEventArgs e)
         {
@@ -148,7 +197,7 @@ namespace HyperDownloadManager
                         ShowDialog(GlobalSupervisor.SettingsPage);
                         break;
                     case "LogsMenuItem":
-                        ShowDialog(GlobalSupervisor.Logpage);
+                        ShowDialog(GlobalSupervisor.LogPage);
                         break;
                     case "AboutMenuItem":
                         ShowDialog(GlobalSupervisor.InfoPage);

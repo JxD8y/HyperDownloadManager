@@ -35,9 +35,9 @@ namespace HyperDownloadManager.Dialogs
         {
             DialogViewModel dialog = new DialogViewModel();
             MessageBoxDialogView box;
-            if (GlobalSupervisor.mainwindow != null)
+            if (GlobalSupervisor.MainWindow != null)
             {
-                GlobalSupervisor.mainwindow.Dispatcher.Invoke(() =>
+                GlobalSupervisor.MainWindow.Dispatcher.Invoke(() =>
                 {
                     box = new MessageBoxDialogView(message, level, buttonorder, dialog);
                     dialog.DialogContent = box;

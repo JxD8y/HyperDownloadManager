@@ -22,25 +22,25 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
     /// </summary>
     public partial class DownloadFinishedDialog : Page
     {
-        DownloadViewModel _downloadViewModel;
-        public DownloadFinishedDialog(DownloadViewModel model)
+        DownloadViewModel model = new DownloadViewModel();
+        public DownloadFinishedDialog(DownloadViewModel viewModel)
         {
-            _downloadViewModel = model;
+            this.model = viewModel;
             InitializeComponent();
-            this.path.Text = model.IOCore.fileSavePath;
-            this.Url.Text = model.IOCore.Url.OriginalString;
-            //this.FileName.Content = model.AdjustFileNameString(model.IOCore.fileName); N: where is function?
-            this.FileSize.Content = model.IOCore.fileSize.DataValue.ToString("0.00");
-            this.filesizeunit.Content = model.IOCore.fileSize.DataUnit;
+            this.path.Text = model.FileSavePath ?? "";
+            this.Url.Text = model.CurrentUrl;
+            this.FileName.Content = IOUtility.AdjustFileNameString(model.CurrentFileName ?? "");
+            this.FileSize.Content = model.FileSize.DataValue.ToString("0.00");
+            this.filesizeunit.Content = model.FileSize.DataUnit;
             this.FileIcon.Source = model.Icon;
         }
         private void openFile_Click(object sender, RoutedEventArgs e)
         {
-            IOUtility.OpenExplorer(_downloadViewModel.IOCore.fileSavePath);
+            IOUtility.OpenExplorer(model.FileSavePath);
         }
         private void openFolder_Click(object sender, RoutedEventArgs e)
         {
-            IOUtility.OpenExplorer(_downloadViewModel.IOCore.saveDirectory);
+            IOUtility.OpenExplorer(model.FileSavePath);
         }
     }
 }

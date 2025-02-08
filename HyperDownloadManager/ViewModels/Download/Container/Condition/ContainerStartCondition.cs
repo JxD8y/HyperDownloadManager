@@ -13,18 +13,18 @@ namespace HyperDownloadManager.ViewModels.Download.Container.Condition
         {
             _stop = true;
         }
-        public virtual bool Ready(ContainerViewModel downloadViewModel)
+        public virtual bool Ready(ContainerViewModel viewModel)
         {
             throw new NotImplementedException();
         }
-        public async Task Wait(ContainerViewModel downloadViewModel, CancellationToken cnTk)
+        public async Task Wait(ContainerViewModel viewModel, CancellationToken cancelToken)
         {
             await Task.Run(() =>
             {
-                while (!Ready(downloadViewModel) && !_stop)
+                while (!Ready(viewModel) && !_stop)
                 {
-                    cnTk.ThrowIfCancellationRequested();
-                    Task.Delay(1000).Wait(cnTk);
+                    cancelToken.ThrowIfCancellationRequested();
+                    Task.Delay(1000).Wait(cancelToken);
                 }
             });
         }

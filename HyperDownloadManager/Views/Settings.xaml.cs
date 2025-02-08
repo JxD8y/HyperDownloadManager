@@ -32,7 +32,8 @@ namespace HyperDownloadManager.Views
         {
             foreach (var child in Toppanel_stack.Children)
             {
-                (child as Label).Foreground = (SolidColorBrush)App.Current.Resources["ForegroundBrush"];
+                if(child is Label label)
+                    label.Foreground = (SolidColorBrush)App.Current.Resources["ForegroundBrush"];
             }
         }
         public void Settings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -42,7 +43,8 @@ namespace HyperDownloadManager.Views
                 Label sndLabel = (Label)sender;
                 foreach (var child in Toppanel_stack.Children)
                 {
-                    (child as Label).Foreground = (SolidColorBrush)App.Current.Resources["ForegroundBrush"];
+                    if (child is Label label)
+                        label.Foreground = (SolidColorBrush)App.Current.Resources["ForegroundBrush"];
                 }
                 sndLabel.Foreground = (SolidColorBrush)App.Current.Resources["PrimaryBrush"];
                 switch (sndLabel.Name)
