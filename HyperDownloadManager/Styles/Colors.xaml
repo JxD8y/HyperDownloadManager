@@ -9,25 +9,25 @@
     <Color x:Key="WBoxColor">#dd8282</Color>
     <Color x:Key="WObsoleteColor">#db5e60</Color>
 
-    <Color x:Key="DBorderColor" >#83a1bf</Color>
-    <Color x:Key="DBackgroundColor">#111a23</Color>
+    <Color x:Key="DBorderColor" >#7a7a7a</Color>
+    <Color x:Key="DBackgroundColor">#111111</Color>
     <Color x:Key="DForegroundColor">#f8f9fa</Color>
-    <Color x:Key="DSecondryColor">#23394f</Color>
+    <Color x:Key="DSecondryColor">#232323</Color>
     <Color x:Key="DPrimaryColor">#4583c1</Color>
-    <Color x:Key="DObsoleteColor">#1d3042</Color>
-    <Color x:Key="DBoxColor">#0f2133</Color>
+    <Color x:Key="DObsoleteColor">#464646</Color>
+    <Color x:Key="DBoxColor">#222</Color>
 
     <Color x:Key="AccentColor">#6d91ff</Color>
     <Color x:Key="VColor">#7b37ba</Color>
 
 
-    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource DBorderColor}"/>
-    <SolidColorBrush x:Key="BackgroundBrush" Color="{DynamicResource DBackgroundColor}"/>
-    <SolidColorBrush x:Key="ForegroundBrush" Color="{DynamicResource DForegroundColor}"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{DynamicResource DSecondryColor}"/>
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource DPrimaryColor}"/>
-    <SolidColorBrush x:Key="ObsoleteBrush" Color="{DynamicResource DObsoleteColor}"/>
-    <SolidColorBrush x:Key="BoxBrush" Color="{DynamicResource DBoxColor}"/>
-    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}"/>
-    
+    <SolidColorBrush x:Shared="False" x:Key="BorderBrush" Color="{DynamicResource DBorderColor}"/>
+    <SolidColorBrush x:Shared="False" x:Key="BackgroundBrush" Color="{DynamicResource DBackgroundColor}"/>
+    <SolidColorBrush x:Shared="False" x:Key="ForegroundBrush" Color="{StaticResource DForegroundColor}"/>
+    <SolidColorBrush x:Shared="False" x:Key="SecondaryBrush" Color="{DynamicResource DSecondryColor}"/>
+    <SolidColorBrush x:Shared="False" x:Key="PrimaryBrush" Color="{DynamicResource DPrimaryColor}"/>
+    <SolidColorBrush x:Shared="False" x:Key="ObsoleteBrush" Color="{DynamicResource DObsoleteColor}"/>
+    <SolidColorBrush x:Shared="False" x:Key="BoxBrush" Color="{DynamicResource DBoxColor}"/>
+    <SolidColorBrush x:Shared="False" x:Key="AccentBrush" Color="{DynamicResource AccentColor}"/>
+
 </ResourceDictionary>

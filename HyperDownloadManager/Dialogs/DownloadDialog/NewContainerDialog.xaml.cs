@@ -26,10 +26,6 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
             {
                 downloadGrid.Items.Add(dvm);
             }
-            foreach (ContainerViewModel cvm in ContainerManager.Containers)
-            {
-                conditionContainerSchedule.Items.Add(new ComboBoxItem() { Content = $"{cvm.Name}: {cvm.Id}", Tag = cvm });
-            }
             path.Text = SettingSupervisor.GeneralSettings.DefaultDownloadFolder ?? IOUtility.GetSystemDownloadFolder() ?? "";
 
             downloadButtonContent.Content = $"Add Download: (0)";

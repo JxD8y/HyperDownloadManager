@@ -2,6 +2,18 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:HyperDownloadManager.Converters">
 
+
+    <Style TargetType="Button" x:Key="LightMetroControl">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    
+    <Style TargetType="Button" x:Key="DarkMetroControl">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
     
     <Style TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource ObsoleteBrush}"/>
@@ -44,6 +56,7 @@
         <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
     </Style>
+    
     <Style TargetType="{x:Type TextBlock}">
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Background" Value="Transparent"/>

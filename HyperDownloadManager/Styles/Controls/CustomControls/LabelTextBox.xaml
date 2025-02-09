@@ -6,8 +6,12 @@
              xmlns:local="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="200">
-    
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Shared="False" x:Key="PrimaryBrush" Color="{DynamicResource DPrimaryColor}"/>
+    </UserControl.Resources>
     <TextBox x:Name="textbox" Text="{Binding Text}" TextChanged="textbox_TextChanged">
+        
         <TextBox.Style>
             <Style TargetType="{x:Type TextBox}">
                 <Setter Property="ContextMenu">
@@ -34,9 +38,9 @@
                                     <RowDefinition Height="30"/>
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>
-                                <Label x:Name="helpertext" FontSize="13" Content="{Binding Path=HelperContent}" Grid.Row="0" Foreground="{DynamicResource PrimaryBrush}"/>
-                                <Border Name="Border" CornerRadius="0" Grid.Row="1" Margin="0,-8,0,0" Padding="2" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource PrimaryBrush}">
-                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" Margin="0"
+                                <TextBlock x:Name="helpertext" FontSize="13" Text="{Binding Path=HelperContent}" Grid.Row="0" Foreground="{StaticResource PrimaryBrush}"/>
+                                <Border Style="{x:Null}" Name="Border" CornerRadius="0" Grid.Row="1" Margin="0,-8,0,0" Padding="2" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource PrimaryBrush}">
+                                    <ScrollViewer Style="{x:Null}" HorizontalScrollBarVisibility="Auto" Margin="0"
                         x:Name="PART_ContentHost" Foreground="{TemplateBinding Foreground}"/>
                                 </Border>
                             </Grid>
@@ -44,7 +48,7 @@
                                 <EventTrigger RoutedEvent="GotFocus">
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="{StaticResource AccentColor}"/>
+                                            <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" To="{StaticResource AccentColor}"/>
                                             <ColorAnimation Storyboard.TargetName="Border" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="{StaticResource AccentColor}"/>
                                             <ColorAnimation Storyboard.TargetName="PART_ContentHost" Duration="0:0:0:0.1" Storyboard.TargetProperty="(ScrollViewer.Foreground).(SolidColorBrush.Color)" To="{StaticResource DForegroundColor}"/>
                                         </Storyboard>
@@ -53,9 +57,9 @@
                                 <EventTrigger RoutedEvent="LostFocus">
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
+                                            <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
                                             <ColorAnimation Storyboard.TargetName="Border" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
-                                            <ColorAnimation Storyboard.TargetName="PART_ContentHost" Duration="0:0:0:0.1" Storyboard.TargetProperty="(ScrollViewer.Foreground).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
+                                            <ColorAnimation Storyboard.TargetName="PART_ContentHost" Duration="0:0:0:0.1" Storyboard.TargetProperty="(ScrollViewer.Foreground).(SolidColorBrush.Color)" To="{StaticResource DForegroundColor}"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </EventTrigger>

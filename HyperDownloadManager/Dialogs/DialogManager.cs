@@ -31,7 +31,7 @@ namespace HyperDownloadManager.Dialogs
             }
             return true;
         }
-        public async static Task<MessageBoxStatus?> ShowMessageBox(string message, MessageLevel level, ButtonOrder buttonorder, bool NewWindow = false)
+        public async static Task<MessageBoxStatus?> ShowMessageBox(string message, MessageLevel level, ButtonOrder buttonOrder, bool NewWindow = false)
         {
             DialogViewModel dialog = new DialogViewModel();
             MessageBoxDialogView box;
@@ -39,12 +39,13 @@ namespace HyperDownloadManager.Dialogs
             {
                 GlobalSupervisor.MainWindow.Dispatcher.Invoke(() =>
                 {
-                    box = new MessageBoxDialogView(message, level, buttonorder, dialog);
-                    dialog.DialogContent = box;
                     if (NewWindow)
                         dialog.DialogMode = DialogMode.Window;
                     else
                         dialog.DialogMode = DialogMode.InApp;
+
+                    box = new MessageBoxDialogView(message, level, buttonOrder, dialog);
+                    dialog.DialogContent = box;
 
                 });
             }

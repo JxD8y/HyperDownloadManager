@@ -17,7 +17,7 @@
                 <RowDefinition/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
-            <Border x:Name="alertbox" Focusable="True" Visibility="Collapsed" FocusVisualStyle="{x:Null}" Height="40" Margin="40 0 40 0" CornerRadius="3" Opacity="0" Background="#000" Panel.ZIndex="1" Grid.RowSpan="2">
+            <Border x:Name="alertbox" HDMControls:LostFocusParentClick.Enabled="True" Focusable="True" Visibility="Collapsed" FocusVisualStyle="{x:Null}" Height="40" Margin="40 0 40 0" CornerRadius="3" Opacity="0" Background="#000" Panel.ZIndex="1" Grid.RowSpan="2">
                 <StackPanel Orientation="Horizontal">
                     <Label Content="{xico:Material Kind=Information}" x:Name="infoicon" Visibility="Visible" Foreground="RoyalBlue"/>
                     <Label Content="{xico:Material Kind=Alert}" Visibility="{Binding ElementName=infoicon,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Foreground="Orange"/>
@@ -138,12 +138,10 @@
                         <Label Content="{xico:Material Kind=Timer}" />
                         <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="StartConditionCombo">
                             <ComboBoxItem Content="No Scheduling"/>
-                            <ComboBoxItem Content="Schedule with Container" x:Name="scheduleContaineritem"/>
                             <ComboBoxItem Content="Schedule with Timer" x:Name="scheduleTimeritem"/>
                             <ComboBoxItem Content="Schedule on Date" x:Name="scheduleDateitem"/>
                         </ComboBox>
                         <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
-                            <ComboBox x:Name="conditionContainerSchedule" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleContaineritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                         </StackPanel>

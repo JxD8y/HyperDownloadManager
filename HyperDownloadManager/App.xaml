@@ -19,10 +19,13 @@
                 <ResourceDictionary Source="Styles/Controls/TabControlStyles.xaml"/>
                 <ResourceDictionary Source="Styles/Controls/XceedStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            
+
 
             <FontFamily x:Key="DefaultFont">pack://application:,,,/Resources/Fonts/#Heebo-VariableFont_wght</FontFamily>
             <System:Double x:Key="Height">10</System:Double>
             <System:Double x:Key="Width">10</System:Double>
+            
             <converters:BooltoBrush x:Key="BooltoBrush"/>
             <converters:LongTostring x:Key="LongtoString"/>
             <converters:SizeUnittoString x:Key="SizeUnittoString"/>

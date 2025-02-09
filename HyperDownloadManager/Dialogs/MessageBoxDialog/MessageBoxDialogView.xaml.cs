@@ -24,10 +24,10 @@ namespace HyperDownloadManager.Dialogs.MessageBoxDialog
         public MessageLevel Level { get; set; }
         public ButtonOrder ButtonOrder { get; set; }
         public DialogViewModel DialogViewModel { get; set; }
-        public MessageBoxDialogView(string message, MessageLevel level, ButtonOrder buttonOrder, DialogViewModel dinf)
+        public MessageBoxDialogView(string message, MessageLevel level, ButtonOrder buttonOrder, DialogViewModel dialogView)
         {
             InitializeComponent();
-            this.DialogViewModel = dinf;
+            this.DialogViewModel = dialogView;
             Message = message;
             Level = level;
             ButtonOrder = buttonOrder;
@@ -76,7 +76,10 @@ namespace HyperDownloadManager.Dialogs.MessageBoxDialog
                     break;
             }
             ContentLabel.Text = message;
-
+            if (dialogView.DialogMode == DialogMode.Window)
+            {
+                this.MainBorder.CornerRadius = new CornerRadius(0);
+            }
         }
 
         private void Ok_Click(object sender, RoutedEventArgs e)
