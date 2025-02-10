@@ -18,7 +18,7 @@ namespace HyperDownloadManager
             }
             else
             {
-                MessageBox.Show("Other Process Exist Exitting...", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Other Process Exist Exiting...", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 Process.GetCurrentProcess().Kill();
             }
         }

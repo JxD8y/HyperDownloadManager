@@ -37,6 +37,7 @@
             <converters:ReverseVisiblity x:Key="ReverseVisiblity"/>
             <converters:DoubletoString x:Key="DoubletoString"/>
             <converters:ReverseBool x:Key="ReverseBool"/>
+            <converters:BoolToOpacity x:Key="BoolToOpacity"/>
 
         </ResourceDictionary>
     </Application.Resources>

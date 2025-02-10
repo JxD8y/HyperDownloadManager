@@ -88,7 +88,7 @@
 
     <Style TargetType="Border" x:Key="TopStack">
         <Setter Property="Background" Value="{DynamicResource ObsoleteBrush}"/>
-        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>

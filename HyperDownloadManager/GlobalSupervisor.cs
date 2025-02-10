@@ -53,6 +53,9 @@ namespace HyperDownloadManager
                 LogPage = new Logs();
                 LogManager.Load_Logs(PathManager.GetPathDirectoryInfo("Logs"));
                 SettingSupervisor.LoadSettings();
+                ThemeSettingsPage = new ThemeSettingsView(SettingSupervisor.ThemeSetting);
+                GeneralSettingPage = new GeneralSettingsView(SettingSupervisor.GeneralSettings);
+                NetworkSettingPage = new NetworkSettingsView(SettingSupervisor.NetworkSetting);
                 InfoPage = new Info();
                 ContainerManager.LoadContainers();
                 DownloadManager.LoadDownloads();

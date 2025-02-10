@@ -8,9 +8,6 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Icon\App.ico" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.1" />
@@ -26,5 +23,6 @@
   <ItemGroup>
     <Resource Include="Icon\App.ico" />
   </ItemGroup>
+
 
 </Project>

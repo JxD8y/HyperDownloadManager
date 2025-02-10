@@ -30,7 +30,6 @@
         Visibility="Visible"
         ToolTipText="HDM"
         MenuActivation="LeftOrRightClick"
-        IconSource="pack://application:,,,/Icon/App.ico"
         PopupActivation="DoubleClick"
         TrayMouseDoubleClick="HDMNotifyIcon_TrayMouseDoubleClick">
             <hardCodet:TaskbarIcon.ContextMenu>
