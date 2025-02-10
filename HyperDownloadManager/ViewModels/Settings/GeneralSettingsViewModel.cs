@@ -26,12 +26,9 @@ namespace HyperDownloadManager.ViewModels.Settings
             this.UseBit = false;
             this.MinUnitPrefix = Unit.Mb;
             this.DefaultDownloadFolder = IOUtility.GetSystemDownloadFolder();
-            this.DragState = DownloadState.Paused;
-            this.DragContainer = 1;
             this.Id = new BsonValue(Guid.NewGuid());
         }
 
-        private int maxClipboardSize;
         private Unit minUnitPrefix;
         private string defaultSaveFolder = "";
         private DownloadState draggedDownloadState;
@@ -47,8 +44,6 @@ namespace HyperDownloadManager.ViewModels.Settings
         public bool AllowDrag { get { return allowDrag; } set { allowDrag = value; OnPropertyChanged(); } }
         public bool UseBit { get { return useBit; } set { useBit = value; OnPropertyChanged(); } }
         public Unit MinUnitPrefix { get { return minUnitPrefix; } set { minUnitPrefix = value; OnPropertyChanged(); } }
-        public DownloadState DragState { get { return draggedDownloadState; } set { draggedDownloadState = value; OnPropertyChanged(); } }
-        public int DragContainer { get { return dragContainer; } set { dragContainer = value; OnPropertyChanged(); } }
         public string? DefaultDownloadFolder
         {
             get { return defaultSaveFolder; }

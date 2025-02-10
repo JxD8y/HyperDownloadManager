@@ -58,19 +58,6 @@ namespace HyperDownloadManager.Views.Pages.Setting
                     MinUnit.SelectedIndex = 4;
                     break;
             }
-            switch (this.model.DragState)
-            {
-                case DownloadState.Downloading:
-                    dragEvent.SelectedIndex = 0;
-                    break;
-                case DownloadState.Paused:
-                    dragEvent.SelectedIndex = 1;
-                    break;
-            }
-            foreach (ContainerViewModel containerViewModel in ContainerManager.Containers)
-            {
-                dragContainer.Items.Add(new ComboBoxItem() { Content = containerViewModel.Name, Tag = containerViewModel.Id, IsSelected = containerViewModel.Id == this.model.DragContainer });
-            }
         }
         private void MinUnit_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -92,24 +79,6 @@ namespace HyperDownloadManager.Views.Pages.Setting
                     this.tempModel.MinUnitPrefix = Unit.Tb;
                     break;
             }
-        }
-
-        private void dragEvent_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            switch (dragEvent.SelectedIndex)
-            {
-                case 0:
-                    this.tempModel.DragState = DownloadState.Downloading;
-                    break;
-                case 1:
-                    this.tempModel.DragState = DownloadState.Paused;
-                    break;
-            }
-        }
-
-        private void dragContainer_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            dragContainerId = (int)((ComboBoxItem)dragContainer.SelectedItem).Tag;
         }
         private void ChangeDownloadFolderButton_Click(object sender, RoutedEventArgs e)
         {
@@ -133,14 +102,6 @@ namespace HyperDownloadManager.Views.Pages.Setting
         {
             try
             {
-                if (!ContainerManager.ContainerExist(this.dragContainerId))
-                {
-                    await DialogManager.ShowMessageBox("Selected container for drag does not exist", MessageLevel.Error, ButtonOrder.OK, true);
-                }
-                else
-                {
-                    this.tempModel.DragContainer = this.dragContainerId;
-                }
                 this.tempModel.LogInMain = showlogcheck.IsChecked ?? false;
                 this.tempModel.UseChart = usechartcheck.IsChecked ?? false;
                 this.tempModel.NotifyOnState = shownotificationcheck.IsChecked ?? false;
@@ -150,8 +111,6 @@ namespace HyperDownloadManager.Views.Pages.Setting
                 this.tempModel.UseBit = useBitMeasurement.IsChecked ?? false;
                 this.tempModel.SaveTemp = tempdownloadcheck.IsChecked ?? false;
                 this.tempModel.AllowDrag = allowDragCheck.IsChecked ?? false;
-                if(dragContainer.SelectedItem is ComboBoxItem item)
-                    this.tempModel.DragContainer = (int)(item.Tag);
                 SettingSupervisor.GeneralSettings = tempModel;
                 SettingSupervisor.SaveGeneralSettings();
                 await DialogManager.ShowMessageBox("Settings Updated Successfully!", MessageLevel.Info, ButtonOrder.OK, false);
