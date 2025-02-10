@@ -50,7 +50,6 @@
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" To="{StaticResource AccentColor}"/>
                                             <ColorAnimation Storyboard.TargetName="Border" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="{StaticResource AccentColor}"/>
-                                            <ColorAnimation Storyboard.TargetName="PART_ContentHost" Duration="0:0:0:0.1" Storyboard.TargetProperty="(ScrollViewer.Foreground).(SolidColorBrush.Color)" To="{StaticResource DForegroundColor}"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </EventTrigger>
@@ -59,7 +58,6 @@
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="helpertext" Duration="0:0:0:0.1" Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
                                             <ColorAnimation Storyboard.TargetName="Border" Duration="0:0:0:0.1" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="{StaticResource DPrimaryColor}"/>
-                                            <ColorAnimation Storyboard.TargetName="PART_ContentHost" Duration="0:0:0:0.1" Storyboard.TargetProperty="(ScrollViewer.Foreground).(SolidColorBrush.Color)" To="{StaticResource DForegroundColor}"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </EventTrigger>

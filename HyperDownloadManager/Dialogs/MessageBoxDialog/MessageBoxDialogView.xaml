@@ -9,7 +9,7 @@
       d:DesignHeight="150" MaxHeight="150" MaxWidth="400" d:DesignWidth="400" Background="Transparent"
       Title="MessageBoxDialogView">
     
-    <Border x:Name="MainBorder" Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
+    <Border x:Name="MainBorder" Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" Padding="5" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>

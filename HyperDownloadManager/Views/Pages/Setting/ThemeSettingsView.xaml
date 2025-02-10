@@ -10,7 +10,7 @@
       Title="ThemeSettingsView" Background="{DynamicResource BackgroundBrush}">
 
     <Grid>
-        <Label Content="{xico:BootstrapIcons Kind=MoonStarsFill, Height=100 ,Width=100}" Visibility="{Binding DarkMode,Converter={StaticResource BooltoReverseVisiblity}}" MouseLeftButtonDown="night_MouseLeftButtonDown" x:Name="night" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        <Label Content="{xico:BootstrapIcons Kind=SunFill, Height=100 ,Width=100}" MouseLeftButtonDown="day_MouseLeftButtonDown" x:Name="day" Visibility="{Binding ElementName=night, Path=Visibility,Converter={StaticResource ReverseVisiblity}}" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
+        <Label Content="{xico:BootstrapIcons Kind=MoonStarsFill, Height=100 ,Width=100}" MouseLeftButtonDown="night_MouseLeftButtonDown" x:Name="night" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <Label Content="{xico:BootstrapIcons Kind=SunFill, Height=100 ,Width=100}" MouseLeftButtonDown="day_MouseLeftButtonDown" x:Name="day" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="Orange"/>
     </Grid>
 </Page>

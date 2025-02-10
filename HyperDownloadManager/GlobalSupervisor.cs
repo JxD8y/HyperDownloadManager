@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using HyperDownloadManager.Dialogs;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
@@ -53,11 +54,16 @@ namespace HyperDownloadManager
                 LogPage = new Logs();
                 LogManager.Load_Logs(PathManager.GetPathDirectoryInfo("Logs"));
                 SettingSupervisor.LoadSettings();
+                ThemeSettingsPage = new ThemeSettingsView(SettingSupervisor.ThemeSetting);
+                GeneralSettingPage = new GeneralSettingsView(SettingSupervisor.GeneralSettings);
+                NetworkSettingPage = new NetworkSettingsView(SettingSupervisor.NetworkSetting);
                 InfoPage = new Info();
                 ContainerManager.LoadContainers();
                 DownloadManager.LoadDownloads();
                 DownloadPage = new Downloads();
                 SettingsPage = new Settings();
+                Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+                TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
                 LogManager.Log(MessageLevel.Info, LogSection.Init, "Initialization Completed");
             }
             catch (Exception ex)
@@ -66,6 +72,19 @@ namespace HyperDownloadManager
                 Process.GetCurrentProcess().Kill();
             }
         }
+
+        private static void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+        {
+            LogManager.Log(MessageLevel.Error, LogSection.Download, e.Exception.Message);
+            e.SetObserved();
+        }
+
+        private static void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            LogManager.Log(MessageLevel.Error, LogSection.Download, e.Exception.Message);
+            e.Handled = true;
+        }
+
         public static bool OtherProcessExist()
         {
             try

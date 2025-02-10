@@ -33,9 +33,6 @@ namespace HyperDownloadManager.Views
         {
             InitializeComponent();
             DelDownload.IsEnabled = false;
-            ShowSettings.IsEnabled = false;
-            ShowStatistic.IsEnabled = false;
-            ScheduleDownload.IsEnabled = false;
             ContainerCombo.DataContext = ContainerManager.Containers;
 
             if(ContainerManager.CurrentContainer == null)
@@ -54,6 +51,8 @@ namespace HyperDownloadManager.Views
             downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes;
             this.DataContext = ContainerManager.CurrentContainer;
             ContainerManager.OnSelectedContainerChanged += ContainerManager_OnSelectedContainerChanged;
+            DelDownload.IsEnabled = false;
+            stateButton.IsEnabled = false;
         }
         private void ContainerManager_OnSelectedContainerChanged(object? sender, EventArgs e)
         {
@@ -91,10 +90,12 @@ namespace HyperDownloadManager.Views
                             downloadViewModel.Selected = true;
                             downloadViewModel.LastException = "";
                             selected_id = id;
+                            stateButton.IsEnabled = true;
                             DelDownload.IsEnabled = true;
-                            ShowSettings.IsEnabled = true;
-                            ShowStatistic.IsEnabled = true;
-                            ScheduleDownload.IsEnabled = true;
+                            if (downloadViewModel.IsWorking)
+                                PauseButton.Visibility = Visibility.Visible;
+                            else
+                                PauseButton.Visibility = Visibility.Collapsed;
                         }
                     }
                 }
@@ -171,11 +172,6 @@ namespace HyperDownloadManager.Views
                 }
             }
         }
-        private void ContainerScheduleAllMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            //N: TODO
-        }
-
         private async void ContainerRemoveMenuItem_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuItem item)
@@ -191,27 +187,21 @@ namespace HyperDownloadManager.Views
         #endregion
 
 
-        private void ShowStatistic_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void PauseStart_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            DownloadViewModel? downloadViewModel = DownloadManager.GetDownloadViewModel(selected_id);
-            if (downloadViewModel != null && !downloadViewModel.IsSeparateWindowOpen)
+            DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(selected_id);
+            if (viewModel != null)
             {
-                GlobalSupervisor.MainWindow.mainFrame.Content = downloadViewModel.DetailPage;
-            }
-        }
-
-        private void ScheduleDownload_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            //TODO
-        }
-
-        private void ShowSettings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DownloadViewModel? downloadViewModel = DownloadManager.GetDownloadViewModel(selected_id);
-            if (downloadViewModel != null && !downloadViewModel.IsSeparateWindowOpen)
-            {
-                if(downloadViewModel.DownloadSettingsPage != null)
-                    DialogManager.ShowDialog("Download Settings", downloadViewModel.DownloadSettingsPage, DialogMode.InApp);
+                if (viewModel.IsWorking)
+                {
+                    DownloadManager.SetStop(viewModel.Id);
+                    this.PauseButton.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    DownloadManager.SetStart(viewModel.Id);
+                    this.PauseButton.Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -240,11 +230,6 @@ namespace HyperDownloadManager.Views
                 int id = (int)(item.Tag);
                 DownloadManager.SetStop(id);
             }
-        }
-
-        private void scheduleDownloadContext_Click(object sender, RoutedEventArgs e)
-        {
-            //ToDo
         }
 
         private void downloadSettingsContext_Click(object sender, RoutedEventArgs e)
@@ -305,6 +290,8 @@ namespace HyperDownloadManager.Views
             ScrollViewer scrollViewer = (ScrollViewer)sender;
             Point clickPoint = e.GetPosition(scrollViewer);
             bool isItemClicked = false;
+            DelDownload.IsEnabled = false;
+            stateButton.IsEnabled = false;
             foreach (var item in downloadscontainer.Items)
             {
                 var itemContainer = downloadscontainer.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
@@ -324,6 +311,16 @@ namespace HyperDownloadManager.Views
                         ((DownloadViewModel)download).Selected = false;
                     }
                 }
+            }
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(SearchBox.Text == "")
+                downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes;
+            else
+            {
+                downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes.Where((x) => { return x.DownloadName?.Contains(SearchBox.Text) ?? false; });
             }
         }
     }

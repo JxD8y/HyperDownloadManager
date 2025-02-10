@@ -16,7 +16,7 @@
     </Style>
     
     <Style TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource ObsoleteBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource BoxBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}"/>
         <Setter Property="FontSize" Value="14"/>
@@ -24,15 +24,15 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="dbord" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2">
+                    <Border x:Name="dbord" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
                         <Label x:Name="dlabel" HorizontalAlignment="Center" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" TargetName="dbord" Value="{DynamicResource PrimaryBrush}"/>
+                            <Setter Property="Background" TargetName="dbord" Value="{DynamicResource ObsoleteBrush}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="False">
-                            <Setter Property="Background" TargetName="dbord" Value="{DynamicResource ObsoleteBrush}"/>
+                            <Setter Property="Background" TargetName="dbord" Value="{DynamicResource BoxBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="True">
                             <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
@@ -88,7 +88,7 @@
 
     <Style TargetType="Border" x:Key="TopStack">
         <Setter Property="Background" Value="{DynamicResource ObsoleteBrush}"/>
-        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>

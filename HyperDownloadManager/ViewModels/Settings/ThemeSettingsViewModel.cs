@@ -39,13 +39,17 @@ namespace HyperDownloadManager.ViewModels.Settings
                 switch (this.ThemeMode)
                 {
                     case HDMTheme.Dark:
-                        themeResource.Source = new Uri("Themes/DarkTheme.xaml");
+                        themeResource.Source = new Uri("Themes/DarkTheme.xaml", UriKind.Relative);
+                        this.CurrentTheme = DarkTheme;
                         break;
                     case HDMTheme.Light:
-                        themeResource.Source = new Uri("Themes/LightTheme.xaml");
+                        themeResource.Source = new Uri("Themes/LightTheme.xaml", UriKind.Relative);
+                        this.CurrentTheme = LightTheme;
                         break;
                 }
-                Application.Current.Resources[0] = themeResource;
+                Application.Current.Resources.MergedDictionaries.Add(themeResource);
+                
+                ThemeManager.Current.ChangeTheme(Application.Current, GlobalSupervisor.ThemeSettingsViewModel.CurrentTheme);
             }
             catch (Exception ex)
             {

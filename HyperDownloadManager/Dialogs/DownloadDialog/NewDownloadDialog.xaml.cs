@@ -22,6 +22,7 @@ using System.Windows.Media.Animation;
 using HyperDownloadManager.ViewModels.Download.DownloadIO;
 using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.Download.Conditions;
+using System.Windows.Forms.VisualStyles;
 
 namespace HyperDownloadManager.Dialogs.DownloadDialog
 {
@@ -40,6 +41,21 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
         private bool tempCreation = false;
         private string destinationFolder = "";
         private DownloadUriInfo? remoteInfo;
+
+        public NewDownloadDialog(string Url,ContainerViewModel container):this()
+        {
+            this.downloadContainer = container;
+            foreach(var item in ContainersCombo.Items)
+            {
+                if(item is ComboBoxItem boxItem)
+                {
+                    if((boxItem.Tag as ContainerViewModel)?.Id == container.Id)
+                        ContainersCombo.SelectedItem = boxItem;
+                }
+            }
+            this.Link.Text = Url;
+            this.Link_TextChanged(this, null);
+        }
         public NewDownloadDialog()
         {
             InitializeComponent();
@@ -47,7 +63,6 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
             {
                 foreach (ContainerViewModel containerViewModel in ContainerManager.Containers)
                 {
-                    containerSettingcombo.Items.Add(new ComboBoxItem() { Content = $"{containerViewModel.Id} : {containerViewModel.Name}", Tag = containerViewModel.Id });
                     int index = ContainersCombo.Items.Add(new ComboBoxItem() { Content = $"{containerViewModel.Id} : {containerViewModel.Name}", Tag = containerViewModel });
                     if (ContainerManager.CurrentContainer == containerViewModel)
                     {
@@ -137,7 +152,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
         {
             if (!linkMultimode)
             {
-                string link = Link.Text;
+                string link = Link.textbox.Text;
                 Uri _url;
                 if (NetworkUtility.isUrl(link, out _url))
                 {
@@ -287,7 +302,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 multiLinkMode.Visibility = Visibility.Collapsed;
                 linkMultimode = true;
                 ContainersCombo.Visibility = Visibility.Collapsed;
-                multiDataDownloadGrid.Visibility = Visibility.Visible;
+                multiDownloadGrid.Visibility = Visibility.Visible;
                 this.Height = 320;
                 multiDownloadGrid.Height = 200;
                 this.MaxHeight = this.Height;
@@ -298,7 +313,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 multiDownloadGrid.Visibility = Visibility.Visible;
                 linkMultimode = false;
                 ContainersCombo.Visibility = Visibility.Visible;
-                multiDataDownloadGrid.Visibility = Visibility.Collapsed;
+                multiDownloadGrid.Visibility = Visibility.Collapsed;
                 this.Height = 200;
                 this.MaxHeight = this.Height;
             }

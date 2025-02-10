@@ -41,6 +41,10 @@ namespace HyperDownloadManager.ViewModels.Download.Container
         private bool _isHighlighted;
         [BsonIgnore]
         public bool IsHighLighted { get { return _isHighlighted; } set { _isHighlighted = value; OnPropertyChanged(); } }
+
+        bool isEmpty = true;
+        [BsonIgnore]
+        public bool IsEmpty { get { return isEmpty; } set { isEmpty = value; OnPropertyChanged(); } }
         [BsonIgnore]
         public DateTime CreationTime { get; set; }
         private bool _isCurrentContainer;
@@ -97,6 +101,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 node.ContainerId = Id;
                 ContainerManager.UpdateContainer(this);
                 DownloadManager.UpdateDownload(node);
+                this.IsEmpty = false;
                 return true;
             }
             return false;
@@ -111,7 +116,10 @@ namespace HyperDownloadManager.ViewModels.Download.Container
             }
             Nodes.Clear();
             if (Nodes.Count == 0)
+            {
+                this.IsEmpty = true;
                 return true;
+            }
             return false;
         }
         public bool DeleteDownload(DownloadViewModel node)
@@ -122,6 +130,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 node.ContainerId = -1;
                 DownloadManager.UpdateDownload(node);
                 ContainerManager.UpdateContainer(this);
+                this.IsEmpty = Nodes.Count == 0;
                 return true;
             }
             return false;
@@ -131,6 +140,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
             foreach (var node in nodes)
             {
                 AddDownload(node, true);
+                this.IsEmpty = Nodes.Count == 0;
             }
         }
         #endregion

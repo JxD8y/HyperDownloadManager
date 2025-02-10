@@ -28,17 +28,33 @@ namespace HyperDownloadManager.Views.Pages.Setting
             InitializeComponent();
             this.model = viewModel;
             this.DataContext = model;
+            if (this.model.ThemeMode == HDMTheme.Dark)
+            {
+                this.day.Visibility = Visibility.Visible;
+                this.night.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                this.day.Visibility = Visibility.Collapsed;
+                this.night.Visibility = Visibility.Visible;
+            }
         }
         private void night_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.model.ThemeMode = HDMTheme.Dark;
             this.model.ApplyTheme();
+            this.day.Visibility = Visibility.Visible;
+            this.night.Visibility = Visibility.Collapsed;
+            SettingSupervisor.SaveThemeSettings();
         }
 
         private void day_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.model.ThemeMode = HDMTheme.Light;
             this.model.ApplyTheme();
+            this.day.Visibility = Visibility.Collapsed;
+            this.night.Visibility = Visibility.Visible;
+            SettingSupervisor.SaveThemeSettings();
         }
     }
 }
