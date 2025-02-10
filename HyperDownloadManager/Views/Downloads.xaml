@@ -208,11 +208,11 @@
                                                         </StackPanel>
                                                     </MenuItem.Header>
                                                 </MenuItem>
-                                                <MenuItem IsEnabled="False" Visibility="{Binding Supervisor.ErrorOccurred,Converter={StaticResource BooltoVisiblity}}">
+                                                <MenuItem IsEnabled="False" Visibility="{Binding Supervisor.IsErrorOccurred,Converter={StaticResource BooltoVisiblity}}">
                                                     <MenuItem.Header>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Label Content="{xico:Material Kind=Alert}" Foreground="Orange"/>
-                                                            <Label Content="{Binding Supervisor.ErrorString}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                            <Label Content="{Binding Supervisor.ErrorMessage}" Foreground="{DynamicResource ForegroundBrush}"/>
                                                         </StackPanel>
                                                     </MenuItem.Header>
                                                 </MenuItem>

@@ -8,7 +8,7 @@
       xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
       mc:Ignorable="d" 
       d:DesignHeight="554" d:DesignWidth="900"
-      Title="DetailDownload" Background="{DynamicResource BoxBrush}">
+      Title="DetailDownload" Background="{DynamicResource BackgroundBrush}">
 
     <Grid Margin="5 10 5 5">
         <Grid.ColumnDefinitions>

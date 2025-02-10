@@ -8,7 +8,7 @@
         xmlns:hardCodet="http://www.hardcodet.net/taskbar"
         xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="HyperDownloadManager" Height="630" Width="900" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
+        Title="Hyper Download Manager" Height="630" Width="900" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
 
     <MahApps:MetroWindow.WindowButtonCommands>
         <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>

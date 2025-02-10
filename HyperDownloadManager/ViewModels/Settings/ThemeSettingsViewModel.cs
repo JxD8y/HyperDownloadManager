@@ -40,31 +40,20 @@ namespace HyperDownloadManager.ViewModels.Settings
                 {
                     case HDMTheme.Dark:
                         themeResource.Source = new Uri("Themes/DarkTheme.xaml", UriKind.Relative);
+                        this.CurrentTheme = DarkTheme;
                         break;
                     case HDMTheme.Light:
                         themeResource.Source = new Uri("Themes/LightTheme.xaml", UriKind.Relative);
+                        this.CurrentTheme = LightTheme;
                         break;
                 }
-                 Application.Current.Resources.MergedDictionaries.Add(themeResource);
+                Application.Current.Resources.MergedDictionaries.Add(themeResource);
+                
+                ThemeManager.Current.ChangeTheme(Application.Current, GlobalSupervisor.ThemeSettingsViewModel.CurrentTheme);
             }
             catch (Exception ex)
             {
                 await DialogManager.ShowMessageBox($"Cannot change theme: {ex.Message}", Dialogs.MessageBoxDialog.MessageLevel.Error, Dialogs.MessageBoxDialog.ButtonOrder.OK, true);
-            }
-        }
-        private IEnumerable<FrameworkElement> GetAllChildren(DependencyObject parent)
-        {
-            if (parent == null) yield break;
-
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-
-                if (child is FrameworkElement frameworkElement)
-                    yield return frameworkElement;
-
-                foreach (var descendant in GetAllChildren(child))
-                    yield return descendant;
             }
         }
     }

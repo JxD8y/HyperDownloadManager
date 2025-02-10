@@ -17,7 +17,7 @@
                 <RowDefinition/>
                 <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
-            <Border x:Name="alertbox" Focusable="True" HDMControls:LostFocusParentClick.Enabled="True" Visibility="Collapsed" FocusVisualStyle="{x:Null}" Height="40" Margin="40 0 40 0" CornerRadius="3" Opacity="0" Background="#000" Panel.ZIndex="1" Grid.RowSpan="2">
+            <Border x:Name="alertbox" Focusable="True" HDMControls:LostFocusParentClick.Enabled="True" Visibility="Collapsed" FocusVisualStyle="{x:Null}" Height="40" Margin="40 0 40 0" CornerRadius="3" Opacity="0" Background="{DynamicResource BoxBrush}" BorderBrush="{DynamicResource BorderBrush}" Panel.ZIndex="1" Grid.RowSpan="2">
                 <StackPanel Orientation="Horizontal">
                     <Label Content="{xico:Material Kind=Information}" x:Name="infoicon" Visibility="Visible" Foreground="RoyalBlue"/>
                     <Label Content="{xico:Material Kind=Alert}" Visibility="{Binding ElementName=infoicon,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Foreground="Orange"/>
