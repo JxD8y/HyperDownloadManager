@@ -8,13 +8,13 @@
         xmlns:hardCodet="http://www.hardcodet.net/taskbar"
         xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="Hyper Download Manager" Height="630" Width="900" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
+        Title="Hyper Download Manager" Height="630" Width="900" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
 
     <MahApps:MetroWindow.WindowButtonCommands>
         <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>
     </MahApps:MetroWindow.WindowButtonCommands>
     
-    <Grid Background="{DynamicResource BackgroundBrush}">
+    <Grid SnapsToDevicePixels="True" Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height=".5*"/>
             <RowDefinition Height="9*"/>
@@ -39,16 +39,18 @@
                 </ContextMenu>
             </hardCodet:TaskbarIcon.ContextMenu>
         </hardCodet:TaskbarIcon>
-        <StackPanel DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" Panel.ZIndex="10" Grid.Row="1" x:Name="DragNotifier" Visibility="Collapsed" Grid.Column="1" Opacity="0.6" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <StackPanel Orientation="Vertical">
-                <Label HorizontalAlignment="Center"  Content="{xico:Material Kind=Link,Height=40,Width=40}" Foreground="{StaticResource AccentBrush}"/>
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="Download will take place in"/>
-                    <Label Content="NONE" Margin="-5 0 0 0" FontStyle="Italic" Foreground="{StaticResource AccentBrush}"/>
-                    <Label Content="Container" Margin="-5 0 0 0"/>
+        <Border Padding="10" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" Panel.ZIndex="10" Grid.Row="1" x:Name="DragNotifier" Visibility="Visible" Grid.Column="1" Opacity="0.6">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel Orientation="Vertical">
+                    <Label HorizontalAlignment="Center" Content="{xico:Material Kind=Link,Height=40,Width=40}" Foreground="{StaticResource AccentBrush}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Download will take place in"/>
+                        <Label Content="NONE" x:Name="dragContainerName" Margin="-5 0 0 0" FontStyle="Italic" Foreground="{StaticResource AccentBrush}"/>
+                        <Label Content="Container" Margin="-5 0 0 0"/>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </Border>
         <StackPanel x:Name="InfoBar" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Background="{DynamicResource BackgroundBrush}">
             <StackPanel.ContextMenu>
                 <ContextMenu>
@@ -90,26 +92,6 @@
                             <ToolTip Content="Network Connected" Background="{DynamicResource BackgroundBrush}" BorderBrush="SeaGreen" BorderThickness="1"/>
                         </Label.ToolTip>
                     </Label>
-                    <StackPanel.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem x:Name="RunNetworkStateIndicatorMenuItem" Click="NetworkStateIndicatorMenuItem_Click" Visibility="{Binding ElementName=StopNetworkStateIndicatorMenuItem,Path=Visibility,Converter={StaticResource ReverseVisiblity}}">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="{xico:Material Kind=Earth}"/>
-                                        <TextBlock Text="Run Network Connectivity Checker"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                            <MenuItem x:Name="StopNetworkStateIndicatorMenuItem" Click="NetworkStateIndicatorMenuItem_Click" Visibility="Visible">
-                                <MenuItem.Header>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Label Content="{xico:Material Kind=EarthOff}" Foreground="IndianRed"/>
-                                        <TextBlock Text="Stop Network Connectivity Checker"/>
-                                    </StackPanel>
-                                </MenuItem.Header>
-                            </MenuItem>
-                        </ContextMenu>
-                    </StackPanel.ContextMenu>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
                     <StackPanel Orientation="Horizontal" Margin="10 0 0 0">

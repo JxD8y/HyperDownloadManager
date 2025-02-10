@@ -12,10 +12,12 @@ using System.Windows.Shapes;
 using ControlzEx.Standard;
 using ControlzEx.Theming;
 using HyperDownloadManager.Dialogs;
+using HyperDownloadManager.Dialogs.DownloadDialog;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
 using HyperDownloadManager.Log;
 using HyperDownloadManager.Utils;
 using HyperDownloadManager.ViewModels.Download;
+using HyperDownloadManager.ViewModels.Download.Container;
 using MahApps.Metro.Controls;
 
 namespace HyperDownloadManager
@@ -25,6 +27,7 @@ namespace HyperDownloadManager
     /// </summary>
     public partial class MainWindow : MetroWindow
     {
+        ContainerViewModel? containerView;
         public MainWindow()
         {
             InitializeComponent();
@@ -48,6 +51,7 @@ namespace HyperDownloadManager
             this.DataContext = GlobalSupervisor.MainViewModel;
             this.Topmost = GlobalSupervisor.GeneralSettingsViewModel.TopMost;
             this.AllowDrop = GlobalSupervisor.GeneralSettingsViewModel.AllowDrag;
+
         }
 
         private void LogManager_OnLogAdd(LogViewModel lvm)
@@ -153,13 +157,6 @@ namespace HyperDownloadManager
                 });
             }
         }
-        private void NetworkStateIndicatorMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            if (((MenuItem)sender).Name == "RunNetworkStateIndicatorMenuItem")
-                NetworkUtility.StartNetworkConnectivityObservation();
-            else
-                NetworkUtility.StopNetworkConnectivityObservation();
-        }
         #endregion
         public void ShowDialog(Page? Dialog)
         {
@@ -167,7 +164,6 @@ namespace HyperDownloadManager
             {
                 ItemContainer.Visibility = Visibility.Visible;
                 mainframelayer.Visibility = Visibility.Visible;
-                //ContainerScrollbar.Visibility = Visibility.Visible;
                 mainFrame.Opacity = 0.5;
                 mainFrame.IsEnabled = false;
                 ItemContainer.Content = Dialog;
@@ -181,7 +177,6 @@ namespace HyperDownloadManager
         {
             ItemContainer.Visibility = Visibility.Collapsed;
             mainframelayer.Visibility = Visibility.Collapsed;
-            // ContainerScrollbar.Visibility = Visibility.Collapsed;
             mainFrame.Opacity = 1;
             mainFrame.IsEnabled = true;
         }
@@ -208,33 +203,36 @@ namespace HyperDownloadManager
         #region DragDrop
         private void MetroWindow_DragEnter(object sender, System.Windows.DragEventArgs e)
         {
-            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag)
+            containerView = ContainerManager.GetContainer(GlobalSupervisor.GeneralSettingsViewModel.DragContainer);
+            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag && mainFrame.IsEnabled)
             {
                 if (e.Data.GetDataPresent(typeof(string)))
                 {
                     e.Effects = System.Windows.DragDropEffects.Link;
                     DragNotifier.Visibility = Visibility.Visible;
+                    this.dragContainerName.Content = containerView.Name;
                 }
             }
         }
 
         private void MetroWindow_Drop(object sender, System.Windows.DragEventArgs e)
         {
-            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag)
+            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag && containerView != null&& mainFrame.IsEnabled)
             {
                 if (e.Data.GetDataPresent(typeof(string)))
                 {
                     e.Effects = System.Windows.DragDropEffects.Link;
                     string Url = (string)e.Data.GetData(typeof(string));
                     DragNotifier.Visibility = Visibility.Collapsed;
-                    //Show new add download page
+                    if(NetworkUtility.isUrl(Url))
+                        DialogManager.ShowDialog("New Download", new NewDownloadDialog(Url,containerView));
                 }
             }
         }
 
         private void MetroWindow_DragLeave(object sender, System.Windows.DragEventArgs e)
         {
-            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag)
+            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag && mainFrame.IsEnabled)
             {
                 if (sender is MetroWindow)
                 {

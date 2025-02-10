@@ -69,7 +69,7 @@ namespace HyperDownloadManager.Styles.Controls.CustomControls
         public string Text
         {
             get { return textbox.Text; }
-            set { SetValue(TextProperty, value); OnPropertyChanged(); }
+            set { SetValue(TextProperty, value); textbox.Text = value; OnPropertyChanged(); }
         }
         public LabelTextBox()
         {

@@ -11,7 +11,7 @@
       d:DesignHeight="200" d:DesignWidth="450"
       Title="NewDownload" MaxHeight="200">
 
-    <Border Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="5" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}" HDMControls:LostFocusParentClick.Enabled="True">
+    <Border Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}" HDMControls:LostFocusParentClick.Enabled="True">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -25,12 +25,16 @@
                 </StackPanel>
             </Border>
             <StackPanel Orientation="Vertical" Grid.Row="0" Margin="0 2 0 0">
-                <StackPanel Visibility="{Binding ElementName=multidownloadGrid,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" x:Name="topinfostack" Orientation="Horizontal" Margin="0 5 0 0" >
+                <StackPanel Visibility="{Binding ElementName=multiDownloadGrid,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" x:Name="topinfostack" Orientation="Horizontal" Margin="0 5 0 0" >
                     <HDMControls:Spiner Width="20" Height="20" x:Name="LoadingSpiner" Visibility="{Binding ElementName=FileIcon,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Margin="10 0 10 0"/>
                     <Image x:Name="FileIcon" Visibility="Visible"  Width="35" Height="35" Margin="10 0 10 0"/>
                     <Label Content="" x:Name="filename" Foreground="{DynamicResource ForegroundBrush}" MaxWidth="250"/>
                     <Label Foreground="{DynamicResource ForegroundBrush}" x:Name="filesize" Margin="2 0 0 0" VerticalAlignment="Center" FontFamily="Bahnschrift" FontSize="14"/>
                     <Label Foreground="{DynamicResource ForegroundBrush}" x:Name="fileszunit" Margin="2 0 0 0" VerticalAlignment="Center" FontFamily="Bahnschrift" FontSize="14"/>
+                    <StackPanel Orientation="Horizontal" Margin="5 0 0 0">
+                        <Label Content="0" Margin="0" Padding="0" x:Name="pinglabel"/>
+                        <Label Content="ms" Margin="4 0 0 0" Padding="0" />
+                    </StackPanel>
                     <StackPanel.ToolTip>
                         <ToolTip>
                             <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
@@ -43,7 +47,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                     <Label Content="{xico:Material Kind=Link}"/>
-                    <HDMControls:LabelTextBox Visibility="{Binding ElementName=multidownloadGrid,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" HelperContent="Url" Width="370" TextBoxBase.TextChanged="Link_TextChanged" PreviewKeyDown="Link_KeyDown" x:Name="Link"/>
+                    <HDMControls:LabelTextBox Visibility="{Binding ElementName=multiDownloadGrid,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" HelperContent="Url" Width="370" TextBoxBase.TextChanged="Link_TextChanged" PreviewKeyDown="Link_KeyDown" x:Name="Link"/>
                     <Grid x:Name="multiDownloadGrid" Visibility="Collapsed">
                         <Border AllowDrop="True" DragLeave="multiDownloadGrid_DragLeave" DragEnter="multiDownloadGrid_DragEnter" Drop="multiDownloadGrid_Drop" x:Name="DropMessage" Visibility="Collapsed" CornerRadius="3" Margin="10 0 10 0" Height="40" Background="{DynamicResource ObsoleteBrush}" Panel.ZIndex="1" Opacity="0.8">
                             <StackPanel VerticalAlignment="Center">
@@ -63,6 +67,7 @@
                             </StackPanel>
                         </Border>
                         <DataGrid BorderThickness="0" AllowDrop="True" DragLeave="multiDownloadGrid_DragLeave" DragEnter="multiDownloadGrid_DragEnter" Drop="multiDownloadGrid_Drop" Visibility="Visible" MaxHeight="200" Height="200" RowHeaderWidth="0" Width="370" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" GridLinesVisibility="All" HorizontalGridLinesBrush="{DynamicResource BorderBrush}" VerticalGridLinesBrush="{DynamicResource BorderBrush}" IsReadOnly="True" SelectionUnit="FullRow" Background="{DynamicResource BackgroundBrush}" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" CanUserResizeRows="False" x:Name="multiDataDownloadGrid" SelectionMode="Single">
+
                             <DataGrid.Resources>
                                 <ContextMenu x:Key="rowContextMenu">
                                     <MenuItem x:Name="DeleteSelectedDownload" Click="DeleteSelectedDownload_Click">
@@ -111,7 +116,7 @@
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
                                                 <Image Source="{Binding Icon}" Width="25" Height="25" Margin="10 0 10 0"/>
-                                                <Label Content="{Binding FileDescriptorView.Filename}" Foreground="{Binding Resumable,Converter={StaticResource BooltoBrush}}" VerticalAlignment="Center"/>
+                                                <Label Content="{Binding FileName}" Foreground="{Binding Resumable,Converter={StaticResource BooltoBrush}}" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -126,8 +131,8 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
-                                                <Label Content="{Binding FileSize.DataValue}"/>
-                                                <Label Content="{Binding FileSize.DataUnit}"/>
+                                                <Label Content="{Binding Size.DataValue,Converter={StaticResource FloattoString}}"/>
+                                                <Label Content="{Binding Size.DataUnit}"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -153,10 +158,6 @@
                     </Grid>
                     <Label Content="{xico:Material Kind=Group,Width=20,Height=20}" MouseLeftButtonDown="multiLinkMode_MouseLeftButtonDown" x:Name="multiLinkMode" Style="{DynamicResource ButtonicLabel}" Visibility="Visible" Foreground="{DynamicResource AccentBrush}" Margin="10 0 0 0"/>
                     <Label Content="{xico:Material Kind=Ungroup,Width=20,Height=20}" Visibility="{Binding ElementName=multiLinkMode,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" x:Name="singlelinkmode" Style="{DynamicResource ButtonicLabel}" MouseLeftButtonDown="multiLinkMode_MouseLeftButtonDown" Foreground="{DynamicResource AccentBrush}" Margin="10 0 0 0"/>
-                    <StackPanel Orientation="Horizontal" Visibility="Collapsed">
-                        <Label Content="0" Margin="0" x:Name="pinglabel"/>
-                        <Label Content="ms" Margin="0" />
-                    </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                     <Label Content="{xico:Material Kind=Folder}" />
@@ -204,7 +205,6 @@
                             <ComboBox x:Name="ConditionDownload" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleDownloaditem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
-                            <ComboBox x:Name="containerSettingcombo" Width="100" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleContaineritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
