@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:HyperDownloadManager"
         xmlns:MahApps="http://metro.mahapps.com/winfx/xaml/controls"
         mc:Ignorable="d"
-        Title="DownloadWindow" Height="554" Width="700" MinHeight="554" MinWidth="700" WindowStartupLocation="CenterScreen" Background="{DynamicResource BackgroundBrush}" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" TitleBarHeight="30" Closing="Window_Closing" ResizeMode="CanResize" WindowStyle="SingleBorderWindow">
+        Title="DownloadWindow" WindowTransitionsEnabled="False" GlowBrush="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True"  Height="554" Width="700" MinHeight="554" MinWidth="700" WindowStartupLocation="CenterScreen" Background="{DynamicResource BackgroundBrush}" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource PrimaryBrush}" BorderThickness="1" TitleBarHeight="30" Closing="Window_Closing" ResizeMode="CanResize" WindowStyle="SingleBorderWindow">
     <MahApps:MetroWindow.WindowButtonCommands>
         <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>
     </MahApps:MetroWindow.WindowButtonCommands>

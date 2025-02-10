@@ -39,10 +39,6 @@ namespace HyperDownloadManager.Views.Pages.Download
             {
                 downloadGrid.Items.Add(dvm);
             }
-            foreach (ContainerViewModel cvm in ContainerManager.Containers)
-            {
-                conditionContainerSchedule.Items.Add(new ComboBoxItem() { Content = $"{cvm.Name}: {cvm.Id}", Tag = cvm });
-            }
             downloadButtonContent.Content = $"Add Download: (0)";
         }
 

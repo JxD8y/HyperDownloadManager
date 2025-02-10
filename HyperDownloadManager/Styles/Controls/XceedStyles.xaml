@@ -21,6 +21,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="FontFamily" Value="{DynamicResource DefaultFont}"/>
+        <Setter Property="FontSize" Value="15"/>
         <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Height" Value="30"/>

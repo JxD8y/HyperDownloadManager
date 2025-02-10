@@ -8,17 +8,19 @@
       xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
       xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
       mc:Ignorable="d" 
-      d:DesignHeight="1000" d:DesignWidth="370"
+      d:DesignHeight="700" d:DesignWidth="370" MaxWidth="420" MaxHeight="600"
       Title="DownloadSettings" Background="Transparent">
 
-    <Border CornerRadius="8" Background="{DynamicResource BoxBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0.5">
+    <Border x:Name="mainBorder" Padding="10" CornerRadius="15" Background="{DynamicResource BackgroundBrush}" BorderBrush="{DynamicResource ObsoleteBrush}" BorderThickness="1">
         <ScrollViewer Margin="0 10 0 0">
             <StackPanel>
                 <StackPanel Orientation="Vertical" Grid.Column="0">
-                    <StackPanel Orientation="Horizontal" Background="{DynamicResource ObsoleteBrush}" Margin="0 0 0 0">
-                        <Label Content="{xico:Material Kind=PowerPlug}" Foreground="{DynamicResource ForegroundBrush}"/>
-                        <Label Content="General Configuration"/>
-                    </StackPanel>
+                    <Border CornerRadius="10" Background="{DynamicResource BoxBrush}" Margin="0 0 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{xico:Material Kind=PowerPlug}" Foreground="{DynamicResource ForegroundBrush}"/>
+                            <Label Content="General Configuration"/>
+                        </StackPanel>
+                    </Border>
                     <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                         <Label Content="{xico:Material Kind=File}"/>
                         <HDMControls:LabelTextBox IsEnabled="False" IsReadOnly="True" HelperContent="FileName" x:Name="CurrentPath" Text="{Binding CurrentFile}"  Margin="0 0 10 0" Width="300"/>
@@ -49,10 +51,12 @@
                         <HDMControls:LabelTextBox x:Name="connectioncountbox" IsNumericalInput="True" IsReadOnly="True" Minimum="0" HelperContent="Connections to server" Text="{Binding Threads}" Width="150"/>
                     </StackPanel>
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0 10 0 0" Background="{DynamicResource ObsoleteBrush}">
-                            <Label Content="{xico:Material Kind=LightningBolt}" Foreground="Orange"/>
-                            <Label Content="Events"/>
-                        </StackPanel>
+                        <Border CornerRadius="10" Background="{DynamicResource BoxBrush}" Margin="0 10 0 0">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=LightningBolt}" Foreground="Orange"/>
+                                <Label Content="Events"/>
+                            </StackPanel>
+                        </Border>
                         <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                             <Label Content="{xico:Material Kind=Timer}" />
                             <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="StartConditionCombo">
@@ -84,13 +88,13 @@
                     </StackPanel>
                 </StackPanel>
 
-
-                <!--COL 2-->
                 <StackPanel Orientation="Vertical" Margin="0 10 0 0">
-                    <StackPanel Orientation="Horizontal" Background="{DynamicResource ObsoleteBrush}">
-                        <Label Content="{xico:Material Kind=CableData}" Foreground="SeaGreen"/>
-                        <Label Content="TCP/HTTP Configuration"/>
-                    </StackPanel>
+                    <Border CornerRadius="10" Background="{DynamicResource BoxBrush}" Margin="0 0 0 0">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{xico:Material Kind=CableData}" Foreground="SeaGreen"/>
+                            <Label Content="TCP/HTTP Configuration"/>
+                        </StackPanel>
+                    </Border>
                     <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                         <Label Content="{xico:Material Kind=Link}"/>
                         <HDMControls:LabelTextBox IsEnabled="False" HelperContent="Url" Text="{Binding Url}" Margin="0 0 10 0" Width="360"/>
@@ -102,11 +106,12 @@
                         <HDMControls:LabelTextBox HelperContent="Password" x:Name="SitePass" Margin="4 0 0 0" Text="{Binding AuthPass}" Width="180"/>
                     </StackPanel>
                     <StackPanel Margin="0 10 0 0">
-                        <StackPanel Orientation="Horizontal" Margin="0 10 0 0" Background="{DynamicResource ObsoleteBrush}">
-                            <Label Content="{xico:Material Kind=Web}" Foreground="SeaGreen"/>
-                            <Label Content="Proxy"/>
-                        </StackPanel>
-
+                        <Border CornerRadius="10" Background="{DynamicResource BoxBrush}" Margin="0 10 0 0">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=Web}" Foreground="SeaGreen"/>
+                                <Label Content="Proxy"/>
+                            </StackPanel>
+                        </Border>
                         <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
                             <Label Content="{xico:Material Kind=Web}" />
                             <ComboBox x:Name="ProxyTypeCombo" Width="80" SelectedIndex="0" Margin="5 0 0 0">

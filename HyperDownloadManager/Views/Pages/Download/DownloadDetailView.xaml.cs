@@ -126,10 +126,17 @@ namespace HyperDownloadManager.Views.Pages.Download
             downloadWindow.Show();
         }
 
-        private void DownloadSettings_Click(object sender, RoutedEventArgs e)
+        private async void DownloadSettings_Click(object sender, RoutedEventArgs e)
         {
             if(this.model.DownloadSettingsPage != null)
-                DialogManager.ShowDialog("Download Settings", this.model.DownloadSettingsPage, DialogMode.InApp);
+            {
+                if (this.model.IsSeparateWindowOpen)
+                {
+                    await DialogManager.ShowMessageBox("Cannot show settings while main app is not present", MessageLevel.Info, ButtonOrder.OK,true);
+                }
+                else
+                    DialogManager.ShowDialog("Download Settings", this.model.DownloadSettingsPage, DialogMode.InApp);
+            }
         }
 
         private void ResumeDownload_Click(object sender, RoutedEventArgs e)

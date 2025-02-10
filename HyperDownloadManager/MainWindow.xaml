@@ -8,7 +8,7 @@
         xmlns:hardCodet="http://www.hardcodet.net/taskbar"
         xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="Hyper Download Manager" Height="630" Width="900" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
+        Title="Hyper Download Manager" WindowTransitionsEnabled="False" GlowBrush="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True" Height="630" Width="900" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
 
     <MahApps:MetroWindow.WindowButtonCommands>
         <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>
@@ -39,7 +39,7 @@
                 </ContextMenu>
             </hardCodet:TaskbarIcon.ContextMenu>
         </hardCodet:TaskbarIcon>
-        <Border Padding="10" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" Panel.ZIndex="10" Grid.Row="1" x:Name="DragNotifier" Visibility="Visible" Grid.Column="1" Opacity="0.6">
+        <Border Padding="10" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" Panel.ZIndex="10" Grid.Row="1" x:Name="DragNotifier" Visibility="Collapsed" Grid.Column="1" Opacity="0.6">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Orientation="Vertical">
                     <Label HorizontalAlignment="Center" Content="{xico:Material Kind=Link,Height=40,Width=40}" Foreground="{StaticResource AccentBrush}"/>

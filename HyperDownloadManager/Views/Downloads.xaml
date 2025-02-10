@@ -15,6 +15,19 @@
             <RowDefinition Height="85"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+        <!--On Drag?-->
+        <Border Padding="10" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="10" Grid.Row="1" x:Name="addNewNotifier" Visibility="{Binding IsEmpty,Converter={StaticResource BooltoVisiblity}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Click"/>
+                        <Label HorizontalAlignment="Center" Content="{xico:Material Kind=Plus,Height=20,Width=20}" Foreground="SeaGreen"/>
+                        <Label Content="to add new download"/>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
         <Grid Grid.Row="0" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -193,7 +206,7 @@
                                                     <MenuItem.Header>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Label Content="{xico:Material Kind=FilePercent}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="Percent: " Foreground="{DynamicResource ForegroundBrush}"/>
+                                                            <Label Content="Completed: " Foreground="{DynamicResource ForegroundBrush}"/>
                                                             <Label Content="{Binding Current_Percent,Converter={StaticResource FloattoString}}" Margin="5 0 0 0" Foreground="{DynamicResource ForegroundBrush}"/>
                                                             <Label Content="%" Margin="0 0 0 0" Foreground="{DynamicResource ForegroundBrush}"/>
                                                         </StackPanel>
@@ -208,16 +221,16 @@
                                                         </StackPanel>
                                                     </MenuItem.Header>
                                                 </MenuItem>
-                                                <MenuItem IsEnabled="False" Visibility="{Binding Supervisor.IsErrorOccurred,Converter={StaticResource BooltoVisiblity}}">
+                                                <MenuItem IsEnabled="False" Visibility="{Binding IsErrorOccurred,Converter={StaticResource BooltoVisiblity}}">
                                                     <MenuItem.Header>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Label Content="{xico:Material Kind=Alert}" Foreground="Orange"/>
-                                                            <Label Content="{Binding Supervisor.ErrorMessage}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                            <Label Content="{Binding ErrorMessage}" Foreground="{DynamicResource ForegroundBrush}"/>
                                                         </StackPanel>
                                                     </MenuItem.Header>
                                                 </MenuItem>
                                                 <Separator/>
-                                                <MenuItem x:Name="pauseLabelContext" Tag="{Binding Id}" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauseLabelContext_Click">
+                                                <MenuItem x:Name="pauseLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauseLabelContext_Click">
                                                     <MenuItem.Header>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Label Content="{xico:Material Kind=Pause}" Foreground="Orange"/>
@@ -225,7 +238,7 @@
                                                         </StackPanel>
                                                     </MenuItem.Header>
                                                 </MenuItem>
-                                                <MenuItem x:Name="startLabelContext" Tag="{Binding Id}" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startLabelContext_Click">
+                                                <MenuItem x:Name="startLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startLabelContext_Click">
                                                     <MenuItem.Header>
                                                         <StackPanel Orientation="Horizontal">
                                                             <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" />

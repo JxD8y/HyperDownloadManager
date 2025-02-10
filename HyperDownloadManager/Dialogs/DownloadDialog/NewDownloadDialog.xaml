@@ -8,10 +8,10 @@
       xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
       xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
       mc:Ignorable="d"
-      d:DesignHeight="200" d:DesignWidth="450"
-      Title="NewDownload" MaxHeight="200">
+      d:DesignHeight="210" d:DesignWidth="460"
+      Title="NewDownload" MaxHeight="210">
 
-    <Border Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}" HDMControls:LostFocusParentClick.Enabled="True">
+    <Border Padding="5" Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}" HDMControls:LostFocusParentClick.Enabled="True">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -31,16 +31,16 @@
                     <Label Content="" x:Name="filename" Foreground="{DynamicResource ForegroundBrush}" MaxWidth="250"/>
                     <Label Foreground="{DynamicResource ForegroundBrush}" x:Name="filesize" Margin="2 0 0 0" VerticalAlignment="Center" FontFamily="Bahnschrift" FontSize="14"/>
                     <Label Foreground="{DynamicResource ForegroundBrush}" x:Name="fileszunit" Margin="2 0 0 0" VerticalAlignment="Center" FontFamily="Bahnschrift" FontSize="14"/>
-                    <StackPanel Orientation="Horizontal" Margin="5 0 0 0">
-                        <Label Content="0" Margin="0" Padding="0" x:Name="pinglabel"/>
-                        <Label Content="ms" Margin="4 0 0 0" Padding="0" />
-                    </StackPanel>
                     <StackPanel.ToolTip>
                         <ToolTip>
                             <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                                 <Label Content="{xico:Material Kind=Refresh}" />
                                 <Label Content="Resume Ability: "/>
                                 <Label Content="" x:Name="resumabil"/>
+                                <StackPanel Orientation="Horizontal" Margin="5 0 0 0">
+                                    <Label Content="0" Margin="0" Padding="0" x:Name="pinglabel"/>
+                                    <Label Content="ms" Margin="4 0 0 0" Padding="0" />
+                                </StackPanel>
                             </StackPanel>
                         </ToolTip>
                     </StackPanel.ToolTip>

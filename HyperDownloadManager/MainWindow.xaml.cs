@@ -201,26 +201,35 @@ namespace HyperDownloadManager
             }
         }
         #region DragDrop
+        bool prevIsEmpty = false;
         private void MetroWindow_DragEnter(object sender, System.Windows.DragEventArgs e)
         {
-            containerView = ContainerManager.GetContainer(GlobalSupervisor.GeneralSettingsViewModel.DragContainer);
-            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag && mainFrame.IsEnabled)
+            containerView = ContainerManager.CurrentContainer;
+            if (containerView != null)
             {
-                if (e.Data.GetDataPresent(typeof(string)))
+                prevIsEmpty = ContainerManager.CurrentContainer?.IsEmpty ?? false;
+                if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag && mainFrame.IsEnabled)
                 {
-                    e.Effects = System.Windows.DragDropEffects.Link;
-                    DragNotifier.Visibility = Visibility.Visible;
-                    this.dragContainerName.Content = containerView.Name;
+                    if (e.Data.GetDataPresent(typeof(string)))
+                    {
+                        if (ContainerManager.CurrentContainer != null)
+                            ContainerManager.CurrentContainer.IsEmpty = false;
+                        e.Effects = System.Windows.DragDropEffects.Link;
+                        DragNotifier.Visibility = Visibility.Visible;
+                        this.dragContainerName.Content = containerView.Name;
+                    }
                 }
             }
         }
 
         private void MetroWindow_Drop(object sender, System.Windows.DragEventArgs e)
         {
-            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag && containerView != null&& mainFrame.IsEnabled)
+            if (GlobalSupervisor.GeneralSettingsViewModel.AllowDrag && containerView != null && mainFrame.IsEnabled)
             {
                 if (e.Data.GetDataPresent(typeof(string)))
                 {
+                    if (ContainerManager.CurrentContainer != null)
+                        ContainerManager.CurrentContainer.IsEmpty = prevIsEmpty;
                     e.Effects = System.Windows.DragDropEffects.Link;
                     string Url = (string)e.Data.GetData(typeof(string));
                     DragNotifier.Visibility = Visibility.Collapsed;
@@ -236,6 +245,8 @@ namespace HyperDownloadManager
             {
                 if (sender is MetroWindow)
                 {
+                    if (ContainerManager.CurrentContainer != null)
+                        ContainerManager.CurrentContainer.IsEmpty = prevIsEmpty;
                     e.Effects = System.Windows.DragDropEffects.None;
                     DragNotifier.Visibility = Visibility.Collapsed;
                 }

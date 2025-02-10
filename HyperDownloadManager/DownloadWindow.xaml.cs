@@ -35,6 +35,11 @@ namespace HyperDownloadManager
             if (this.model.DownloadName != null)
                 this.Title = this.model.DownloadName;
         }
+        public DownloadWindow(string title)
+        {
+            InitializeComponent();
+            this.Title = title;
+        }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try

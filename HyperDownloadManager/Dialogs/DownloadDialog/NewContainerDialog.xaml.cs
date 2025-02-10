@@ -137,24 +137,6 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
             ShowNotifyMessage("Container created", false, 3000);
             DialogManager.Close();
         }
-        bool expanded = false;
-
-        private void expandSettings_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!expanded)
-            {
-                this.Height = 580;
-                this.MaxHeight = 580;
-                expanded = true;
-            }
-            else
-            {
-                this.Height = 420;
-                this.MaxHeight = 420;
-                expanded = false;
-            }
-        }
-
         private void addDownload_Click(object sender, RoutedEventArgs e)
         {
             if (downloadGrid.SelectedItem is DownloadViewModel viewModel)
