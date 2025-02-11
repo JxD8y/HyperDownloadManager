@@ -151,7 +151,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
             {
                 if (downloadViewModel.CurrentState != DownloadState.Completed && downloadViewModel.ResumeSupport)
                 {
-                    DownloadManager.SetStop(downloadViewModel.Id);
+                    DownloadManager.SetStop(downloadViewModel);
                 }
             }
             if (this.StartConditionInfo.StartMode == ContainerStartMode.RelativeTime)
@@ -174,7 +174,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
             {
                 if (downloadViewModel.CurrentState != DownloadState.Completed)
                 {
-                    DownloadManager.SetStart(downloadViewModel.Id);
+                    DownloadManager.SetStart(downloadViewModel);
                 }
             }
         }
@@ -186,7 +186,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 {
                     if (downloadViewModel.ResumeSupport)
                     {
-                        DownloadManager.SetStop(downloadViewModel.Id);
+                        DownloadManager.SetStop(downloadViewModel);
                     }
                 }
             }

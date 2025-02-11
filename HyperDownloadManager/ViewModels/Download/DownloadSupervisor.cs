@@ -216,7 +216,7 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         public async void Start(bool IgnoreCondition = false)
         {
-            if (!this.isWorking && !this.model.ErrorOccurred && this.model.CurrentState != DownloadState.Verifying && this.model.CurrentState != DownloadState.Downloading)
+            if (!this.isWorking && !this.model.IsErrorOccurred && this.model.CurrentState != DownloadState.Verifying && this.model.CurrentState != DownloadState.Downloading)
             {
                 if (this.IOCore.fileStream != null && !IOEventsAssigned)
                 {
@@ -262,11 +262,11 @@ namespace HyperDownloadManager.ViewModels.Download
                     AlertUser($"Cannot start download\nfile is in use", MessageLevel.Error, true);
                 }
             }
-            else if (this.model.ErrorOccurred)
+            else if (this.model.IsErrorOccurred)
             {
                 if (this.ProcessError())
                 {
-                    this.model.ErrorOccurred = false;
+                    this.model.IsErrorOccurred = false;
                     this.model.ErrorMessage = "";
                     this.Start(IgnoreCondition);
                 }
@@ -358,7 +358,7 @@ namespace HyperDownloadManager.ViewModels.Download
         #endregion
         public async void WaitUntilConditionFinish()
         {
-            switch (this.model.ConfigViewModel.StartConditionInfo.ConditionType)
+            switch (this.model.ConfigViewModel?.StartConditionInfo.ConditionType)
             {
                 case AutoStartConditionType.Instant:
                     return;
@@ -509,11 +509,11 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         #endregion
         #region TimerCallbacks
-        private void DownloadCore_OnDataReceived(object? sender, Download.DataReceivedEventArgs e)
+        private void DownloadCore_OnDataReceived(object? sender, DataReceivedEventArgs e)
         {
             ReceivedBytes = e.ReceivedBytes;
             this.model.DownloadedSize = new UnitValue(ReceivedBytes);
-            this.model.CurrentPercent = (float)(((float)e.ReceivedBytes / (float)e.DataLength) * 100);
+            this.model.CurrentPercent = IOUtility.CalculatePercent(e.ReceivedBytes,model.FileSize.OriginData);
             try
             {
                 this.IOCore.writeToFile(e.Data, e.DataLength);

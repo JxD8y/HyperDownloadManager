@@ -69,9 +69,9 @@ namespace HyperDownloadManager.Views
         {
             try
             {
-                if(sender is Border border)
+                if(sender is Grid grid)
                 {
-                    int id = (int)(border.Tag);
+                    int id = (int)(grid.Tag);
                     if (e.ClickCount == 2)
                     {
                         DownloadViewModel? downloadViewModel = DownloadManager.GetDownloadViewModel(id);
@@ -88,7 +88,7 @@ namespace HyperDownloadManager.Views
                             foreach (var downloadView in DownloadManager.DownloadViewModels)
                                 downloadView.Selected = false;
                             downloadViewModel.Selected = true;
-                            downloadViewModel.LastException = "";
+                            downloadViewModel.ErrorMessage = "";
                             selected_id = id;
                             stateButton.IsEnabled = true;
                             DelDownload.IsEnabled = true;
@@ -194,12 +194,12 @@ namespace HyperDownloadManager.Views
             {
                 if (viewModel.IsWorking)
                 {
-                    DownloadManager.SetStop(viewModel.Id);
+                    DownloadManager.SetStop(viewModel);
                     this.PauseButton.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    DownloadManager.SetStart(viewModel.Id);
+                    DownloadManager.SetStart(viewModel);
                     this.PauseButton.Visibility = Visibility.Visible;
                 }
             }
@@ -209,26 +209,32 @@ namespace HyperDownloadManager.Views
         {
             if (await DialogManager.ShowMessageBox("Do you want to Remove this Download?\nFile will be removed", MessageLevel.Warning, ButtonOrder.YESNO, false) == MessageBoxStatus.YES)
             {
-                DownloadManager.Remove(selected_id);
+                DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(selected_id);
+                if (viewModel != null)
+                    DownloadManager.Remove(viewModel);
             }
         }
         #endregion
         #region DownloadContextEvents
         private void StartDownload_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is MenuItem item)
+            if (sender is Label label)
             {
-                int id = (int)(item.Tag);
-                DownloadManager.SetStart(id);
+                int id = (int)(label.Tag);
+                DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id);
+                if (viewModel != null)
+                    DownloadManager.SetStart(viewModel);
             }
         }
 
         private void PauseDownload_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is MenuItem item)
+            if (sender is Label label)
             {
-                int id = (int)(item.Tag);
-                DownloadManager.SetStop(id);
+                int id = (int)(label.Tag);
+                DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id);
+                if (viewModel != null)
+                    DownloadManager.SetStop(viewModel);
             }
         }
 
@@ -248,7 +254,9 @@ namespace HyperDownloadManager.Views
             if (sender is MenuItem item)
             {
                 int id = (int)(item.Tag);
-                DownloadManager.SetStart(id);
+                DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id);
+                if (viewModel != null)
+                    DownloadManager.SetStart(viewModel);
             }
         }
 
@@ -257,7 +265,9 @@ namespace HyperDownloadManager.Views
             if (sender is MenuItem item)
             {
                 int id = (int)(item.Tag);
-                DownloadManager.SetStop(id);
+                DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id);
+                if (viewModel != null)
+                    DownloadManager.SetStop(viewModel);
             }
         }
 
@@ -321,6 +331,18 @@ namespace HyperDownloadManager.Views
             else
             {
                 downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes.Where((x) => { return x.DownloadName?.Contains(SearchBox.Text) ?? false; });
+            }
+        }
+
+        private void stateButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(selected_id);
+            if(viewModel != null)
+            {
+                if (viewModel.IsWorking)
+                    DownloadManager.SetStop(viewModel);
+                else
+                    DownloadManager.SetStart(viewModel);
             }
         }
     }

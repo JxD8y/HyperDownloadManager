@@ -15,7 +15,6 @@
             <RowDefinition Height="85"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <!--On Drag?-->
         <Border Padding="10" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="10" Grid.Row="1" x:Name="addNewNotifier" Visibility="{Binding IsEmpty,Converter={StaticResource BooltoVisiblity}}">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Orientation="Vertical">
@@ -45,7 +44,7 @@
                             <Label HorizontalAlignment="Center" Content="{xico:Material Kind=Delete, Width=25,Height=25}" Foreground="IndianRed" Opacity="{Binding ElementName=DelDownload, Path=IsEnabled , Converter={StaticResource BoolToOpacity}}"/>
                         </StackPanel>
                     </Border>
-                    <Border Width="45" x:Name="stateButton" Background="{DynamicResource BoxBrush}" CornerRadius="0 10 10 0" Margin="0 10 5 10">
+                    <Border Width="45" x:Name="stateButton" MouseLeftButtonDown="stateButton_MouseLeftButtonDown" Background="{DynamicResource BoxBrush}" CornerRadius="0 10 10 0" Margin="0 10 5 10">
                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                             <Label HorizontalAlignment="Center" Content="{xico:Material Kind=Pause, Width=25,Height=25}" x:Name="PauseButton" Foreground="Orange" Opacity="{Binding ElementName=stateButton, Path=IsEnabled , Converter={StaticResource BoolToOpacity}}"/>
                             <Label HorizontalAlignment="Center" Content="{xico:Material Kind=Play, Width=25,Height=25}" x:Name="PlayButton" Foreground="SeaGreen" Visibility="{Binding ElementName=PauseButton,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Opacity="{Binding ElementName=stateButton, Path=IsEnabled , Converter={StaticResource BoolToOpacity}}"/>
@@ -123,141 +122,139 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <ItemContainerTemplate>
-                                <Border BorderBrush="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" Background="{DynamicResource BackgroundBrush}" Height="30" MouseLeftButtonDown="ShowDownloadDetail" BorderThickness="1" Margin="5 2 5 2" Tag="{Binding Id}" CornerRadius="3">
+                                <Grid Height="30" MouseLeftButtonDown="ShowDownloadDetail" Margin="5 2 5 2" Tag="{Binding Id}">
+                                    <ProgressBar Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" BorderBrush="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" BorderThickness="1" VerticalAlignment="Center" Opacity="0.9" Value="{Binding CurrentPercent}" Background="{Binding Selected,Converter={StaticResource BooltoBrush}}" Height="30" MinWidth="450"/>
                                     <Grid>
-                                        <ProgressBar Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center" Opacity="0.9" Value="{Binding Current_Percent}" Background="{Binding Selected,Converter={StaticResource BooltoBrush}}" BorderThickness="0" Height="70" MinWidth="450"/>
-                                        <Grid>
-                                            <StackPanel Orientation="Horizontal" Panel.ZIndex="1" Opacity="1">
-                                                <Image Source="{Binding Icon}" Width="25" Height="25" Margin="10 0 10 0"/>
-                                                <Label Content="{Binding DownloadName}" MaxWidth="700" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 10 0">
-                                                <Label Content="{xico:BootstrapIcons Kind=Dot,Width=10,Height=10}" Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center">
-                                                    <Label.Style>
-                                                        <Style TargetType="Label">
-                                                            <Style.Triggers>
-                                                                <MultiDataTrigger>
-                                                                    <MultiDataTrigger.Conditions>
-                                                                        <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Downloading}"/>
-                                                                    </MultiDataTrigger.Conditions>
-                                                                    <MultiDataTrigger.EnterActions>
-                                                                        <BeginStoryboard x:Name="BlinkingStoryBoard">
-                                                                            <Storyboard FillBehavior="Stop" RepeatBehavior="Forever" AutoReverse="True">
-                                                                                <DoubleAnimation From="1" To="0" Duration="0:0:0.5" Storyboard.TargetProperty="Opacity"/>
-                                                                            </Storyboard>
-                                                                        </BeginStoryboard>
-                                                                    </MultiDataTrigger.EnterActions>
-                                                                    <MultiDataTrigger.ExitActions>
-                                                                        <StopStoryboard BeginStoryboardName="BlinkingStoryBoard"/>
-                                                                    </MultiDataTrigger.ExitActions>
-                                                                </MultiDataTrigger>
-                                                                <MultiDataTrigger>
-                                                                    <MultiDataTrigger.Conditions>
-                                                                        <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Error}"/>
-                                                                        <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Paused}"/>
-                                                                        <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Completed}"/>
-                                                                    </MultiDataTrigger.Conditions>
-                                                                    <MultiDataTrigger.EnterActions>
-                                                                        <BeginStoryboard>
-                                                                            <Storyboard>
-                                                                                <DoubleAnimation From="0" To="1" Duration="0:0:0.1" Storyboard.TargetProperty="Opacity"/>
-                                                                            </Storyboard>
-                                                                        </BeginStoryboard>
-                                                                    </MultiDataTrigger.EnterActions>
-                                                                </MultiDataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Label.Style>
-                                                </Label>
-                                                <Label Content="{Binding CurrentState}" Margin="-2 0 10 0" Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center"/>
-                                                <Label Content="{xico:Material Kind=Timer}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
-                                                <Label Content="{Binding RemainingTime ,Converter={StaticResource TimeSpantoString}}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
-                                                <Label Content="{xico:Material Kind=Speedometer}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
-                                                <Label Content="{Binding CurrentSpeed.DataValue,Converter={StaticResource FloattoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                <Label Content="{Binding CurrentSpeed.DataUnit}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                <Label Content="/s" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" x:Name="StartDownload" Tag="{Binding Id}" MouseLeftButtonDown="StartDownload_MouseLeftButtonDown" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}"/>
-                                                <Label Content="{xico:Material Kind=Pause}" Foreground="Orange" x:Name="PauseDownload" Tag="{Binding Id}" MouseLeftButtonDown="PauseDownload_MouseLeftButtonDown"  Visibility="{Binding Visibility, ElementName=StartDownload,Converter={StaticResource ReverseVisiblity}}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                        <Grid.ContextMenu>
-                                            <ContextMenu Width="300">
-                                                <MenuItem IsEnabled="False">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:Material Kind=FileSwap}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="Downloaded: " Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="{Binding DownloadedSize.DataValue ,Converter={StaticResource FloattoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="{Binding DownloadedSize.DataUnit}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                                <MenuItem IsEnabled="False">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:Material Kind=FileDownload}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="File Size: " Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="{Binding FileSize.DataValue,Converter={StaticResource FloattoString}}" x:Name="filesize" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="{Binding FileSize.DataUnit}" x:Name="Filesizeunit" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                                <MenuItem IsEnabled="False">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:Material Kind=FilePercent}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="Completed: " Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="{Binding Current_Percent,Converter={StaticResource FloattoString}}" Margin="5 0 0 0" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="%" Margin="0 0 0 0" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                                <MenuItem IsEnabled="False">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:Material Kind=AvTimer}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="Elapsed: " Foreground="{DynamicResource ForegroundBrush}"/>
-                                                            <Label Content="{Binding ElapsedTime, Converter={StaticResource TimeSpantoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                                <MenuItem IsEnabled="False" Visibility="{Binding IsErrorOccurred,Converter={StaticResource BooltoVisiblity}}">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:Material Kind=Alert}" Foreground="Orange"/>
-                                                            <Label Content="{Binding ErrorMessage}" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                                <Separator/>
-                                                <MenuItem x:Name="pauseLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauseLabelContext_Click">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:Material Kind=Pause}" Foreground="Orange"/>
-                                                            <Label Content="Pause" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                                <MenuItem x:Name="startLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startLabelContext_Click">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" />
-                                                            <Label Content="Start" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                                <MenuItem x:Name="downloadSettingsContext" Click="downloadSettingsContext_Click" Tag="{Binding Id}">
-                                                    <MenuItem.Header>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <Label Content="{xico:BootstrapIcons Kind=GearFill}" Foreground="{StaticResource AccentBrush}"/>
-                                                            <Label Content="Settings" Foreground="{DynamicResource ForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </MenuItem.Header>
-                                                </MenuItem>
-                                            </ContextMenu>
-                                        </Grid.ContextMenu>
+                                        <StackPanel Orientation="Horizontal" Panel.ZIndex="1" Opacity="1">
+                                            <Image Source="{Binding Icon}" Width="25" Height="25" Margin="10 0 10 0"/>
+                                            <Label Content="{Binding DownloadName}" MaxWidth="700" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 10 0">
+                                            <Label Content="{xico:BootstrapIcons Kind=Dot,Width=10,Height=10}" Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center">
+                                                <Label.Style>
+                                                    <Style TargetType="Label">
+                                                        <Style.Triggers>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Downloading}"/>
+                                                                </MultiDataTrigger.Conditions>
+                                                                <MultiDataTrigger.EnterActions>
+                                                                    <BeginStoryboard x:Name="BlinkingStoryBoard">
+                                                                        <Storyboard FillBehavior="Stop" RepeatBehavior="Forever" AutoReverse="True">
+                                                                            <DoubleAnimation From="1" To="0" Duration="0:0:0.5" Storyboard.TargetProperty="Opacity"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </MultiDataTrigger.EnterActions>
+                                                                <MultiDataTrigger.ExitActions>
+                                                                    <StopStoryboard BeginStoryboardName="BlinkingStoryBoard"/>
+                                                                </MultiDataTrigger.ExitActions>
+                                                            </MultiDataTrigger>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Error}"/>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Paused}"/>
+                                                                    <Condition Binding="{Binding CurrentState}" Value="{x:Static ViewModels:DownloadState.Completed}"/>
+                                                                </MultiDataTrigger.Conditions>
+                                                                <MultiDataTrigger.EnterActions>
+                                                                    <BeginStoryboard>
+                                                                        <Storyboard>
+                                                                            <DoubleAnimation From="0" To="1" Duration="0:0:0.1" Storyboard.TargetProperty="Opacity"/>
+                                                                        </Storyboard>
+                                                                    </BeginStoryboard>
+                                                                </MultiDataTrigger.EnterActions>
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Label.Style>
+                                            </Label>
+                                            <Label Content="{Binding CurrentState}" Margin="-2 0 10 0" Foreground="{Binding CurrentState,Converter={StaticResource DownloadStatetoBrush}}" VerticalAlignment="Center"/>
+                                            <Label Content="{xico:Material Kind=Timer}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
+                                            <Label Content="{Binding RemainingTime ,Converter={StaticResource TimeSpantoString}}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
+                                            <Label Content="{xico:Material Kind=Speedometer}" Foreground="{DynamicResource ForegroundBrush}" VerticalAlignment="Center"/>
+                                            <Label Content="{Binding CurrentSpeed.DataValue,Converter={StaticResource FloattoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                            <Label Content="{Binding CurrentSpeed.DataUnit}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                            <Label Content="/s" Foreground="{DynamicResource ForegroundBrush}"/>
+                                            <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" x:Name="StartDownload" Tag="{Binding Id}" MouseLeftButtonDown="StartDownload_MouseLeftButtonDown" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}"/>
+                                            <Label Content="{xico:Material Kind=Pause}" Foreground="Orange" x:Name="PauseDownload" Tag="{Binding Id}" MouseLeftButtonDown="PauseDownload_MouseLeftButtonDown"  Visibility="{Binding Visibility, ElementName=StartDownload,Converter={StaticResource ReverseVisiblity}}"/>
+                                        </StackPanel>
                                     </Grid>
-                                </Border>
+                                    <Grid.ContextMenu>
+                                        <ContextMenu Width="300">
+                                            <MenuItem IsEnabled="False">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:Material Kind=FileSwap}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="Downloaded: " Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="{Binding DownloadedSize.DataValue ,Converter={StaticResource FloattoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="{Binding DownloadedSize.DataUnit}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem IsEnabled="False">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:Material Kind=FileDownload}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="File Size: " Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="{Binding FileSize.DataValue,Converter={StaticResource FloattoString}}" x:Name="filesize" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="{Binding FileSize.DataUnit}" x:Name="Filesizeunit" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem IsEnabled="False">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:Material Kind=FilePercent}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="Completed: " Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="{Binding CurrentPercent,Converter={StaticResource FloattoString}}" Margin="5 0 0 0" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="%" Margin="0 0 0 0" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem IsEnabled="False">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:Material Kind=AvTimer}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="Elapsed: " Foreground="{DynamicResource ForegroundBrush}"/>
+                                                        <Label Content="{Binding ElapsedTime, Converter={StaticResource TimeSpantoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem IsEnabled="False" Visibility="{Binding IsErrorOccurred,Converter={StaticResource BooltoVisiblity}}">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:Material Kind=Alert}" Foreground="Orange"/>
+                                                        <Label Content="{Binding ErrorMessage}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                            <Separator/>
+                                            <MenuItem x:Name="pauseLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauseLabelContext_Click">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:Material Kind=Pause}" Foreground="Orange"/>
+                                                        <Label Content="Pause" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem x:Name="startLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startLabelContext_Click">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" />
+                                                        <Label Content="Start" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                            <MenuItem x:Name="downloadSettingsContext" Click="downloadSettingsContext_Click" Tag="{Binding Id}">
+                                                <MenuItem.Header>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Label Content="{xico:BootstrapIcons Kind=GearFill}" Foreground="{StaticResource AccentBrush}"/>
+                                                        <Label Content="Settings" Foreground="{DynamicResource ForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </MenuItem.Header>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
+                                </Grid>
                             </ItemContainerTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

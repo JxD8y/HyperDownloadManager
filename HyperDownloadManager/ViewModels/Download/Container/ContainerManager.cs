@@ -125,7 +125,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 {
                     foreach (DownloadViewModel node in container.Nodes)
                     {
-                        DownloadManager.Remove(node.Id);
+                        DownloadManager.Remove(node);
                     }
                 }
                 Containers.Remove(container);
@@ -145,7 +145,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 {
                     foreach (DownloadViewModel node in container.Nodes)
                     {
-                        DownloadManager.Remove(node.Id);
+                        DownloadManager.Remove(node);
                     }
                 }
                 Containers.Remove(container);
@@ -163,14 +163,14 @@ namespace HyperDownloadManager.ViewModels.Download.Container
         {
             foreach (DownloadViewModel node in container.Nodes)
             {
-                DownloadManager.SetStop(node.Id);
+                DownloadManager.SetStop(node);
             }
         }
         public static void StartContainerNodes(ContainerViewModel container)
         {
             foreach (DownloadViewModel node in container.Nodes)
             {
-                DownloadManager.SetStart(node.Id);
+                DownloadManager.SetStart(node);
             }
         }
         public static void ChooseContainer(int id)

@@ -18,7 +18,7 @@ namespace HyperDownloadManager.Dialogs
         public float? DialogWidth { get; set; }
         public bool? OnTopDialog { get; set; }
         public DialogBox? Dialog { get; set; }
-        public MessageBoxStatus? messageBoxStatus { get; set; }
+        public MessageBoxStatus messageBoxStatus { get; set; } = MessageBoxStatus.NONE;
         public DialogViewModel() { }
         public DialogViewModel(string title, Page dialogContent)
         {

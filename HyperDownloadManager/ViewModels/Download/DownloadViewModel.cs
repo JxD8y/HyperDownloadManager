@@ -24,6 +24,7 @@ namespace HyperDownloadManager.ViewModels.Download
         public BsonValue? Serialized_id { get; set; }
         [BsonIgnore]
         public ContainerViewModel? Container { get { return ContainerManager.GetContainer(this.ContainerId); } }
+        [BsonIgnore]
         public DownloadSupervisor? Supervisor { get; set; }
         public ConfigViewModel? ConfigViewModel { get; set; }
         #region Pages
@@ -56,13 +57,6 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         #endregion
         #region Properties
-
-
-        [BsonIgnore]
-        private bool errorOccurred = false;
-        public bool ErrorOccurred { get { return errorOccurred; } set { errorOccurred = value; OnPropertyChanged(); } }
-        [BsonIgnore]
-        public string LastException { get; set; } = "";
 
         private UnitValue speed;
         [BsonIgnore]
@@ -138,6 +132,7 @@ namespace HyperDownloadManager.ViewModels.Download
         public float CurrentPercent { get { return _CurrentPercent; } set { _CurrentPercent = value; OnPropertyChanged(); } }
 
         private DownloadState _CurrentState;
+        [BsonIgnore]
         public DownloadState CurrentState { get { return _CurrentState; } set { _CurrentState = value; OnPropertyChanged(); } }
 
         private bool _Selected;
@@ -177,6 +172,7 @@ namespace HyperDownloadManager.ViewModels.Download
                 this.CurrentSaveFileDirectory = Path.GetDirectoryName(value);
                 this.CurrentFileName = Path.GetFileName(value);
                 this.CurrentFileExtension = Path.GetExtension(value);
+                _fileSavePath = value;
             }
         }
 

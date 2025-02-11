@@ -320,7 +320,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
         }
         #endregion
 
-        private void AddDownloadLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) //incase of error DonwloadManager.Create will throw an exception DONOT Expect -1 in return!
+        private void AddDownloadLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             try
             {
