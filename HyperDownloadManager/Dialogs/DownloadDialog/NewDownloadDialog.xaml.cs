@@ -370,7 +370,14 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                             if (!PrepareLocalSettings())
                                 return;
                             if(downloadContainer != null)
-                                DownloadManager.Create(remoteInfo, defaultConfig, downloadContainer);
+                            {
+                                int? id = DownloadManager.Create(remoteInfo, defaultConfig, downloadContainer);
+                                if(defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant && id != null)
+                                {
+                                    DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id ?? 0);
+                                    DownloadManager.SetStart(viewModel);
+                                }
+                            }
                             else
                             {
                                 ShowNotifyMessage("container is not set", true);

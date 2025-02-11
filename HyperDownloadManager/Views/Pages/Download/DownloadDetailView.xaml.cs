@@ -135,7 +135,10 @@ namespace HyperDownloadManager.Views.Pages.Download
                     await DialogManager.ShowMessageBox("Cannot show settings while main app is not present", MessageLevel.Info, ButtonOrder.OK,true);
                 }
                 else
+                {
+                    this.model.DownloadSettingsPage = new DownloadSettingsView(this.model);
                     DialogManager.ShowDialog("Download Settings", this.model.DownloadSettingsPage, DialogMode.InApp);
+                }
             }
         }
 

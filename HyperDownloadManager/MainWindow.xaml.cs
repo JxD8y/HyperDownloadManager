@@ -56,7 +56,7 @@ namespace HyperDownloadManager
 
         private void LogManager_OnLogAdd(LogViewModel lvm)
         {
-            LastLoglabel.Content = $"{lvm.AccureTime}: {lvm.Log}";
+            this.Dispatcher.Invoke(() => { LastLoglabel.Content = $"{lvm.AccureTime}: {lvm.Log}"; });
         }
         #region NotifyIcon
         private void HDMNotifyIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)

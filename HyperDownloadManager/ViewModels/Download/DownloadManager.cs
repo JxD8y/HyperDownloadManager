@@ -237,7 +237,6 @@ namespace HyperDownloadManager.ViewModels.Download
                         DownloadViewModels.Add(downloadViewModel);
                         downloadViewModel.Container.AddDownload(downloadViewModel);
                         SetTriggers(downloadViewModel);
-                        
                     }
                     else
                     {
@@ -281,6 +280,7 @@ namespace HyperDownloadManager.ViewModels.Download
             downloadViewModel.FileSavePath = unsafeDownloadView.FileSavePath;
             downloadViewModel.FileSize = unsafeDownloadView.FileSize;
             downloadViewModel.CurrentUrl = unsafeDownloadView.CurrentUrl;
+            downloadViewModel.ResumeSupport = unsafeDownloadView.ResumeSupport;
 
             try
             {
@@ -293,6 +293,7 @@ namespace HyperDownloadManager.ViewModels.Download
                     if (downloadViewModel.FileSize.OriginData == length)
                     {
                         downloadViewModel.CurrentState = DownloadState.Completed;
+                        downloadViewModel.IsCompleted = true;
                     }
                     else 
                     { 
@@ -375,7 +376,8 @@ namespace HyperDownloadManager.ViewModels.Download
             }
             else
             {
-                SetState(downloadViewModel, DownloadState.Paused);
+
+                SetState(downloadViewModel, downloadViewModel.CurrentState);
             }
         }
         #endregion

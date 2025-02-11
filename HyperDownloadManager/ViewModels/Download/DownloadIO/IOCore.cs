@@ -101,7 +101,8 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
             if (!isStreamOpen)
             {
                 ThrottledStream? stream = null;
-                stream = IOUtility.CreateStream(this.model.FileSavePath, this.model.ConfigViewModel.SpeedLimit, this.model.ConfigViewModel.MaxFileSize, FileMode.Open);
+                long maxFileSize = UnitConverter.ConvertToByte(Unit.Gb,this.model.ConfigViewModel?.MaxFileSize ?? 0);
+                stream = IOUtility.CreateStream(this.model.FileSavePath, this.model.ConfigViewModel.SpeedLimit, maxFileSize, FileMode.Open);
                 if (stream != null)
                 {
                     this.FSID = IOUtility.GetStreamID(stream);

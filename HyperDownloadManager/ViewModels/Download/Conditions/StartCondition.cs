@@ -14,16 +14,17 @@ namespace HyperDownloadManager.ViewModels.Download.Conditions
         {
             throw new NotImplementedException();
         }
-        public async Task WaitUntilDone(DownloadViewModel downloadViewModel, CancellationToken cnTk)
+        public void WaitUntilDone(DownloadViewModel downloadViewModel, CancellationToken cnTk)
         {
-            await Task.Run(() =>
+            while (!Ready(downloadViewModel))
             {
-                while (!Ready(downloadViewModel))
+                try
                 {
                     cnTk.ThrowIfCancellationRequested();
                     Task.Delay(1000).Wait(cnTk);
                 }
-            });
+                catch { break; }
+            }
         }
         public StartCondition(DownloadViewModel downloadView)
         {

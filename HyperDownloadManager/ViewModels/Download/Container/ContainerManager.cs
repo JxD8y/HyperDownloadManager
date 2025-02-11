@@ -101,14 +101,6 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 return container;
             }
         }
-        public static void HighlightDownload(int downloadId, int containerId)
-        {
-            ContainerViewModel viewModel = GetContainer(containerId);
-            if (viewModel != null)
-            {
-                viewModel.HighLightDownload(downloadId);
-            }
-        }
         #region Oprations
         public static bool ContainerExist(string name) { var cn = from container in Containers where container.Name == name select container; return cn.Count() >= 1; }
         public static bool ContainerExist(int id) { var cn = from container in Containers where container.Id == id select container; return cn.Count() >= 1; }

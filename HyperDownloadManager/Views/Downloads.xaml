@@ -27,7 +27,7 @@
             </StackPanel>
         </Border>
         
-        <Grid Grid.Row="0" Grid.Column="0">
+        <Grid x:Name="TopGrid" MouseLeftButtonDown="TopGrid_MouseLeftButtonDown" Grid.Row="0" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -174,8 +174,10 @@
                                             <Label Content="{Binding CurrentSpeed.DataValue,Converter={StaticResource FloattoString}}" Foreground="{DynamicResource ForegroundBrush}"/>
                                             <Label Content="{Binding CurrentSpeed.DataUnit}" Foreground="{DynamicResource ForegroundBrush}"/>
                                             <Label Content="/s" Foreground="{DynamicResource ForegroundBrush}"/>
-                                            <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" x:Name="StartDownload" Tag="{Binding Id}" MouseLeftButtonDown="StartDownload_MouseLeftButtonDown" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}"/>
-                                            <Label Content="{xico:Material Kind=Pause}" Foreground="Orange" x:Name="PauseDownload" Tag="{Binding Id}" MouseLeftButtonDown="PauseDownload_MouseLeftButtonDown"  Visibility="{Binding Visibility, ElementName=StartDownload,Converter={StaticResource ReverseVisiblity}}"/>
+                                            <Grid Visibility="{Binding IsCompleted,Converter={StaticResource BooltoReverseVisiblity}}">
+                                                <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" x:Name="StartDownload" Tag="{Binding Id}" MouseLeftButtonDown="StartDownload_MouseLeftButtonDown" Visibility="{Binding IsWorking,Converter={StaticResource BooltoReverseVisiblity}}"/>
+                                                <Label Content="{xico:Material Kind=Pause}" Foreground="Orange" x:Name="PauseDownload" Tag="{Binding Id}" MouseLeftButtonDown="PauseDownload_MouseLeftButtonDown"  Visibility="{Binding Visibility, ElementName=StartDownload,Converter={StaticResource ReverseVisiblity}}"/>
+                                            </Grid>
                                         </StackPanel>
                                     </Grid>
                                     <Grid.ContextMenu>
@@ -228,7 +230,7 @@
                                                 </MenuItem.Header>
                                             </MenuItem>
                                             <Separator/>
-                                            <MenuItem x:Name="pauseLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauseLabelContext_Click">
+                                            <MenuItem IsEnabled="{Binding IsCompleted,Converter={StaticResource ReverseBool}}" x:Name="pauseLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoVisiblity}}" Click="pauseLabelContext_Click">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:Material Kind=Pause}" Foreground="Orange"/>
@@ -236,7 +238,7 @@
                                                     </StackPanel>
                                                 </MenuItem.Header>
                                             </MenuItem>
-                                            <MenuItem x:Name="startLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startLabelContext_Click">
+                                            <MenuItem IsEnabled="{Binding IsCompleted,Converter={StaticResource ReverseBool}}" x:Name="startLabelContext" Tag="{Binding Id}" Visibility="{Binding IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Click="startLabelContext_Click">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" />
@@ -244,7 +246,7 @@
                                                     </StackPanel>
                                                 </MenuItem.Header>
                                             </MenuItem>
-                                            <MenuItem x:Name="downloadSettingsContext" Click="downloadSettingsContext_Click" Tag="{Binding Id}">
+                                            <MenuItem Visibility="{Binding IsCompleted,Converter={StaticResource BooltoReverseVisiblity}}" x:Name="downloadSettingsContext" Click="downloadSettingsContext_Click" Tag="{Binding Id}">
                                                 <MenuItem.Header>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Label Content="{xico:BootstrapIcons Kind=GearFill}" Foreground="{StaticResource AccentBrush}"/>

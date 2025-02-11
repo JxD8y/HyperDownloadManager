@@ -64,15 +64,11 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 serialized_id = new BsonValue(Guid.NewGuid());
             Serialized_id = serialized_id;
             this.CreationTime = DateTime.Now;
-            remainingTimer.Elapsed += RemainingTimer_Elapsed;
-            remainingTimer.Start();
 
         }
         public ContainerViewModel()
         {
             Nodes = new ObservableCollection<DownloadViewModel>();
-            remainingTimer.Elapsed += RemainingTimer_Elapsed;
-            remainingTimer.Start();
         }
         #endregion
         #region DownloadManaging
@@ -187,30 +183,6 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                     if (downloadViewModel.ResumeSupport)
                     {
                         DownloadManager.SetStop(downloadViewModel);
-                    }
-                }
-            }
-        }
-        public void HighLightDownload(int downloadId)
-        {
-            IsHighLighted = true;
-            DownloadViewModel downloadViewModel = GetNode(downloadId);
-            //N: ?
-        }
-        private void RemainingTimer_Elapsed(object? sender, ElapsedEventArgs e)
-        {
-            if (Nodes.Count != 0)
-            {
-                TimeSpan remainTime = TimeSpan.FromSeconds(1);
-                foreach (DownloadViewModel dvm in Nodes)
-                {
-                    if (dvm.CurrentState == DownloadState.Downloading)
-                    {
-                        if (remainTime < dvm.RemainingTime)
-                        {
-                            remainTime = dvm.RemainingTime;
-                        }
-                        CompleteTime = remainTime;
                     }
                 }
             }

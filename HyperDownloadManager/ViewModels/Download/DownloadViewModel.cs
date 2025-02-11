@@ -149,7 +149,7 @@ namespace HyperDownloadManager.ViewModels.Download
         bool _resumable = false;
         public bool ResumeSupport { get { return _resumable; } set { _resumable = value; OnPropertyChanged(); } }
         string _url = "";
-        public string CurrentUrl { get { return _url; } set { _url = value; OnPropertyChanged(); } }
+        public string CurrentUrl { get { return _url; } set { _url = value; this.ServerName = new Uri(value).Host; OnPropertyChanged(); } }
         public DownloadType DownloadType { get; set; } = DownloadType.HttpDownload;
         [BsonIgnore]
         public bool IsErrorOccurred { get; set; }
@@ -157,6 +157,9 @@ namespace HyperDownloadManager.ViewModels.Download
         public string? ErrorMessage { get; set; }
         [BsonIgnore]
         public long Ping { get; set; }
+        string serverName = "";
+        [BsonIgnore]
+        public string ServerName { get { return serverName; } set { serverName = value; OnPropertyChanged(); } }
         #endregion
 
         #region FilePath

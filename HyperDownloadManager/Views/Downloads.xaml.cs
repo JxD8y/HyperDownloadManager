@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -186,25 +187,6 @@ namespace HyperDownloadManager.Views
         }
         #endregion
 
-
-        private void PauseStart_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(selected_id);
-            if (viewModel != null)
-            {
-                if (viewModel.IsWorking)
-                {
-                    DownloadManager.SetStop(viewModel);
-                    this.PauseButton.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    DownloadManager.SetStart(viewModel);
-                    this.PauseButton.Visibility = Visibility.Visible;
-                }
-            }
-        }
-
         private async void DelDownload_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (await DialogManager.ShowMessageBox("Do you want to Remove this Download?\nFile will be removed", MessageLevel.Warning, ButtonOrder.YESNO, false) == MessageBoxStatus.YES)
@@ -245,7 +227,10 @@ namespace HyperDownloadManager.Views
                 int id = (int)(item.Tag);
                 DownloadViewModel? downloadViewModel = DownloadManager.GetDownloadViewModel(id);
                 if(downloadViewModel != null && downloadViewModel.DownloadSettingsPage != null)
+                {
+                    downloadViewModel.DownloadSettingsPage = new DownloadSettingsView(downloadViewModel);
                     DialogManager.ShowDialog("Download Settings", downloadViewModel.DownloadSettingsPage, DialogMode.InApp);
+                }
             }
         }
 
@@ -339,11 +324,28 @@ namespace HyperDownloadManager.Views
             DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(selected_id);
             if(viewModel != null)
             {
+                if (viewModel.CurrentState == DownloadState.Completed)
+                {
+                    stateButton.IsEnabled = false;
+                    return;
+                }
                 if (viewModel.IsWorking)
+                {
                     DownloadManager.SetStop(viewModel);
+                    this.PauseButton.Visibility = Visibility.Collapsed;
+                }
                 else
+                {
                     DownloadManager.SetStart(viewModel);
+                    this.PauseButton.Visibility = Visibility.Visible;
+                }
             }
+        }
+
+        private void TopGrid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed)
+                GlobalSupervisor.MainWindow.DragMove();
         }
     }
     #endregion
