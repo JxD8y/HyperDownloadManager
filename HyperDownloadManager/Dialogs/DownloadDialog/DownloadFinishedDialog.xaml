@@ -8,7 +8,7 @@
       xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
       mc:Ignorable="d" 
       d:DesignHeight="242" MaxHeight="262" Background="{DynamicResource BackgroundBrush}" d:DesignWidth="520" MaxWidth="520"
-      Title="EndDlDialog">
+      Title="DownloadFinishDialog">
 
     <Grid>
         <Grid.RowDefinitions>

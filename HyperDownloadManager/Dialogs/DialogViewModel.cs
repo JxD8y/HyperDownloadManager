@@ -53,6 +53,7 @@ namespace HyperDownloadManager.Dialogs
                         DialogBox dbx = new DialogBox(Title);
                         dbx.Width = DialogContent.MaxWidth + 5;
                         dbx.Height = DialogContent.MaxHeight + 10;
+                        dbx.Title = this.Title;
                         this.Dialog = dbx;
                         dbx.Mainframe.Content = DialogContent;
                         dbx.ShowDialog();

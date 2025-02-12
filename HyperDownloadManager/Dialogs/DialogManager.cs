@@ -15,6 +15,7 @@ namespace HyperDownloadManager.Dialogs
         public async static void ShowDialog(string title, Page dialogContent, DialogMode dialogMode = DialogMode.InApp)
         {
             DialogViewModel dialogViewModel = new DialogViewModel(dialogContent, dialogMode);
+            dialogViewModel.Title = title;
             Dialogs.Add(dialogViewModel);
             CurrentDialog = dialogViewModel;
             await dialogViewModel.Show();

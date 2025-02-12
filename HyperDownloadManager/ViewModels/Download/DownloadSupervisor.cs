@@ -227,7 +227,6 @@ namespace HyperDownloadManager.ViewModels.Download
                     this.IOCore.fileStream.OnStreamTermination += FileStream_OnStreamTermination;
                     IOEventsAssigned = true;
                 }
-                this.model.StartTime = DateTime.Now;
                 if (this.model.CurrentState == DownloadState.AwaitingOnCondition)
                 {
                     if (await PromptUser("This download is scheduled to run.\nDo you want to start it now?"))
@@ -236,9 +235,10 @@ namespace HyperDownloadManager.ViewModels.Download
                         this.model.ConfigViewModel.StartConditionInfo = new StartConditionInfo();
                         IgnoreCondition = true;
                         ConditionCancelToken = new CancellationTokenSource();
-                        return;
                     }
+                    return;
                 }
+                this.model.StartTime = DateTime.Now;
                 if (!IgnoreCondition)
                 {
                     await this.DoCondition();
