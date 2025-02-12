@@ -110,7 +110,7 @@ namespace HyperDownloadManager.ViewModels.Download
             StopTimers();
             this.isWorking = false;
             DownloadManager.SetState(this.model, DownloadState.Paused);
-            AlertUser($"download stopped because another part need the stream.", MessageLevel.Warning);
+            AlertUser($"download stream closed", MessageLevel.Warning);
         }
 
         private void FileStream_OnMaxFile(object? sender, StreamEventArgs e)
@@ -281,7 +281,7 @@ namespace HyperDownloadManager.ViewModels.Download
             try
             {
                 long fileSize = this.IOCore.FileSize;
-                if (fileSize > 0)
+                if (this.model.ResumeSupport && fileSize > 0)
                 {
                     await core.GetFrom(fileSize, this.model.FileSize.OriginData);
                     DownloadManager.SetState(this.model, DownloadState.Downloading);

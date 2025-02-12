@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using HyperDownloadManager.ViewModels.DataUnit;
@@ -53,9 +54,19 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
             }
 
             infoClient.BaseAddress = uri;
-            HttpResponseMessage resp = await infoClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage resp = await infoClient.SendAsync(new HttpRequestMessage(HttpMethod.Head,uri));
 
             acceptRange = resp.Headers.AcceptRanges.Count > 0;
+
+            if (!acceptRange)//ensuring server doesn't support range headers
+            {
+                infoClient = new HttpClient();
+                infoClient.BaseAddress = uri;
+                var request = new HttpRequestMessage(HttpMethod.Get, uri);
+                request.Headers.Range = new RangeHeaderValue(0, 99); 
+                var response = await infoClient.SendAsync(request,HttpCompletionOption.ResponseHeadersRead);
+                acceptRange = response.StatusCode == HttpStatusCode.PartialContent;
+            }
 
             if (resp.Content.Headers.ContentLength != null || resp.StatusCode == HttpStatusCode.OK)
             {
