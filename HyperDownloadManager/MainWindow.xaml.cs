@@ -81,7 +81,7 @@ namespace HyperDownloadManager
             }
             MenuItem closeMenuItem = new MenuItem();
             closeMenuItem.Header = "Close App";
-            closeMenuItem.Click += AppCloseItem_Click; ;
+            closeMenuItem.Click += AppCloseItem_Click;
             Separator sp = new Separator();
             HDMNotifyIcon.ContextMenu.Items.Add(sp);
             HDMNotifyIcon.ContextMenu.Items.Add(closeMenuItem);

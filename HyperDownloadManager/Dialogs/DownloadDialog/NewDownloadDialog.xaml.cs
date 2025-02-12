@@ -327,6 +327,11 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 {
                     if (linkMultimode)
                     {
+                        if(MultiDownloadList.Count == 0)
+                        {
+                            ShowNotifyMessage("No download have been added", true);
+                            return;
+                        }
                         if (string.IsNullOrEmpty(containername.Text))
                         {
                             ShowNotifyMessage("Container name cannot be empty", true);
@@ -335,7 +340,13 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
 
                         if (!ContainerManager.ContainerExist(containername.Text))
                         {
-                            downloadContainer = ContainerManager.CreateContainer(containername.Text, MultiDownloadList.Count + 10);
+                            string saveDir = FilePath.Text;
+                            if (!Directory.Exists(FilePath.Text))
+                            {
+                                ShowNotifyMessage("check the selected folder.", true);
+                                return;
+                            }
+                            downloadContainer = ContainerManager.CreateContainer(containername.Text, MultiDownloadList.Count + 10,saveDir);
                         }
                         else
                         {

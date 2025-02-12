@@ -375,7 +375,7 @@ namespace HyperDownloadManager.ViewModels.Download
                     AlertUser("File is currently open in another application.", MessageLevel.Error, true);
                     return false;
                 }
-                if (!NetworkUtility.CheckConnection())
+                if (NetworkUtility.GetServerPing(NetworkUtility.DefaultPingHost2) < 0)
                 {
                     AlertUser("No internet connection.", MessageLevel.Error, true);
                     return false;

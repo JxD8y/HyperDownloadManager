@@ -82,7 +82,7 @@
             </StackPanel.ContextMenu>
             <StackPanel Margin="5 0 0 0" DockPanel.Dock="Left" VerticalAlignment="Center" x:Name="StateContainer" Orientation="Horizontal">
                 <StackPanel VerticalAlignment="Center">
-                    <Label Content="{xico:Material Kind=EarthOff,Width=20,Height=20}" Foreground="IndianRed" x:Name="netoff" Visibility="Visible">
+                    <Label Content="{xico:Material Kind=EarthOff,Width=20,Height=20}" Foreground="IndianRed" x:Name="netoff" Visibility="Collapsed">
                         <Label.ToolTip>
                             <ToolTip Content="No Network" Background="{DynamicResource BackgroundBrush}" BorderBrush="IndianRed" BorderThickness="1"/>
                         </Label.ToolTip>
