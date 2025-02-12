@@ -348,7 +348,12 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
 
                         foreach (DownloadUriInfo info in MultiDownloadList)
                         {
-                            DownloadManager.Create(info, defaultConfig, downloadContainer);
+                            int? id = DownloadManager.Create(info, defaultConfig, downloadContainer);
+                            if (defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant && id != null)
+                            {
+                                DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id ?? 0);
+                                DownloadManager.SetStart(viewModel);
+                            }
                         }
                         GlobalSupervisor.DownloadPage?.SelectContainer(downloadContainer);
                     }

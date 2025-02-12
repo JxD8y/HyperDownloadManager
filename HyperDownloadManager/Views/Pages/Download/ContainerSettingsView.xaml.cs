@@ -30,16 +30,22 @@ namespace HyperDownloadManager.Views.Pages.Download
                     break;
                 case ContainerStartMode.AbsoluteTime:
                     StartConditionCombo.SelectedIndex = 2;
+                    this.DatePicker.Value = model.StartConditionInfo.StartIn;
                     break;
                 case ContainerStartMode.RelativeTime:
                     StartConditionCombo.SelectedIndex = 1;
+                    this.TimerDownload.Value = model.StartConditionInfo.StartAt;
                     break;
             }
             foreach (DownloadViewModel dvm in DownloadManager.DownloadViewModels)
             {
+                if(dvm.ContainerId == this.model.Id)
+                {
+                    selectedDownloads.Add(dvm);
+                }   
                 downloadGrid.Items.Add(dvm);
             }
-            downloadButtonContent.Content = $"Add Download: (0)";
+            downloadButtonContent.Content = $"Add Download: ({selectedDownloads.Count})";
         }
 
         private void selectFolder_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -74,7 +80,7 @@ namespace HyperDownloadManager.Views.Pages.Download
         #endregion
         private void Save_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (!ContainerViewModel.ValidateName(name.Text))
+            if (!ContainerViewModel.ValidateName(name.Text,model.Name))
             {
                 ShowNotifyMessage("Name is not valid", true, 1500);
                 return;
@@ -96,7 +102,7 @@ namespace HyperDownloadManager.Views.Pages.Download
             }
             if (StartConditionCombo.SelectedIndex == 1)
             {
-                if (model.CreationTime.TimeOfDay >= TimerDownload.Value)
+                if (TimerDownload.Value == TimeSpan.Zero)
                 {
                     ShowNotifyMessage("cannot schedule for this time", true);
                     return;

@@ -141,6 +141,8 @@ namespace HyperDownloadManager.ViewModels.Download
                     await DialogManager.ShowMessageBox($"Error occurred while finalizing download: \n{ex.Message}", MessageLevel.Warning, ButtonOrder.OK);
                     this.Stop();
                 }
+                this.isCompleted = true;
+                DownloadManager.SetState(this.model, DownloadState.Completed);
                 switch (this.model.ConfigViewModel.CompleteType)
                 {
                     case FinishType.None:
@@ -151,8 +153,7 @@ namespace HyperDownloadManager.ViewModels.Download
                         break;
                 }
             }
-            this.isCompleted = true;
-            DownloadManager.SetState(this.model, DownloadState.Completed);
+            
         }
         #endregion
         #region DownloadControls

@@ -64,22 +64,34 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 serialized_id = new BsonValue(Guid.NewGuid());
             Serialized_id = serialized_id;
             this.CreationTime = DateTime.Now;
+            DownloadObserveTimer.Interval = 2000;
+            DownloadObserveTimer.Elapsed += DownloadObserveTimer_Elapsed;
+            DownloadObserveTimer.Start();
 
         }
+
+        private void DownloadObserveTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            this.Actives = Nodes.Count((d) => { return d.CurrentState == DownloadState.Downloading; });
+            this.Paused = Nodes.Count((d) => { return d.CurrentState == DownloadState.Paused; });
+        }
+
         public ContainerViewModel()
         {
             Nodes = new ObservableCollection<DownloadViewModel>();
         }
         #endregion
         #region DownloadManaging
-        private System.Timers.Timer remainingTimer = new System.Timers.Timer(CheckRemainingInterval);
-        private TimeSpan _completeTime;
-        [BsonIgnore]
-        public TimeSpan CompleteTime { get { return _completeTime; } set { _completeTime = value; OnPropertyChanged(); } }
+        private System.Timers.Timer DownloadObserveTimer = new System.Timers.Timer(CheckRemainingInterval);
         [BsonIgnore]
         public ObservableCollection<DownloadViewModel> Nodes { get; set; } = new ObservableCollection<DownloadViewModel>();
-        public int Actives { get { return Nodes.Count((d) => { return d.CurrentState == DownloadState.Downloading; }); } }
-        public int Paused { get { return Nodes.Count((d) => { return d.CurrentState == DownloadState.Paused; }); } }
+        int actives = 0;
+        [BsonIgnore]
+        public int Actives { get { return actives; } set { actives = value; OnPropertyChanged(); } }
+        
+        int paused = 0;
+        [BsonIgnore]
+        public int Paused { get { return paused; } set { paused = value; OnPropertyChanged(); } }
         public bool Completed { get { return Nodes.Count((d) => { return d.CurrentState == DownloadState.Completed; }) == Nodes.Count; } }
         #endregion
         #region ContainerNodesOperation
@@ -102,6 +114,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
             }
             return false;
         }
+
         public bool ClearNodes()
         {
             foreach (DownloadViewModel dvm in Nodes)
@@ -141,36 +154,39 @@ namespace HyperDownloadManager.ViewModels.Download.Container
         }
         #endregion
         #region ContainerDownloadOperations
-        private async Task DoCondition()
+        private void DoCondition()
         {
-            foreach (DownloadViewModel downloadViewModel in Nodes)
+            try
             {
-                if (downloadViewModel.CurrentState != DownloadState.Completed && downloadViewModel.ResumeSupport)
+
+                if (this.StartConditionInfo.StartMode == ContainerStartMode.RelativeTime)
                 {
-                    DownloadManager.SetStop(downloadViewModel);
+                    this.StartConditionInfo.StartCondition = new RelativeTimeContainerStartCondition(DateTime.Now, this.StartConditionInfo.StartAt);
+                    this.StartConditionInfo.StartCondition.Wait(this, this.conditionCancelToken.Token);
                 }
+                else if (this.StartConditionInfo.StartMode == ContainerStartMode.AbsoluteTime)
+                {
+                    this.StartConditionInfo.StartCondition = new AbsoluteTimeContainerStartCondition(this.StartConditionInfo.StartIn);
+                    this.StartConditionInfo.StartCondition.Wait(this, this.conditionCancelToken.Token);
+                }
+                
             }
-            if (this.StartConditionInfo.StartMode == ContainerStartMode.RelativeTime)
+            catch { }
+            finally
             {
-                this.StartConditionInfo.StartCondition = new RelativeTimeContainerStartCondition(this.CreationTime, this.StartConditionInfo.StartAt);
-                await this.StartConditionInfo.StartCondition.Wait(this, this.conditionCancelToken.Token);
-            }
-            else if (this.StartConditionInfo.StartMode == ContainerStartMode.AbsoluteTime)
-            {
-                this.StartConditionInfo.StartCondition = new AbsoluteTimeContainerStartCondition(this.CreationTime, this.StartConditionInfo.StartIn);
-                await this.StartConditionInfo.StartCondition.Wait(this, this.conditionCancelToken.Token);
+                this.StartConditionInfo.StartMode = ContainerStartMode.Instant;
             }
         }
         public async void StartAllDownload(bool ignoreCondition = false)
         {
             if (!ignoreCondition)
-                await DoCondition();
+                await Task.Run(DoCondition, this.conditionCancelToken.Token); 
 
             foreach (DownloadViewModel downloadViewModel in Nodes)
             {
                 if (downloadViewModel.CurrentState != DownloadState.Completed)
                 {
-                    DownloadManager.SetStart(downloadViewModel);
+                    downloadViewModel.Supervisor?.Start(true);
                 }
             }
         }
@@ -196,9 +212,9 @@ namespace HyperDownloadManager.ViewModels.Download.Container
         }
         #endregion
         #region Validators
-        public static bool ValidateName(string name)
+        public static bool ValidateName(string name,string currentName = "")
         {
-            return !string.IsNullOrEmpty(name) && !name.Contains("\"") && !name.Contains("'") && !name.Contains("\\");
+            return !string.IsNullOrEmpty(name) && !name.Contains("\"") && !name.Contains("'") && !name.Contains("\\") && (!ContainerManager.ContainerExist(name) || name == currentName);
         }
         public static bool ValidateDescription(string description)
         {

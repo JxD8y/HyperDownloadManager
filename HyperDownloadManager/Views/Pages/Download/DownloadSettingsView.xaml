@@ -68,7 +68,7 @@
                             </ComboBox>
                             <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
                                 <ComboBox x:Name="ConditionDownload" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleDownloaditem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
-                                <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                                <xceed:TimeSpanUpDown Minimum="00:00:00" Value="00:00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                                 <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             </StackPanel>
                         </StackPanel>

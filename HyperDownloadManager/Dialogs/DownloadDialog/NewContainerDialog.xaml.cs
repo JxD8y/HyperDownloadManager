@@ -29,6 +29,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
             path.Text = SettingSupervisor.GeneralSettings.DefaultDownloadFolder ?? IOUtility.GetSystemDownloadFolder() ?? "";
 
             downloadButtonContent.Content = $"Add Download: (0)";
+            this.maxDownload.Text = DownloadManager.DownloadViewModels.Count.ToString();
         }
         #region ALertEvents
         private async void ShowNotifyMessage(string message, bool warn = false, int duration = 1000)
@@ -90,15 +91,11 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 ShowNotifyMessage("Path is empty or does not exist.", true);
                 return;
             }
-
-            model = ContainerManager.CreateContainer(name.Text, Convert.ToInt32(maxDownload.Text), path.Text);
-            model.AddRangeNodes(selectedDownloads);
-
             model.MaxOccupied = Convert.ToInt32(maxFileSize.Text);
 
             if (StartConditionCombo.SelectedIndex == 1)
             {
-                if (model.CreationTime.TimeOfDay >= TimerDownload.Value)
+                if (TimerDownload.Value == TimeSpan.Zero)
                 {
                     ShowNotifyMessage("cannot schedule for this time\ntry to reschedule the container in it's setting", true);
                     return;
@@ -112,6 +109,9 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                     return;
                 }
             }
+
+            model = ContainerManager.CreateContainer(name.Text, Convert.ToInt32(maxDownload.Text), path.Text);
+            model.AddRangeNodes(selectedDownloads);
 
             if (StartConditionCombo.SelectedIndex == 1)
             {
@@ -128,13 +128,14 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
             {
                 model.StartConditionInfo.StartMode = ContainerStartMode.Instant;
             }
-
+            
             ContainerManager.UpdateContainer(model);
 
             if (model.StartConditionInfo.StartMode != ContainerStartMode.Instant)
                 model.StartAllDownload();
             
             ShowNotifyMessage("Container created", false, 3000);
+            GlobalSupervisor.DownloadPage?.SelectContainer(model);
             DialogManager.Close();
         }
         private void addDownload_Click(object sender, RoutedEventArgs e)

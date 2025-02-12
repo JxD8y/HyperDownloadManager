@@ -7,11 +7,11 @@
       xmlns:xceed="http://schemas.xceed.com/wpf/xaml/toolkit"
       xmlns:xico="http://metro.mahapps.com/winfx/xaml/iconpacks"
       xmlns:HDMControls="clr-namespace:HyperDownloadManager.Styles.Controls.CustomControls"
-      d:DesignHeight="420" d:DesignWidth="450" MaxHeight="420"
+      d:DesignHeight="430" d:DesignWidth="450" MaxHeight="430"
       mc:Ignorable="d" 
       Title="NewContainer">
 
-    <Border Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}">
+    <Border Padding="2" Focusable="True" FocusVisualStyle="{x:Null}" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" BorderThickness="1" BorderBrush="{DynamicResource ObsoleteBrush}">
         <ScrollViewer Margin="0 10 0 0">
             <Grid>
                 <Grid.RowDefinitions>
@@ -143,7 +143,7 @@
                                 <ComboBoxItem Content="Schedule on Date" x:Name="scheduleDateitem"/>
                             </ComboBox>
                             <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
-                                <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                                <xceed:TimeSpanUpDown Minimum="00:00:00" Value="00:00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                                 <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             </StackPanel>
                         </StackPanel>

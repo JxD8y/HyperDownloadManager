@@ -183,12 +183,6 @@
                     </StackPanel>
                     <StackPanel x:Name="ContainmentSettings" Orientation="Horizontal" Margin="0 20 0 0">
                         <Label Content="{xico:Material Kind=Group}" />
-                        <ComboBox Width="100" SelectedIndex="0" Visibility="{Binding ElementName=ContainersCombo,Path=Visibility,Converter={StaticResource ReverseVisiblity}}" Margin="5 0 0 0" x:Name="Stackmode">
-                            <ComboBoxItem Content="Normal"/>
-                            <ComboBoxItem Content="Direct"/>
-                            <ComboBoxItem Content="Reverse"/>
-                            <ComboBoxItem Content="Random"/>
-                        </ComboBox>
                         <ComboBox Margin="3 0 0 0" Width="120" Visibility="Visible" x:Name="ContainersCombo" SelectionChanged="ContainersCombo_SelectionChanged"/>
                         <HDMControls:LabelTextBox Margin="3 0 0 0" Width="200" x:Name="containername" HelperContent="Container Name"  Visibility="{Binding ElementName=ContainersCombo,Path=Visibility,Converter={StaticResource ReverseVisiblity}}"/>
                     </StackPanel>
@@ -203,7 +197,7 @@
                         </ComboBox>
                         <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
                             <ComboBox x:Name="ConditionDownload" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleDownloaditem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
-                            <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                            <xceed:TimeSpanUpDown Minimum="00:00:00" Value="00:00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                         </StackPanel>
                     </StackPanel>

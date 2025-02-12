@@ -124,7 +124,6 @@ namespace HyperDownloadManager.Views.Pages.Download
                         break;
                 }
                 config.ShowFinalDialog = shownotificationcheck.IsChecked ?? true;
-
                 switch (StartConditionCombo.SelectedIndex)
                 {
                     case 0:

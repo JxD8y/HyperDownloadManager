@@ -193,8 +193,10 @@ namespace HyperDownloadManager.Views
                     {
                         containerViewModel.StartAllDownload(true);
                     }
-                    else
-                        containerViewModel.StartAllDownload(false);
+                }
+                else
+                {
+                    containerViewModel.StartAllDownload();
                 }
             }
         }
