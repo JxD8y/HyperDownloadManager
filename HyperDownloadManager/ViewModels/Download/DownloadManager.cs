@@ -194,10 +194,7 @@ namespace HyperDownloadManager.ViewModels.Download
 
                     LitedbRepo<DownloadViewModel>.Update(downloadViewModel.Serialized_id, downloadViewModel, LitedbRepo<DownloadViewModel>.DownloadsColName);
                 }
-                catch (Exception ex)
-                {
-                    
-                }
+                catch { }
             }
         }
         public static void RemoveDownload(BsonValue id)
