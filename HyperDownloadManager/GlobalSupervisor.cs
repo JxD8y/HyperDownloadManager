@@ -33,7 +33,7 @@ namespace HyperDownloadManager
         public static DialogBox? CurrentShowingDialog { get; set; }
         public static Logs? LogPage { get; set; }
         public static Info? InfoPage { get; set; }
-        public static MainWindow MainWindow { get; set; } = new MainWindow();
+        public static MainWindow? MainWindow { get; set; }
         public static GeneralSettingsViewModel GeneralSettingsViewModel { get { return SettingSupervisor.GeneralSettings; } }
         public static NetworkSettingsViewModel NetworkSettingsViewModel { get { return SettingSupervisor.NetworkSetting; } }
         public static ThemeSettingsViewModel ThemeSettingsViewModel { get { return SettingSupervisor.ThemeSetting; } }

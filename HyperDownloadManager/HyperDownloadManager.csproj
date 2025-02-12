@@ -6,7 +6,16 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Icon\Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
 
 
   <ItemGroup>
@@ -20,9 +29,9 @@
     <PackageReference Include="System.Reactive" Version="6.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Icon\App.ico" />
-  </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Icon\Icon.ico" />
+  </ItemGroup>
 
 </Project>

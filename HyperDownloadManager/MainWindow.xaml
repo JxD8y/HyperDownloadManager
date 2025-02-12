@@ -8,7 +8,7 @@
         xmlns:hardCodet="http://www.hardcodet.net/taskbar"
         xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="Hyper Download Manager" Closing="MetroWindow_Closing" WindowTransitionsEnabled="False" GlowBrush="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True" Height="630" Width="900" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
+        Title="Hyper Download Manager" Closing="MetroWindow_Closing" WindowTransitionsEnabled="False" GlowBrush="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True" Height="630" Width="900" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="Linear" IconEdgeMode="Aliased" IconScalingMode="ScaleDownLargerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
 
     <MahApps:MetroWindow.WindowButtonCommands>
         <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>
@@ -26,11 +26,13 @@
             <ColumnDefinition Width="450"/>
             <ColumnDefinition Width="0.5*"/>
         </Grid.ColumnDefinitions>
+        
         <hardCodet:TaskbarIcon x:Name="HDMNotifyIcon"
         Visibility="Collapsed"
         ToolTipText="HDM"
         MenuActivation="LeftOrRightClick"
         PopupActivation="DoubleClick"
+        IconSource="Icon\Icon.ico"
         TrayMouseDoubleClick="HDMNotifyIcon_TrayMouseDoubleClick">
             <hardCodet:TaskbarIcon.ContextMenu>
                 <ContextMenu Background="{DynamicResource BackgroundBrush}" Foreground="{DynamicResource ForegroundBrush}" BorderBrush="{DynamicResource BorderBrush}" StaysOpen="True" Opened="NotifyIconContext_Opened">
@@ -39,6 +41,7 @@
                 </ContextMenu>
             </hardCodet:TaskbarIcon.ContextMenu>
         </hardCodet:TaskbarIcon>
+        
         <Border Padding="10" Background="{DynamicResource BackgroundBrush}" CornerRadius="15" VerticalAlignment="Center" HorizontalAlignment="Center" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" Panel.ZIndex="10" Grid.Row="1" x:Name="DragNotifier" Visibility="Collapsed" Grid.Column="1" Opacity="0.6">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                 <StackPanel Orientation="Vertical">
