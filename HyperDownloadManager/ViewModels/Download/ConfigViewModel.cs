@@ -36,7 +36,7 @@ namespace HyperDownloadManager.ViewModels.Download
                 Headers = "";
                 connections = 1;
             }
-            MaxFileSize = 0;
+            MaxFileSize = 100;
             SpeedLimit = 0;
             CompleteType = FinishType.None;
             ShowFinalDialog = true;

@@ -196,7 +196,7 @@ namespace HyperDownloadManager.ViewModels.Download
                 }
                 catch (Exception ex)
                 {
-                    LogManager.Log(MessageLevel.Error, LogSection.Download, $"fail to update download: {ex.Message}");
+                    
                 }
             }
         }
