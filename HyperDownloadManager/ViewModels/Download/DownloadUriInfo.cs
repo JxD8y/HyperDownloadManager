@@ -18,6 +18,7 @@ namespace HyperDownloadManager.ViewModels.Download
         public BitmapSource? Icon { get; set; }
         public long Ping { get; set; }
         public string FileName { get; set; } = "";
+        public string SaveDirectory { get; set; } = "";
         public DownloadUriInfo() { }
         public DownloadUriInfo(bool resumable,UnitValue size,Uri? url,BitmapSource? icon)
         {

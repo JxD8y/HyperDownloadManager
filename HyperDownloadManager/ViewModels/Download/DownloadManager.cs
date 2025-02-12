@@ -67,7 +67,12 @@ namespace HyperDownloadManager.ViewModels.Download
             viewModel.CurrentUrl = downloadInfo.Url?.OriginalString ?? "";
             viewModel.Icon = downloadInfo.Icon;
             viewModel.ResumeSupport = downloadInfo.Resumable;
-            viewModel.FileSavePath = Path.Combine(containerViewModel.Path, downloadInfo.FileName);
+
+            if(downloadInfo.SaveDirectory != "")
+                viewModel.FileSavePath = Path.Combine(downloadInfo.SaveDirectory, downloadInfo.FileName);
+            else
+                viewModel.FileSavePath = Path.Combine(containerViewModel.Path, downloadInfo.FileName);
+
             viewModel.FileSize = downloadInfo.Size;
 
             viewModel.Serialized_id = new BsonValue(Guid.NewGuid());

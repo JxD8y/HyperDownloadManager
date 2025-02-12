@@ -31,7 +31,6 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
     /// </summary>
     public partial class NewDownloadDialog : Page
     {
-        private BitmapSource? icon = null;
         private ConfigViewModel defaultConfig = new ConfigViewModel();
         private ContainerViewModel? downloadContainer = ContainerManager.CurrentContainer;
         private ObservableCollection<DownloadUriInfo> MultiDownloadList = new ObservableCollection<DownloadUriInfo>();
@@ -359,7 +358,11 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                         if (Directory.Exists(FilePath.Text))
                         {
                             if (FilePath.Text != downloadContainer?.Path || saveDir == "")
+                            {
                                 saveDir = FilePath.Text;
+                                if(remoteInfo != null)
+                                    remoteInfo.SaveDirectory = saveDir;
+                            }
                         }
                         else
                         {
