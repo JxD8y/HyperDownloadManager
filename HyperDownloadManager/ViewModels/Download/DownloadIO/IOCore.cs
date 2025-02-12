@@ -87,7 +87,7 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
             this.CloseFile();
             if (this.model.IsTempFile)
             {
-                if (IoState == IoState.FileOk && (this.model.FileSavePath != null && this.model.CurrentFileName != null && this.model.CurrentSaveFileDirectory != null))
+                if (IoState != IoState.FileOk && (this.model.FileSavePath != null && this.model.CurrentFileName != null && this.model.CurrentSaveFileDirectory != null))
                 {
                     File.Move(this.model.FileSavePath, Path.Combine(this.model.CurrentSaveFileDirectory, this.model.CurrentFileName));
                 }

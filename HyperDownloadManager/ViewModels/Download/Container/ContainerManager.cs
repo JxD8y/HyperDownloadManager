@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
@@ -115,8 +116,9 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 }
                 else
                 {
-                    foreach (DownloadViewModel node in container.Nodes)
+                    for(int i =0;i < container.Nodes.Count; i++)
                     {
+                        DownloadViewModel node = container.Nodes[i];
                         DownloadManager.Remove(node);
                     }
                 }

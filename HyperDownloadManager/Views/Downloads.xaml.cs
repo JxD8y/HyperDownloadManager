@@ -54,6 +54,7 @@ namespace HyperDownloadManager.Views
             ContainerManager.OnSelectedContainerChanged += ContainerManager_OnSelectedContainerChanged;
             DelDownload.IsEnabled = false;
             stateButton.IsEnabled = false;
+            Filter_MouseLeftButtonDown(CompletedFilter, null);
         }
         private void ContainerManager_OnSelectedContainerChanged(object? sender, EventArgs e)
         {
@@ -127,7 +128,11 @@ namespace HyperDownloadManager.Views
             }
 
         }
-
+        public void SelectContainer(ContainerViewModel viewModel)
+        {
+            this.ContainerCombo.SelectedItem = viewModel;
+            ContainerManager.ChooseContainer(viewModel.Id);
+        }
         private void containerAdd_Click(object sender, RoutedEventArgs e)
         {
             DialogManager.ShowDialog("", new NewContainerDialog());
@@ -139,6 +144,39 @@ namespace HyperDownloadManager.Views
                 int id = (int)(item.Tag);
                 ContainerViewModel containerViewModel = ContainerManager.GetContainer(id);
                 DialogManager.ShowDialog("", new ContainerSettingsView(containerViewModel));
+            }
+        }
+
+        private async void containerStart_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ContainerViewModel? containerViewModel = ContainerManager.CurrentContainer;
+            if(containerViewModel != null)
+            {
+                if (containerViewModel.StartConditionInfo.StartMode != ContainerStartMode.Instant)
+                {
+                    string info = containerViewModel.StartConditionInfo.StartMode == ContainerStartMode.AbsoluteTime ? containerViewModel.StartConditionInfo.StartIn.ToString() : containerViewModel.StartConditionInfo.StartAt.ToString();
+                    var result = await DialogManager.ShowMessageBox($"this container is scheduled to start all its downloads in {info}\nDo you want to start them all now?", MessageLevel.Warning, ButtonOrder.YESNO, true);
+                    if (result != null && result == MessageBoxStatus.YES)
+                    {
+                        containerViewModel.StartAllDownload(true);
+                    }
+                }
+                else
+                {
+                    containerViewModel.StartAllDownload(false);
+                }
+            }
+        }
+
+        private async void containerStop_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ContainerViewModel? containerViewModel = ContainerManager.CurrentContainer;
+            if (containerViewModel != null)
+            {
+                if (await DialogManager.ShowMessageBox("Do you want to Pause all download in container?\nthis may cause Data Loss\nbecause some download may not have Resume ability.", MessageLevel.Warning, ButtonOrder.YESNO, false) == MessageBoxStatus.YES)
+                {
+                    containerViewModel.PauseAllDownload();
+                }
             }
         }
         private async void ContainerRunAllMenuItem_Click(object sender, RoutedEventArgs e)
@@ -182,6 +220,7 @@ namespace HyperDownloadManager.Views
                 if (await DialogManager.ShowMessageBox("Do you want to Remove this container?\nAll Downloads inside will remove!", MessageLevel.Warning, ButtonOrder.YESNO, false) == MessageBoxStatus.YES)
                 {
                     ContainerManager.RemoveContainer(containerViewModel, true);
+                    ContainerCombo.SelectedItem = ContainerManager.MainContainer;
                 }
             }
         }
@@ -309,16 +348,6 @@ namespace HyperDownloadManager.Views
             }
         }
 
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if(SearchBox.Text == "")
-                downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes;
-            else
-            {
-                downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes.Where((x) => { return x.DownloadName?.Contains(SearchBox.Text) ?? false; });
-            }
-        }
-
         private void stateButton_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(selected_id);
@@ -346,6 +375,54 @@ namespace HyperDownloadManager.Views
         {
             if(e.LeftButton == MouseButtonState.Pressed)
                 GlobalSupervisor.MainWindow.DragMove();
+        }
+
+        private void searchDownload_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (SearchBox.Text == "")
+                downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes;
+            else
+            {
+                downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes.Where((x) => { return x.DownloadName?.Contains(SearchBox.Text) ?? false; });
+            }
+        }
+
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SearchBox.Text == "")
+                downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes;
+        }
+
+        private void Filter_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is StackPanel stack)
+            {
+                AllFilter.Visibility = Visibility.Collapsed;
+                AllRunningFilter.Visibility = Visibility.Collapsed;
+                PausedFilter.Visibility = Visibility.Collapsed;
+                CompletedFilter.Visibility = Visibility.Collapsed;
+
+                switch (stack.Name)
+                {
+                    case "AllFilter":
+                        AllRunningFilter.Visibility = Visibility.Visible;
+                        downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes.Where((v) => { return v.IsWorking; });
+                        break;
+                    case "AllRunningFilter":
+                        PausedFilter.Visibility = Visibility.Visible;
+                        downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes.Where((v) => { return !v.IsWorking && !v.IsCompleted; });
+                        break;
+                    case "PausedFilter":
+                        CompletedFilter.Visibility = Visibility.Visible;
+                        downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes.Where((v) => { return v.IsCompleted; });
+                        break;
+                    case "CompletedFilter":
+                        AllFilter.Visibility = Visibility.Visible;
+                        downloadscontainer.ItemsSource = ContainerManager.CurrentContainer?.Nodes;
+                        break;
+                }
+
+            }
         }
     }
     #endregion

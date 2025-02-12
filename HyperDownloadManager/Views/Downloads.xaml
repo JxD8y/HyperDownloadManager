@@ -94,21 +94,54 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <Label Content="{xico:Material Kind=Play}"/>
-                            <Label Content="{Binding Actives}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=Play}"/>
+                                <Label Content="{Binding Actives}"/>
+                            </StackPanel>
                             <Label Content="|" Opacity="0.5"/>
-                            <Label Content="{xico:Material Kind=Pause}"/>
-                            <Label Content="{Binding Paused}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=Pause}"/>
+                                <Label Content="{Binding Paused}"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </StackPanel>
-            <Border Grid.Column="1" Margin="0 20 30 20" Width="auto" CornerRadius="10" Background="{DynamicResource BoxBrush}">
-                <StackPanel Orientation="Horizontal">
-                    <HDMControl:LabelTextBox Width="400" HelperContent="Search Downloads" TextBoxBase.TextChanged="SearchBox_TextChanged"  x:Name="SearchBox" Margin="5 1 0 0"/>
-                    <Label Content="{xico:Material Kind=Magnify}"/>
-                </StackPanel>
-            </Border>
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Margin="0 20 30 20" Width="auto">
+                <Border CornerRadius="10" Background="{DynamicResource BoxBrush}">
+                    <StackPanel Orientation="Horizontal">
+                        <HDMControl:LabelTextBox Width="250" BorderThickness="0" HelperContent="Search Downloads" TextBoxBase.TextChanged="SearchBox_TextChanged" x:Name="SearchBox" Margin="5 1 0 0" Height="46"/>
+                        <Label x:Name="searchDownload" MouseLeftButtonDown="searchDownload_MouseLeftButtonDown" Content="{xico:Material Kind=Magnify}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{xico:Material Kind=Filter}"/>
+                                <Label Content="Show:"/>
+                            </StackPanel>
+                            <Border CornerRadius="5" Background="{StaticResource ObsoleteBrush}" Margin="10" Padding="2">
+                                <Grid>
+                                    <StackPanel MouseLeftButtonDown="Filter_MouseLeftButtonDown" Visibility="Collapsed" x:Name="AllRunningFilter" Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" Margin="2 0 0 0" Padding="0"/>
+                                        <Label Content="All running" Padding="0" Margin="5 0 5 0"/>
+                                    </StackPanel>
+                                    <StackPanel MouseLeftButtonDown="Filter_MouseLeftButtonDown" Visibility="Collapsed" x:Name="CompletedFilter" Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=CheckboxMarked}" Foreground="RoyalBlue" Margin="2 0 0 0" Padding="0"/>
+                                        <Label Content="Completed" Padding="0" Margin="5 0 5 0"/>
+                                    </StackPanel>
+                                    <StackPanel MouseLeftButtonDown="Filter_MouseLeftButtonDown" x:Name="PausedFilter" Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=Pause}" Foreground="Orange" Margin="2 0 0 0" Padding="0"/>
+                                        <Label Content="Paused" Padding="0" Margin="5 0 5 0"/>
+                                    </StackPanel>
+                                    <StackPanel MouseLeftButtonDown="Filter_MouseLeftButtonDown" Visibility="Collapsed" x:Name="AllFilter" Orientation="Horizontal">
+                                        <Label Content="{xico:Material Kind=Play}" Foreground="RoyalBlue" Margin="2 0 0 0" Padding="0"/>
+                                        <Label Content="All" Padding="0" Margin="5 0 5 0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Grid>
 
         <Border CornerRadius="10" Background="{DynamicResource BoxBrush}" FocusVisualStyle="{x:Null}" Margin="5,0,5,0" Grid.Row="1" >

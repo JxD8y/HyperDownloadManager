@@ -481,7 +481,8 @@ namespace HyperDownloadManager.ViewModels.Download
             {
                 if (this.DownloadCore is IDownloadCore)
                 {
-                    long _speed = (ReceivedBytes - AgoReceivedBytes);
+                    long _speed = GlobalSupervisor.GeneralSettingsViewModel.UseBit ? (ReceivedBytes - AgoReceivedBytes) * 8 : (ReceivedBytes - AgoReceivedBytes);
+
                     if (_speed == 0)
                     {
                         speedLockTimes += 1;

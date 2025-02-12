@@ -175,6 +175,8 @@ namespace HyperDownloadManager.ViewModels.Download
                 this.CurrentSaveFileDirectory = Path.GetDirectoryName(value);
                 this.CurrentFileName = Path.GetFileName(value);
                 this.CurrentFileExtension = Path.GetExtension(value);
+                if (this.IsTempFile)
+                    CurrentFileName = CurrentFileName?.Replace($".{IOUtility.TempExtension}", "");
                 _fileSavePath = value;
             }
         }
@@ -189,7 +191,7 @@ namespace HyperDownloadManager.ViewModels.Download
         [BsonIgnore]
         public string? CurrentSaveFileDirectory { get { return _saveDirectory; } set { _saveDirectory = value; OnPropertyChanged(); } }
         [BsonIgnore]
-        public bool IsTempFile { get { return CurrentFileExtension == IOUtility.TempExtension; } }
+        public bool IsTempFile { get { return CurrentFileExtension == '.' + IOUtility.TempExtension; } }
         #endregion
 
         [BsonIgnore]

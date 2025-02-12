@@ -351,6 +351,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                         {
                             DownloadManager.Create(info, defaultConfig, downloadContainer);
                         }
+                        GlobalSupervisor.DownloadPage?.SelectContainer(downloadContainer);
                     }
                     else
                     {

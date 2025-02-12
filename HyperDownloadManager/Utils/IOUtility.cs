@@ -22,7 +22,7 @@ namespace HyperDownloadManager.Utils
     {
         public static Dictionary<int, ThrottledStream> Streams = new Dictionary<int, ThrottledStream>();
         public const int MaxStreamCount = 10000;
-        public const string TempExtension = "DDL";
+        public const string TempExtension = "hdmTemp";
         public static ThrottledStream? CreateStream(string filePath, long maxBytePreSecond, long maxFileSize, FileMode fileMode)
         {
             try
