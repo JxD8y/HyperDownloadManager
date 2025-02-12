@@ -117,7 +117,7 @@
                                 <Label Content="{xico:Material Kind=Filter}"/>
                                 <Label Content="Show:"/>
                             </StackPanel>
-                            <Border CornerRadius="5" Background="{StaticResource ObsoleteBrush}" Margin="10" Padding="2">
+                            <Border CornerRadius="10" Background="{DynamicResource BackgroundBrush}" Margin="10" Padding="3">
                                 <Grid>
                                     <StackPanel MouseLeftButtonDown="Filter_MouseLeftButtonDown" Visibility="Collapsed" x:Name="AllRunningFilter" Orientation="Horizontal">
                                         <Label Content="{xico:Material Kind=Play}" Foreground="SeaGreen" Margin="2 0 0 0" Padding="0"/>

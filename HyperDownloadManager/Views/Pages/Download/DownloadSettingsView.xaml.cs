@@ -43,17 +43,17 @@ namespace HyperDownloadManager.Views.Pages.Download
                     StartConditionCombo.SelectedIndex = 0;
                     break;
                 case AutoStartConditionType.DownloadStateChange:
-                    StartConditionCombo.SelectedIndex = 1;
+                    StartConditionCombo.SelectedIndex = 4;
                     break;
                 case AutoStartConditionType.AllDownloadFinish:
-                    StartConditionCombo.SelectedIndex = 2;
+                    StartConditionCombo.SelectedIndex = 3;
                     break;
                 case AutoStartConditionType.RelativeTime:
-                    StartConditionCombo.SelectedIndex = 3;
+                    StartConditionCombo.SelectedIndex = 1;
                     TimerDownload.Value = this.model.ConfigViewModel.StartConditionInfo.StartIn;
                     break;
                 case AutoStartConditionType.AbsoluteTime:
-                    StartConditionCombo.SelectedIndex = 4;
+                    StartConditionCombo.SelectedIndex = 2;
                     DatePicker.Value = this.model.ConfigViewModel.StartConditionInfo.StartAt;
                     break;
             }
@@ -81,6 +81,8 @@ namespace HyperDownloadManager.Views.Pages.Download
 
             foreach (DownloadViewModel downloadViewModel in DownloadManager.DownloadViewModels)
             {
+                if (downloadViewModel.Id == this.model.Id)
+                    continue;
                 if (downloadViewModel.CurrentState != DownloadState.Completed)
                 {
                     ConditionDownload.Items.Add(new ComboBoxItem()
@@ -128,18 +130,18 @@ namespace HyperDownloadManager.Views.Pages.Download
                     case 0:
                         config.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
                         break;
-                    case 1:
+                    case 4:
                         config.StartConditionInfo.ConditionType = AutoStartConditionType.DownloadStateChange;
                         config.StartConditionInfo.DownloadId = (int)((ComboBoxItem)(ConditionDownload.SelectedItem)).Tag;
                         break;
-                    case 2:
+                    case 3:
                         config.StartConditionInfo.ConditionType = AutoStartConditionType.AllDownloadFinish;
                         break;
-                    case 3:
+                    case 1:
                         config.StartConditionInfo.ConditionType = AutoStartConditionType.RelativeTime;
                         config.StartConditionInfo.StartIn = TimerDownload.Value ?? DateTime.Now.TimeOfDay;
                         break;
-                    case 4:
+                    case 2:
                         config.StartConditionInfo.ConditionType = AutoStartConditionType.AbsoluteTime;
                         config.StartConditionInfo.StartAt = DatePicker.Value ?? DateTime.Now;
                         break;

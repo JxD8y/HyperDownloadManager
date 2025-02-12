@@ -15,7 +15,7 @@ namespace HyperDownloadManager.ViewModels.Download.Conditions
         public DateTime StartAt { get; set; }
         public override bool Ready(DownloadViewModel downloadViewModel)
         {
-            Completed = (float)(((float)((long)(StartAt - ParentDownloadViewModel.CreationDate).TotalSeconds) / (float)((long)(DateTime.Now - ParentDownloadViewModel.CreationDate).TotalSeconds)) * 100);
+            Completed = IOUtility.CalculatePercent((long)(DateTime.Now - ParentDownloadViewModel.StartTime).TotalSeconds,(long)(StartAt - ParentDownloadViewModel.StartTime).TotalSeconds);
             return StartAt < DateTime.Now;
         }
     }

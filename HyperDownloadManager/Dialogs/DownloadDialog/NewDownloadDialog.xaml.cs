@@ -492,7 +492,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 case 0:
                     defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
                     break;
-                case 1:
+                case 4:
                     {
                         defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.DownloadStateChange;
 
@@ -505,10 +505,10 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                         }
                     }
                     break;
-                case 2:
+                case 3:
                     defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.AllDownloadFinish;
                     break;
-                case 3:
+                case 1:
                     {
                         defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.RelativeTime;
                         if (TimerDownload.Value == null && TimerDownload.Value <= DateTime.Now.TimeOfDay)
@@ -519,7 +519,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                         defaultConfig.StartConditionInfo.StartIn = TimerDownload.Value ?? DateTime.Now.TimeOfDay;
                     }
                     break;
-                case 4:
+                case 2:
                     {
                         defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.AbsoluteTime;
                         if (DatePicker.Value == null && DatePicker.Value <= DateTime.Now)

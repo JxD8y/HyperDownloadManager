@@ -164,7 +164,7 @@
                     <HDMControls:LabelTextBox HelperContent="Folder" x:Name="FilePath" Width="370"/>
                     <Label Content="{xico:Material Kind=Folder,Width=20,Height=20}" Style="{DynamicResource ButtonicLabel}" x:Name="selectFolder" Foreground="Orange" MouseLeftButtonDown="selectFolder_MouseLeftButtonDown" Margin="10 0 0 0"/>
                 </StackPanel>
-                <StackPanel Orientation="Vertical" x:Name="Settings" Visibility="Collapsed">
+                <StackPanel Orientation="Vertical" x:Name="Settings" Visibility="Visible">
                     <StackPanel Orientation="Horizontal" Margin="0 20 0 0">
                         <StackPanel>
                             <StackPanel Orientation="Vertical">
@@ -196,10 +196,10 @@
                         <Label Content="{xico:Material Kind=Timer}" />
                         <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="StartConditionCombo">
                             <ComboBoxItem Content="No Scheduling"/>
-                            <ComboBoxItem Content="Schedule with Download" x:Name="scheduleDownloaditem"/>
-                            <ComboBoxItem Content="Schedule with all"/>
                             <ComboBoxItem Content="Schedule with Timer" x:Name="scheduleTimeritem"/>
                             <ComboBoxItem Content="Schedule on Date" x:Name="scheduleDateitem"/>
+                            <ComboBoxItem Content="Schedule with all"/>
+                            <ComboBoxItem Content="Schedule with Download" x:Name="scheduleDownloaditem"/>
                         </ComboBox>
                         <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
                             <ComboBox x:Name="ConditionDownload" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleDownloaditem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
