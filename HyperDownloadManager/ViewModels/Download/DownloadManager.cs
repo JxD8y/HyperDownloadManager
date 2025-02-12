@@ -56,7 +56,7 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         #endregion
 
-        public static int? Create(DownloadUriInfo downloadInfo,ConfigViewModel configViewModel, ContainerViewModel containerViewModel)
+        public static DownloadViewModel Create(DownloadUriInfo downloadInfo,ConfigViewModel configViewModel, ContainerViewModel containerViewModel)
         {
             DownloadViewModel viewModel = new DownloadViewModel(GlobalSupervisor.GetRandom(int.MaxValue), configViewModel, containerViewModel);
             viewModel.Ping = downloadInfo.Ping;
@@ -86,7 +86,7 @@ namespace HyperDownloadManager.ViewModels.Download
                 }
                 viewModel.Serialized_id = id;
                 DownloadViewModels.Add(viewModel);
-                return viewModel.Id;
+                return viewModel;
             }
             else
             {

@@ -348,10 +348,9 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
 
                         foreach (DownloadUriInfo info in MultiDownloadList)
                         {
-                            int? id = DownloadManager.Create(info, defaultConfig, downloadContainer);
-                            if (defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant && id != null)
+                            DownloadViewModel viewModel = DownloadManager.Create(info, defaultConfig, downloadContainer);
+                            if (defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant)
                             {
-                                DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id ?? 0);
                                 DownloadManager.SetStart(viewModel);
                             }
                         }
@@ -380,10 +379,9 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                                 return;
                             if(downloadContainer != null)
                             {
-                                int? id = DownloadManager.Create(remoteInfo, defaultConfig, downloadContainer);
-                                if(defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant && id != null)
+                                DownloadViewModel viewModel = DownloadManager.Create(remoteInfo, defaultConfig, downloadContainer);
+                                if(defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant)
                                 {
-                                    DownloadViewModel? viewModel = DownloadManager.GetDownloadViewModel(id ?? 0);
                                     DownloadManager.SetStart(viewModel);
                                 }
                             }
