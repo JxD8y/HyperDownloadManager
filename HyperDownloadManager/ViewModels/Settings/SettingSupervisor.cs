@@ -90,7 +90,6 @@ namespace HyperDownloadManager.ViewModels.Settings
                     else
                         throw new Exception("General Setting id was null");
                 }
-                GeneralSettings = GeneralSettings;
                 if (OnSettingsChanged != null)
                     OnSettingsChanged(GeneralSettings, null);
             }

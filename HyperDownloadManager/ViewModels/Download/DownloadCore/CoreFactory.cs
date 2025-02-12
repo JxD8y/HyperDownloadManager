@@ -28,19 +28,7 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
                 default:
                     return null;
             }
-            if (downloadCore != null)
-            {
-                downloadCore.OnDataReceived += DownloadCore_OnDataReceived;
-            }
             return downloadCore;
-        }
-        private static void DownloadCore_OnDataReceived(object? sender, DataReceivedEventArgs e)
-        {
-            lock (new object())
-            {
-                LastDownloadBits += e.ReceivedBytes - e.AgoReceivedBytes;
-                GlobalSupervisor.MainViewModel?.SetTransmittedData(LastDownloadBits);
-            }
         }
         #region HttpCore
         private static void ConfigureHttpDownload(ConfigViewModel? configViewModel, IDownloadCore? downloadCore)
@@ -83,8 +71,9 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
         }
         public static List<string> RemoveDuplicateHeaders(List<string> headers)
         {
-            foreach (string header in headers)
+            for (int i =0; i < headers.Count; i++)
             {
+                string header = headers[i];
                 string headerName = header.Split(": ")[0];
                 if (headers.Count((hdr) => { if (hdr.Contains(headerName)) return true; else return false; }) > 1)
                 {

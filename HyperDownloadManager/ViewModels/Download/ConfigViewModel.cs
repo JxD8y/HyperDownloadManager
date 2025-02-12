@@ -19,7 +19,7 @@ namespace HyperDownloadManager.ViewModels.Download
         private bool showFinalDialog;
         [BsonIgnore]
         public DownloadViewModel model { get; set; } = new DownloadViewModel();
-        public StartConditionInfo StartConditionInfo = new StartConditionInfo();
+        public StartConditionInfo StartConditionInfo { get; set; } = new StartConditionInfo();
         public ProxyViewModel? ProxyViewModel = new ProxyViewModel();
         public event EventHandler<List<object>>? ConfigUpdated;
         public ConfigViewModel()
@@ -36,7 +36,7 @@ namespace HyperDownloadManager.ViewModels.Download
                 Headers = "";
                 connections = 1;
             }
-            MaxFileSize = 0;
+            MaxFileSize = 100;
             SpeedLimit = 0;
             CompleteType = FinishType.None;
             ShowFinalDialog = true;
@@ -146,6 +146,7 @@ namespace HyperDownloadManager.ViewModels.Download
             this.CompleteType = newConfig.CompleteType;
             this.ShowFinalDialog = newConfig.ShowFinalDialog;
             this.ProxyViewModel = newConfig.ProxyViewModel;
+            DownloadManager.UpdateDownload(this.model);
 
             if (this.ConfigUpdated != null)
                 ConfigUpdated(this, this ^ newConfig);

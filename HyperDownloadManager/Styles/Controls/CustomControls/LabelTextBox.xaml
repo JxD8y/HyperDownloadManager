@@ -11,7 +11,6 @@
         <SolidColorBrush x:Shared="False" x:Key="PrimaryBrush" Color="{DynamicResource DPrimaryColor}"/>
     </UserControl.Resources>
     <TextBox x:Name="textbox" Text="{Binding Text}" TextChanged="textbox_TextChanged">
-        
         <TextBox.Style>
             <Style TargetType="{x:Type TextBox}">
                 <Setter Property="ContextMenu">
@@ -30,6 +29,7 @@
                 <Setter Property="FontFamily" Value="pack://application:,,,/Resources/Fonts/#Heebo-VariableFont_wght"/>
                 <Setter Property="CaretBrush" Value="{DynamicResource ForegroundBrush}"/>
                 <Setter Property="IsReadOnly" Value="{Binding IsReadOnly}"/>
+                <Setter Property="BorderThickness" Value="0 0 0 1"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type TextBox}">
@@ -39,7 +39,7 @@
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>
                                 <TextBlock x:Name="helpertext" FontSize="13" Text="{Binding Path=HelperContent}" Grid.Row="0" Foreground="{StaticResource PrimaryBrush}"/>
-                                <Border Style="{x:Null}" Name="Border" CornerRadius="0" Grid.Row="1" Margin="0,-8,0,0" Padding="2" BorderThickness="0,0,0,1" Background="Transparent" BorderBrush="{StaticResource PrimaryBrush}">
+                                <Border Style="{x:Null}" Name="Border" CornerRadius="0" Grid.Row="1" Margin="0,-8,0,0" Padding="2" BorderThickness="{TemplateBinding BorderThickness}" Background="Transparent" BorderBrush="{StaticResource PrimaryBrush}">
                                     <ScrollViewer Style="{x:Null}" HorizontalScrollBarVisibility="Auto" Margin="0"
                         x:Name="PART_ContentHost" Foreground="{TemplateBinding Foreground}"/>
                                 </Border>

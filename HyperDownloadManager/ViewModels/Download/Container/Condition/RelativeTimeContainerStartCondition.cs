@@ -8,17 +8,16 @@ namespace HyperDownloadManager.ViewModels.Download.Container.Condition
 {
     public class RelativeTimeContainerStartCondition:ContainerStartCondition
     {
-        public DateTime CreationTime { get; set; }
+        public DateTime ReferenceTime { get; set; }
         public TimeSpan StartIn { get; set; }
-        public RelativeTimeContainerStartCondition(DateTime creationTime, TimeSpan startIn)
+        public RelativeTimeContainerStartCondition(DateTime referenceTime, TimeSpan startIn)
         {
-            CreationTime = creationTime;
+            ReferenceTime = referenceTime;
             StartIn = startIn;
         }
         public override bool Ready(ContainerViewModel viewModel)
         {
-            viewModel.CompleteTime = DateTime.Now.TimeOfDay - StartIn;
-            return (CreationTime + StartIn) < DateTime.Now;
+            return (ReferenceTime + StartIn) < DateTime.Now;
         }
     }
 }

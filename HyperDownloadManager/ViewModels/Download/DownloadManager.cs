@@ -56,7 +56,7 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         #endregion
 
-        public static int? Create(DownloadUriInfo downloadInfo,ConfigViewModel configViewModel, ContainerViewModel containerViewModel)
+        public static DownloadViewModel Create(DownloadUriInfo downloadInfo,ConfigViewModel configViewModel, ContainerViewModel containerViewModel)
         {
             DownloadViewModel viewModel = new DownloadViewModel(GlobalSupervisor.GetRandom(int.MaxValue), configViewModel, containerViewModel);
             viewModel.Ping = downloadInfo.Ping;
@@ -67,7 +67,12 @@ namespace HyperDownloadManager.ViewModels.Download
             viewModel.CurrentUrl = downloadInfo.Url?.OriginalString ?? "";
             viewModel.Icon = downloadInfo.Icon;
             viewModel.ResumeSupport = downloadInfo.Resumable;
-            viewModel.FileSavePath = Path.Combine(containerViewModel.Path, downloadInfo.FileName);
+
+            if(downloadInfo.SaveDirectory != "")
+                viewModel.FileSavePath = Path.Combine(downloadInfo.SaveDirectory, downloadInfo.FileName);
+            else
+                viewModel.FileSavePath = Path.Combine(containerViewModel.Path, downloadInfo.FileName);
+
             viewModel.FileSize = downloadInfo.Size;
 
             viewModel.Serialized_id = new BsonValue(Guid.NewGuid());
@@ -81,18 +86,17 @@ namespace HyperDownloadManager.ViewModels.Download
                 }
                 viewModel.Serialized_id = id;
                 DownloadViewModels.Add(viewModel);
-                return viewModel.Id;
+                return viewModel;
             }
             else
             {
                 throw new Exception("Selected container cannot import download");
             }
         }
-        public static void Remove(int id)
+        public static void Remove(DownloadViewModel? viewModel)
         {
             try
             {
-                DownloadViewModel? viewModel = GetDownloadViewModel(id);
                 if (viewModel == null)
                     throw new ArgumentException("Download does not exist");
                 viewModel.Supervisor?.IOCore.CloseFile();
@@ -111,65 +115,56 @@ namespace HyperDownloadManager.ViewModels.Download
                 LogManager.Log(MessageLevel.Error, LogSection.Download, $"fail to remove Download: {ex.Message}"); 
             }
         }
-        public static void SetStop(int id)
+        public static void SetStop(DownloadViewModel? viewModel)
         {
-            DownloadViewModel? viewModel = GetDownloadViewModel(id);
             if (viewModel == null)
                 throw new Exception("download doesn't exist");
 
-            viewModel.Supervisor.Stop();
+            viewModel.Supervisor?.Stop();
         }
-        public static void SetStart(int id)
+        public static void SetStart(DownloadViewModel? viewModel)
         {
-            DownloadViewModel? viewModel = GetDownloadViewModel(id);
             if (viewModel == null)
                 throw new Exception("download doesn't exist");
 
-            viewModel.Supervisor.Start();
+            viewModel.Supervisor?.Start();
         }
-        public static void SetState(int id, DownloadState state)
+        public static void SetState(DownloadViewModel? downloadViewModel, DownloadState state)
         {
-            DownloadViewModel? viewModel = GetDownloadViewModel(id);
-            if (viewModel == null)
+            if (downloadViewModel == null)
                 throw new Exception("download doesn't exist");
 
-            SetState(viewModel, state);
-        }
-        public static void SetState(DownloadViewModel downloadViewModel, DownloadState state)
-        {
-            if (downloadViewModel != null)
+            if (downloadViewModel.CurrentState == DownloadState.Downloading)
+                Running.Remove(downloadViewModel);
+
+            else if (downloadViewModel.CurrentState == DownloadState.Paused)
+                Paused.Remove(downloadViewModel);
+
+            else if (downloadViewModel.CurrentState == DownloadState.Completed)
+                Completed.Remove(downloadViewModel);
+
+            else if (downloadViewModel.CurrentState == DownloadState.AwaitingOnCondition)
+                ScheduledDownloads.Remove(downloadViewModel);
+
+            if (state == DownloadState.Completed)
             {
-                if (downloadViewModel.CurrentState == DownloadState.Downloading)
-                    Running.Remove(downloadViewModel);
-
-                else if (downloadViewModel.CurrentState == DownloadState.Paused)
-                    Paused.Remove(downloadViewModel);
-
-                else if (downloadViewModel.CurrentState == DownloadState.Completed)
-                    Completed.Remove(downloadViewModel);
-
-                else if (downloadViewModel.CurrentState == DownloadState.AwaitingOnCondition)
-                    ScheduledDownloads.Remove(downloadViewModel);
-
-                if (state == DownloadState.Completed)
-                {
-                    Completed.Add(downloadViewModel);
-                }
-                else if (state == DownloadState.Paused)
-                {
-                    Paused.Add(downloadViewModel);
-                }
-                else if (state == DownloadState.Downloading)
-                {
-                    Running.Add(downloadViewModel);
-                }
-                else if (state == DownloadState.AwaitingOnCondition)
-                {
-                    ScheduledDownloads.Add(downloadViewModel);
-                }
-
-                downloadViewModel.CurrentState = state;
+                Completed.Add(downloadViewModel);
             }
+            else if (state == DownloadState.Paused)
+            {
+                Paused.Add(downloadViewModel);
+            }
+            else if (state == DownloadState.Downloading)
+            {
+                Running.Add(downloadViewModel);
+            }
+            else if (state == DownloadState.AwaitingOnCondition)
+            {
+                ScheduledDownloads.Add(downloadViewModel);
+            }
+
+            downloadViewModel.CurrentState = state;
+            
         }
         #endregion
         #region DownloadViewRepo
@@ -199,10 +194,7 @@ namespace HyperDownloadManager.ViewModels.Download
 
                     LitedbRepo<DownloadViewModel>.Update(downloadViewModel.Serialized_id, downloadViewModel, LitedbRepo<DownloadViewModel>.DownloadsColName);
                 }
-                catch (Exception ex)
-                {
-                    LogManager.Log(MessageLevel.Error, LogSection.Download, $"fail to update download: {ex.Message}");
-                }
+                catch { }
             }
         }
         public static void RemoveDownload(BsonValue id)
@@ -244,12 +236,9 @@ namespace HyperDownloadManager.ViewModels.Download
                     if(downloadViewModel != null && downloadViewModel.Container != null)
                     {
                         downloadViewModel.Serialized_id = unsafeDownloadView.Serialized_id;
+                        DownloadViewModels.Add(downloadViewModel);
+                        downloadViewModel.Container.AddDownload(downloadViewModel);
                         SetTriggers(downloadViewModel);
-                        if (downloadViewModel != null)
-                        {
-                            DownloadViewModels.Add(downloadViewModel);
-                            downloadViewModel.Container.AddDownload(downloadViewModel);
-                        }
                     }
                     else
                     {
@@ -270,7 +259,7 @@ namespace HyperDownloadManager.ViewModels.Download
 
             int id = unsafeDownloadView.Id;
 
-            ConfigViewModel? unsafeConfig = unsafeDownloadView.ConfigViewModel;
+            ConfigViewModel unsafeConfig = unsafeDownloadView.ConfigViewModel ?? new ConfigViewModel();
 
             if (!unsafeConfig.IsValid())
             {
@@ -290,11 +279,15 @@ namespace HyperDownloadManager.ViewModels.Download
             DownloadViewModel downloadViewModel = new DownloadViewModel(id,unsafeConfig,downloadContainer);
             downloadViewModel.StartTime = unsafeDownloadView.StartTime;
             downloadViewModel.CreationDate = unsafeDownloadView.CreationDate;
+            downloadViewModel.FileSavePath = unsafeDownloadView.FileSavePath;
+            downloadViewModel.FileSize = unsafeDownloadView.FileSize;
+            downloadViewModel.CurrentUrl = unsafeDownloadView.CurrentUrl;
+            downloadViewModel.ResumeSupport = unsafeDownloadView.ResumeSupport;
 
             try
             {
             Jmp:
-                if (downloadViewModel.Supervisor.IOCore.IoState == IoState.FileOk)
+                if (downloadViewModel.Supervisor?.IOCore.IoState == IoState.FileOk)
                 {
                     downloadViewModel.Icon = IOUtility.GetFileIcon(downloadViewModel.CurrentFileName ?? "");
                     long length = downloadViewModel.DownloadedSize.OriginData;
@@ -302,6 +295,7 @@ namespace HyperDownloadManager.ViewModels.Download
                     if (downloadViewModel.FileSize.OriginData == length)
                     {
                         downloadViewModel.CurrentState = DownloadState.Completed;
+                        downloadViewModel.IsCompleted = true;
                     }
                     else 
                     { 
@@ -309,7 +303,7 @@ namespace HyperDownloadManager.ViewModels.Download
                     }
                     if (downloadViewModel.DownloadedSize.OriginData >= 0)
                     {
-                        downloadViewModel.CurrentPercent = (float)(((float)length * 100) / downloadViewModel.FileSize.OriginData);
+                        downloadViewModel.CurrentPercent = IOUtility.CalculatePercent(length,downloadViewModel.FileSize.OriginData);
                     }
                     if (downloadViewModel.CurrentPercent >= 100)
                     {
@@ -317,9 +311,9 @@ namespace HyperDownloadManager.ViewModels.Download
                         downloadViewModel.CurrentState = DownloadState.Completed;
                     }
                 }
-                else if ((downloadViewModel.Supervisor.IOCore.IoState != IoState.FileIsInUse) && File.Exists(downloadViewModel.FileSavePath))
+                else if ((downloadViewModel.Supervisor?.IOCore.IoState != IoState.FileIsInUse) && File.Exists(downloadViewModel.FileSavePath))
                 {
-                    downloadViewModel.Supervisor.IOCore.OpenFile();
+                    downloadViewModel.Supervisor?.IOCore.OpenFile();
                     goto Jmp;
                 }
                 else
@@ -341,25 +335,25 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         private static void SetTriggers(DownloadViewModel downloadViewModel)
         {
-            if (downloadViewModel.ConfigViewModel.StartConditionInfo.ConditionType != AutoStartConditionType.Instant || PendingDownloads.ContainsKey(downloadViewModel.Id))
+            if ((downloadViewModel.ConfigViewModel?.StartConditionInfo.ConditionType != AutoStartConditionType.Instant || PendingDownloads.ContainsKey(downloadViewModel.Id)) && downloadViewModel.Supervisor != null)
             {
                 if (PendingDownloads.ContainsKey(downloadViewModel.Id))
                 {
                     DownloadViewModel pendingDownload = PendingDownloads[downloadViewModel.Id];
                     downloadViewModel.Supervisor.StartCondition = new DownloadCompletedCondition(downloadViewModel) { dlState = DownloadState.Completed, DownloadView = downloadViewModel };
                     downloadViewModel.Supervisor.Start();
-                    SetState(downloadViewModel.Id, DownloadState.AwaitingOnCondition);
+                    SetState(downloadViewModel, DownloadState.AwaitingOnCondition);
                 }
                 else
                 {
-                    SetState(downloadViewModel.Id, DownloadState.Paused);
+                    SetState(downloadViewModel, DownloadState.Paused);
                     StartCondition? ConditionStart = null;
-                    switch (downloadViewModel.ConfigViewModel.StartConditionInfo.ConditionType)
+                    switch (downloadViewModel.ConfigViewModel?.StartConditionInfo.ConditionType)
                     {
                         case AutoStartConditionType.AbsoluteTime:
                             ConditionStart = new AbsoluteTimeStartCondition(downloadViewModel) { StartAt = downloadViewModel.ConfigViewModel.StartConditionInfo.StartAt };
                             downloadViewModel.Supervisor.StartCondition = ConditionStart;
-                            downloadViewModel.Supervisor.Start();
+                            downloadViewModel.Supervisor?.Start();
                             break;
                         case AutoStartConditionType.RelativeTime:
                             ConditionStart = new RelativeTimeStartCondition(downloadViewModel) { StartIn = downloadViewModel.ConfigViewModel.StartConditionInfo.StartIn, CreationTime = downloadViewModel.CreationDate };
@@ -384,7 +378,8 @@ namespace HyperDownloadManager.ViewModels.Download
             }
             else
             {
-                SetState(downloadViewModel.Id, DownloadState.Paused);
+
+                SetState(downloadViewModel, downloadViewModel.CurrentState);
             }
         }
         #endregion

@@ -12,8 +12,14 @@ namespace HyperDownloadManager.ViewModels.Download
         public long AgoReceivedBytes { get; set; }
         public int DataLength { get; set; }
         public byte[]? Data { get; set; }
+        public bool Error { get; set; } = false;
+        public DataReceivedEventArgs(bool error)
+        {
+            this.Error = error;
+        }
         public DataReceivedEventArgs(long received, long agoReceived, int dataLength, byte[] data)
         {
+            this.Error = false;
             ReceivedBytes = received;
             Data = data;
             DataLength = dataLength;

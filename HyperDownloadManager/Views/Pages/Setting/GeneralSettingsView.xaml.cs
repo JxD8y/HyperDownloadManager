@@ -111,7 +111,9 @@ namespace HyperDownloadManager.Views.Pages.Setting
                 this.tempModel.UseBit = useBitMeasurement.IsChecked ?? false;
                 this.tempModel.SaveTemp = tempdownloadcheck.IsChecked ?? false;
                 this.tempModel.AllowDrag = allowDragCheck.IsChecked ?? false;
+                this.tempModel.Id = SettingSupervisor.GeneralSettings.Id;
                 SettingSupervisor.GeneralSettings = tempModel;
+                SettingSupervisor.SetStartupState(this.tempModel.StartUp);
                 SettingSupervisor.SaveGeneralSettings();
                 await DialogManager.ShowMessageBox("Settings Updated Successfully!", MessageLevel.Info, ButtonOrder.OK, false);
             }

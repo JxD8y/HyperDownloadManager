@@ -23,7 +23,7 @@
                     </Border>
                     <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                         <Label Content="{xico:Material Kind=File}"/>
-                        <HDMControls:LabelTextBox IsEnabled="False" IsReadOnly="True" HelperContent="FileName" x:Name="CurrentPath" Text="{Binding CurrentFile}"  Margin="0 0 10 0" Width="300"/>
+                        <HDMControls:LabelTextBox IsEnabled="False" IsReadOnly="True" HelperContent="FileName" x:Name="CurrentPath" Text="{Binding model.CurrentFileName}"  Margin="0 0 10 0" Width="300"/>
                     </StackPanel>
                     <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
                         <Label Content="{xico:Material Kind=FilePercent}"/>
@@ -48,7 +48,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                         <Label Content="{xico:Material Kind=Lan}"/>
                         <Label Content="Connections:"/>
-                        <HDMControls:LabelTextBox x:Name="connectioncountbox" IsNumericalInput="True" IsReadOnly="True" Minimum="0" HelperContent="Connections to server" Text="{Binding Threads}" Width="150"/>
+                        <HDMControls:LabelTextBox x:Name="connectioncountbox" IsNumericalInput="True" IsReadOnly="True" Minimum="0" HelperContent="Connections to server" Text="{Binding Connections}" Width="150"/>
                     </StackPanel>
                     <StackPanel>
                         <Border CornerRadius="10" Background="{DynamicResource BoxBrush}" Margin="0 10 0 0">
@@ -61,14 +61,14 @@
                             <Label Content="{xico:Material Kind=Timer}" />
                             <ComboBox Width="160" Margin="6 0 0 0" SelectedIndex="0" x:Name="StartConditionCombo">
                                 <ComboBoxItem Content="No Scheduling"/>
-                                <ComboBoxItem Content="Schedule with Download" x:Name="scheduleDownloaditem"/>
-                                <ComboBoxItem Content="Schedule with all"/>
                                 <ComboBoxItem Content="Schedule with Timer" x:Name="scheduleTimeritem"/>
                                 <ComboBoxItem Content="Schedule on Date" x:Name="scheduleDateitem"/>
+                                <ComboBoxItem Content="Schedule with all"/>
+                                <ComboBoxItem Content="Schedule with Download" x:Name="scheduleDownloaditem"/>
                             </ComboBox>
                             <StackPanel Orientation="Horizontal" x:Name="ConditionsSetting" VerticalAlignment="Center">
                                 <ComboBox x:Name="ConditionDownload" Margin="3 0 0 0" Visibility="{Binding ElementName=scheduleDownloaditem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
-                                <xceed:TimeSpanUpDown Minimum="00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
+                                <xceed:TimeSpanUpDown Minimum="00:00:00" Value="00:00:00:00" x:Name="TimerDownload" Margin="3 0 0 0" Width="100" Visibility="{Binding ElementName=scheduleTimeritem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                                 <xceed:DateTimePicker x:Name="DatePicker" Margin="3 0 0 0" Width="220" Visibility="{Binding ElementName=scheduleDateitem,Path=IsSelected,Converter={StaticResource BooltoVisiblity}}"/>
                             </StackPanel>
                         </StackPanel>
@@ -97,9 +97,9 @@
                     </Border>
                     <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
                         <Label Content="{xico:Material Kind=Link}"/>
-                        <HDMControls:LabelTextBox IsEnabled="False" HelperContent="Url" Text="{Binding Url}" Margin="0 0 10 0" Width="360"/>
+                        <HDMControls:LabelTextBox IsEnabled="False" HelperContent="Url" Text="{Binding model.CurrentUrl}" Margin="0 0 10 0" Width="360"/>
                     </StackPanel>
-                    <HDMControls:LabelTextBox Text="{Binding DefaultHeaders}" HelperContent="Headers" Margin="10 10 10 0" Height="120" x:Name="defheadertext"/>
+                    <HDMControls:LabelTextBox Text="{Binding Headers}" HelperContent="Headers" Margin="10 10 10 0" Height="120" x:Name="defheadertext"/>
                     <StackPanel Orientation="Horizontal" Margin="10 20 0 0">
                         <Label Content="{xico:Material Kind=Account}"/>
                         <HDMControls:LabelTextBox HelperContent="Username" x:Name="Siteuser" Text="{Binding AuthUser}" Width="180"/>
@@ -130,13 +130,13 @@
                             <HDMControls:LabelTextBox IsEnabled="{Binding ElementName=noproxycomboitem,Path=IsSelected,Converter={StaticResource ReverseBool}}" HelperContent="Password" x:Name="authpass" Margin="4 0 0 0" Width="180"/>
                         </StackPanel>
                         <StackPanel Margin="0 10 0 0" Orientation="Horizontal" HorizontalAlignment="Center">
-                            <Button x:Name="ResetSettingsButton" Click="ResetSettingsButton_Click" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Margin="5">
+                            <Button x:Name="ResetSettingsButton" Click="ResetSettingsButton_Click" Visibility="{Binding model.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Margin="5">
                                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                                     <Label Content="{xico:Material Kind=Refresh}" Foreground="Orange"/>
                                     <Label Content="Restore Default"/>
                                 </StackPanel>
                             </Button>
-                            <Button x:Name="SaveButton" Click="SaveButton_Click" Visibility="{Binding Supervisor.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Margin="5">
+                            <Button x:Name="SaveButton" Click="SaveButton_Click" Visibility="{Binding model.IsWorking,Converter={StaticResource BooltoReverseVisiblity}}" Margin="5">
                                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                                     <Label Content="{xico:Material Kind=ContentSave}" Foreground="RoyalBlue"/>
                                     <Label Content="Save Current"/>

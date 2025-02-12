@@ -22,7 +22,7 @@ namespace HyperDownloadManager.Utils
     {
         public static Dictionary<int, ThrottledStream> Streams = new Dictionary<int, ThrottledStream>();
         public const int MaxStreamCount = 10000;
-        public const string TempExtension = "DDL";
+        public const string TempExtension = "hdmTemp";
         public static ThrottledStream? CreateStream(string filePath, long maxBytePreSecond, long maxFileSize, FileMode fileMode)
         {
             try
@@ -102,15 +102,21 @@ namespace HyperDownloadManager.Utils
                 return null;
             }
         }
-        public static BitmapSource GetFileIcon(string fileName)
+        public static BitmapSource? GetFileIcon(string fileName)
         {
-            Icon icon = null;
-            string path = Path.Combine(SpecialDirectories.Temp, fileName);
-            File.Create(path).Close();
-            icon = Icon.ExtractAssociatedIcon(path);
-            File.Delete(path);
-            BitmapSource bitmap = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            return bitmap;
+            if(fileName != "")
+            {
+                Icon? icon = null;
+                string path = Path.Combine(SpecialDirectories.Temp, fileName);
+                File.Create(path).Close();
+                icon = Icon.ExtractAssociatedIcon(path);
+                File.Delete(path);
+                if (icon == null)
+                    return null;
+                BitmapSource bitmap = Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                return bitmap;
+            }
+            return null;
         }
         public static void OpenExplorer(string? fileSavePath)
         {

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,45 +26,42 @@ namespace HyperDownloadManager.Utils
         public static event EventHandler<bool>? OnNetworkConnectivityChanged;
 
         #region Info
-        [DllImport("wininet.dll")]
-        public extern static bool InternetGetConnectedState(out int Description, int ReservedValue);
-        public static bool CheckConnection()
+        static bool lastStateNetwork = false;
+        public async static void StartNetworkConnectivityObservation()
         {
-            bool returnValue = false;
-            try
+            if (GlobalSupervisor.GeneralSettingsViewModel.NotifyOnState)
             {
-                int Desc;
-                returnValue = InternetGetConnectedState(out Desc, 0);
-            }
-            catch
-            {
-                returnValue = false;
-            }
-            return returnValue;
-        }
-        public static void StartNetworkConnectivityObservation()
-        {
-            if (!Observing)
-            {
-                ConnectionCheckerCancellationToken = new CancellationTokenSource();
-                Task.Run(() =>
+                if (!Observing)
                 {
-                    while (!ConnectionCheckerCancellationToken.IsCancellationRequested)
+                    ConnectionCheckerCancellationToken = new CancellationTokenSource();
+                    await Task.Run(async () =>
                     {
-                        bool connection = CheckConnection();
-                        if (OnNetworkConnectivityChanged != null)
+                        while (!ConnectionCheckerCancellationToken.IsCancellationRequested)
                         {
-                            OnNetworkConnectivityChanged(null, connection);
+                            bool connection = true;
+                            try
+                            {
+                                Ping _png = new Ping();
+                                PingReply rp = _png.Send(DefaultPingHost2, 1000);
+                                connection = rp.RoundtripTime > 0;
+                            }
+                            catch { connection = false; }
+                            if (OnNetworkConnectivityChanged != null && lastStateNetwork != connection)
+                            {
+                                OnNetworkConnectivityChanged(null, connection);
+                                lastStateNetwork = connection;
+                            }
+                            await Task.Delay(3000);
                         }
-                        Task.Delay(3000);
-                    }
-                });
-                Observing = true;
+                    });
+                    Observing = true;
+                }
             }
         }
         public static void StopNetworkConnectivityObservation()
         {
             ConnectionCheckerCancellationToken.Cancel();
+            ConnectionCheckerCancellationToken = new CancellationTokenSource();
             Observing = false;
         }
         #endregion

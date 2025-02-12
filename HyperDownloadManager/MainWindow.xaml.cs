@@ -56,7 +56,8 @@ namespace HyperDownloadManager
 
         private void LogManager_OnLogAdd(LogViewModel lvm)
         {
-            LastLoglabel.Content = $"{lvm.AccureTime}: {lvm.Log}";
+            if(GlobalSupervisor.GeneralSettingsViewModel.LogInMain)
+                this.Dispatcher.Invoke(() => { LastLoglabel.Content = $"{lvm.AccureTime}: {lvm.Log}"; });
         }
         #region NotifyIcon
         private void HDMNotifyIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)
@@ -80,7 +81,7 @@ namespace HyperDownloadManager
             }
             MenuItem closeMenuItem = new MenuItem();
             closeMenuItem.Header = "Close App";
-            closeMenuItem.Click += AppCloseItem_Click; ;
+            closeMenuItem.Click += AppCloseItem_Click;
             Separator sp = new Separator();
             HDMNotifyIcon.ContextMenu.Items.Add(sp);
             HDMNotifyIcon.ContextMenu.Items.Add(closeMenuItem);
@@ -253,5 +254,55 @@ namespace HyperDownloadManager
             }
         }
         #endregion
+
+        private async void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!GlobalSupervisor.GeneralSettingsViewModel.RunInBack)
+            {
+                string NonResume = "";
+                bool running = false;
+                foreach (DownloadViewModel viewModel in DownloadManager.DownloadViewModels)
+                {
+                    running |= viewModel.IsWorking;
+                    if (!viewModel.ResumeSupport)
+                        NonResume += viewModel.DownloadName + "\n";
+                }
+
+                if (NonResume != "")
+                {
+                    MessageBoxStatus? result = await DialogManager.ShowMessageBox($"these downloads cannot be resumed again: {NonResume}\nAre you sure to close the application?", Dialogs.MessageBoxDialog.MessageLevel.Warning, Dialogs.MessageBoxDialog.ButtonOrder.YESNO, true);
+                    if (result != null && result == MessageBoxStatus.YES)
+                    {
+                        System.Windows.Application.Current.Shutdown(0);
+                    }
+                }
+                else if (running)
+                {
+                    MessageBoxStatus? result = await DialogManager.ShowMessageBox("There are some downloads running\nare you sure to close the application?", Dialogs.MessageBoxDialog.MessageLevel.Warning, Dialogs.MessageBoxDialog.ButtonOrder.YESNO, true);
+                    if (result != null && result == MessageBoxStatus.YES)
+                    {
+                        System.Windows.Application.Current.Shutdown(0);
+                    }
+                }
+                else
+                {
+                    MessageBoxStatus? result = await DialogManager.ShowMessageBox("Are you sure to close the application?", Dialogs.MessageBoxDialog.MessageLevel.Warning, Dialogs.MessageBoxDialog.ButtonOrder.YESNO, true);
+                    if (result != null && result == MessageBoxStatus.YES)
+                    {
+                        System.Windows.Application.Current.Shutdown(0);
+                    }
+                }
+                e.Cancel = true;
+            }
+            else if(this.HDMNotifyIcon.Visibility != Visibility.Collapsed)
+            {
+                this.Hide();
+                e.Cancel = true;
+            }
+            else
+            {
+                System.Windows.Application.Current.Shutdown(0);
+            }
+        }
     }
 }

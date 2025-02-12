@@ -24,6 +24,7 @@ namespace HyperDownloadManager.ViewModels.Download
         public BsonValue? Serialized_id { get; set; }
         [BsonIgnore]
         public ContainerViewModel? Container { get { return ContainerManager.GetContainer(this.ContainerId); } }
+        [BsonIgnore]
         public DownloadSupervisor? Supervisor { get; set; }
         public ConfigViewModel? ConfigViewModel { get; set; }
         #region Pages
@@ -56,13 +57,6 @@ namespace HyperDownloadManager.ViewModels.Download
         }
         #endregion
         #region Properties
-
-
-        [BsonIgnore]
-        private bool errorOccurred = false;
-        public bool ErrorOccurred { get { return errorOccurred; } set { errorOccurred = value; OnPropertyChanged(); } }
-        [BsonIgnore]
-        public string LastException { get; set; } = "";
 
         private UnitValue speed;
         [BsonIgnore]
@@ -138,6 +132,7 @@ namespace HyperDownloadManager.ViewModels.Download
         public float CurrentPercent { get { return _CurrentPercent; } set { _CurrentPercent = value; OnPropertyChanged(); } }
 
         private DownloadState _CurrentState;
+        [BsonIgnore]
         public DownloadState CurrentState { get { return _CurrentState; } set { _CurrentState = value; OnPropertyChanged(); } }
 
         private bool _Selected;
@@ -154,7 +149,7 @@ namespace HyperDownloadManager.ViewModels.Download
         bool _resumable = false;
         public bool ResumeSupport { get { return _resumable; } set { _resumable = value; OnPropertyChanged(); } }
         string _url = "";
-        public string CurrentUrl { get { return _url; } set { _url = value; OnPropertyChanged(); } }
+        public string CurrentUrl { get { return _url; } set { _url = value; this.ServerName = new Uri(value).Host; OnPropertyChanged(); } }
         public DownloadType DownloadType { get; set; } = DownloadType.HttpDownload;
         [BsonIgnore]
         public bool IsErrorOccurred { get; set; }
@@ -162,6 +157,9 @@ namespace HyperDownloadManager.ViewModels.Download
         public string? ErrorMessage { get; set; }
         [BsonIgnore]
         public long Ping { get; set; }
+        string serverName = "";
+        [BsonIgnore]
+        public string ServerName { get { return serverName; } set { serverName = value; OnPropertyChanged(); } }
         #endregion
 
         #region FilePath
@@ -177,6 +175,9 @@ namespace HyperDownloadManager.ViewModels.Download
                 this.CurrentSaveFileDirectory = Path.GetDirectoryName(value);
                 this.CurrentFileName = Path.GetFileName(value);
                 this.CurrentFileExtension = Path.GetExtension(value);
+                if (this.IsTempFile)
+                    CurrentFileName = CurrentFileName?.Replace($".{IOUtility.TempExtension}", "");
+                _fileSavePath = value;
             }
         }
 
@@ -190,7 +191,7 @@ namespace HyperDownloadManager.ViewModels.Download
         [BsonIgnore]
         public string? CurrentSaveFileDirectory { get { return _saveDirectory; } set { _saveDirectory = value; OnPropertyChanged(); } }
         [BsonIgnore]
-        public bool IsTempFile { get { return CurrentFileExtension == IOUtility.TempExtension; } }
+        public bool IsTempFile { get { return CurrentFileExtension == '.' + IOUtility.TempExtension; } }
         #endregion
 
         [BsonIgnore]

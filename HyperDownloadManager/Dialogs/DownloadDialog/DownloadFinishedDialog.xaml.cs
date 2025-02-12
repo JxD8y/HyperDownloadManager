@@ -40,7 +40,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
         }
         private void openFolder_Click(object sender, RoutedEventArgs e)
         {
-            IOUtility.OpenExplorer(model.FileSavePath);
+            IOUtility.OpenExplorer(model.CurrentSaveFileDirectory);
         }
     }
 }

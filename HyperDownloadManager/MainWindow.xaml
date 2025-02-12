@@ -8,7 +8,7 @@
         xmlns:hardCodet="http://www.hardcodet.net/taskbar"
         xmlns:MahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Title="Hyper Download Manager" WindowTransitionsEnabled="False" GlowBrush="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True" Height="630" Width="900" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
+        Title="Hyper Download Manager" Closing="MetroWindow_Closing" WindowTransitionsEnabled="False" GlowBrush="{x:Null}" SnapsToDevicePixels="True" UseLayoutRounding="True" Height="630" Width="900" DragEnter="MetroWindow_DragEnter" DragLeave="MetroWindow_DragLeave" DragDrop.Drop="MetroWindow_Drop" MinHeight="{DynamicResource Height}" MinWidth="{DynamicResource Width}" WindowStartupLocation="CenterScreen" IconBitmapScalingMode="HighQuality" IconEdgeMode="Aliased" IconScalingMode="NoScaleSmallerFrame" NonActiveWindowTitleBrush="{DynamicResource ObsoleteBrush}" NonActiveGlowBrush="{DynamicResource ObsoleteBrush}" BorderThickness="0" TitleBarHeight="30" ResizeMode="CanResize">
 
     <MahApps:MetroWindow.WindowButtonCommands>
         <MahApps:WindowButtonCommands LightCloseButtonStyle="{DynamicResource LightMetroControl}" DarkCloseButtonStyle="{DynamicResource DarkMetroControl}" LightMinButtonStyle="{DynamicResource DarkMetroControl}" DarkMinButtonStyle="{DynamicResource DarkMetroControl}" LightMaxButtonStyle="{DynamicResource DarkMetroControl}" DarkMaxButtonStyle="{DynamicResource DarkMetroControl}"/>
@@ -27,7 +27,7 @@
             <ColumnDefinition Width="0.5*"/>
         </Grid.ColumnDefinitions>
         <hardCodet:TaskbarIcon x:Name="HDMNotifyIcon"
-        Visibility="Visible"
+        Visibility="Collapsed"
         ToolTipText="HDM"
         MenuActivation="LeftOrRightClick"
         PopupActivation="DoubleClick"
@@ -82,7 +82,7 @@
             </StackPanel.ContextMenu>
             <StackPanel Margin="5 0 0 0" DockPanel.Dock="Left" VerticalAlignment="Center" x:Name="StateContainer" Orientation="Horizontal">
                 <StackPanel VerticalAlignment="Center">
-                    <Label Content="{xico:Material Kind=EarthOff,Width=20,Height=20}" Foreground="IndianRed" x:Name="netoff" Visibility="Visible">
+                    <Label Content="{xico:Material Kind=EarthOff,Width=20,Height=20}" Foreground="IndianRed" x:Name="netoff" Visibility="Collapsed">
                         <Label.ToolTip>
                             <ToolTip Content="No Network" Background="{DynamicResource BackgroundBrush}" BorderBrush="IndianRed" BorderThickness="1"/>
                         </Label.ToolTip>
@@ -94,16 +94,6 @@
                     </Label>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                    <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
-                        <Label Content="{xico:Material Kind=DatabaseArrowDown}"/>
-                        <Label Content="{Binding TransmittedData.DataValue}" ContentStringFormat="0.00"/>
-                        <Label Content="{Binding TransmittedData.DataUnit}"/>
-                        <StackPanel.ToolTip>
-                            <ToolTip>
-                                <Label Content="Transmitted Data"/>
-                            </ToolTip>
-                        </StackPanel.ToolTip>
-                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="10 0 0 0">
                         <Label Content="{xico:BootstrapIcons Kind=Stack}"/>
                         <Label Content="{Binding Containers}"/>

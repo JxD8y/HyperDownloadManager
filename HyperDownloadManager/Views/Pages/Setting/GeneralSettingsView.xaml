@@ -21,11 +21,16 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
             <Label Content="{xico:Material Kind=ClipboardFlow}"/>
-            <ToggleButton IsChecked="{Binding NotifyOnState,Mode=OneWay}" x:Name="shownotificationcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Notify on Download States Changed"/>
+            <ToggleButton IsChecked="{Binding NotifyOnState,Mode=OneWay}" x:Name="shownotificationcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Pause/Start download in connection change"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
             <Label Content="{xico:Material Kind=DockWindow}"/>
             <ToggleButton IsChecked="{Binding TopMost,Mode=OneWay}" x:Name="topmostcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Always on Top"/>
+            <StackPanel.ToolTip>
+                <ToolTip>
+                    <Label Content="To apply this need to restart application"/>
+                </ToolTip>
+            </StackPanel.ToolTip>
         </StackPanel>
 
         <Label Margin="10 7 0 0" Height="10" Background="{DynamicResource ObsoleteBrush}"/>
@@ -38,7 +43,7 @@
             <Label Content="{xico:Material Kind=WindowRestore}"/>
             <ToggleButton IsChecked="{Binding RunInBack,Mode=OneWay}" x:Name="runinbackcheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Run in Background"/>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
+        <StackPanel Orientation="Horizontal" IsEnabled="False" Margin="10 7 0 0">
             <Label Content="{xico:Material Kind=WebBox}"/>
             <ToggleButton IsChecked="{Binding AutoUrlClip,Mode=OneWay}" x:Name="autourlproccheck" Margin="2 0 0 0" VerticalAlignment="Center" Content="Automatic Url Paste"/>
         </StackPanel>
@@ -62,7 +67,7 @@
                 <ComboBoxItem Content="Tb"/>
             </ComboBox>
         </StackPanel>
-        <ToggleButton Margin="10 7 0 0" IsChecked="{Binding UseBit,Mode=OneWay}" x:Name="useBitMeasurement" VerticalAlignment="Center" Content="Use 'Bit' instead of 'Byte'"/>
+        <ToggleButton Margin="10 7 0 0" IsChecked="{Binding UseBit,Mode=OneWay}" x:Name="useBitMeasurement" VerticalAlignment="Center" Content="Use 'Bit' instead of 'Byte' for speed"/>
         <Label Margin="10 7 0 0" Height="10" Background="{DynamicResource ObsoleteBrush}"/>
         <StackPanel Orientation="Horizontal" Margin="10 7 0 0">
             <Label Content="{xico:Material Kind=Folder}" />

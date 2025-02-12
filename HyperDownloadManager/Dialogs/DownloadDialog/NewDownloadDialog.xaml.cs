@@ -31,7 +31,6 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
     /// </summary>
     public partial class NewDownloadDialog : Page
     {
-        private BitmapSource? icon = null;
         private ConfigViewModel defaultConfig = new ConfigViewModel();
         private ContainerViewModel? downloadContainer = ContainerManager.CurrentContainer;
         private ObservableCollection<DownloadUriInfo> MultiDownloadList = new ObservableCollection<DownloadUriInfo>();
@@ -320,7 +319,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
         }
         #endregion
 
-        private void AddDownloadLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) //incase of error DonwloadManager.Create will throw an exception DONOT Expect -1 in return!
+        private void AddDownloadLabel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             try
             {
@@ -328,6 +327,11 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 {
                     if (linkMultimode)
                     {
+                        if(MultiDownloadList.Count == 0)
+                        {
+                            ShowNotifyMessage("No download have been added", true);
+                            return;
+                        }
                         if (string.IsNullOrEmpty(containername.Text))
                         {
                             ShowNotifyMessage("Container name cannot be empty", true);
@@ -336,7 +340,13 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
 
                         if (!ContainerManager.ContainerExist(containername.Text))
                         {
-                            downloadContainer = ContainerManager.CreateContainer(containername.Text, MultiDownloadList.Count + 10);
+                            string saveDir = FilePath.Text;
+                            if (!Directory.Exists(FilePath.Text))
+                            {
+                                ShowNotifyMessage("check the selected folder.", true);
+                                return;
+                            }
+                            downloadContainer = ContainerManager.CreateContainer(containername.Text, MultiDownloadList.Count + 10,saveDir);
                         }
                         else
                         {
@@ -349,8 +359,13 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
 
                         foreach (DownloadUriInfo info in MultiDownloadList)
                         {
-                            DownloadManager.Create(info, defaultConfig, downloadContainer);
+                            DownloadViewModel viewModel = DownloadManager.Create(info, defaultConfig, downloadContainer);
+                            if (defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant)
+                            {
+                                DownloadManager.SetStart(viewModel);
+                            }
                         }
+                        GlobalSupervisor.DownloadPage?.SelectContainer(downloadContainer);
                     }
                     else
                     {
@@ -358,7 +373,11 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                         if (Directory.Exists(FilePath.Text))
                         {
                             if (FilePath.Text != downloadContainer?.Path || saveDir == "")
+                            {
                                 saveDir = FilePath.Text;
+                                if(remoteInfo != null)
+                                    remoteInfo.SaveDirectory = saveDir;
+                            }
                         }
                         else
                         {
@@ -370,7 +389,13 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                             if (!PrepareLocalSettings())
                                 return;
                             if(downloadContainer != null)
-                                DownloadManager.Create(remoteInfo, defaultConfig, downloadContainer);
+                            {
+                                DownloadViewModel viewModel = DownloadManager.Create(remoteInfo, defaultConfig, downloadContainer);
+                                if(defaultConfig.StartConditionInfo.ConditionType != AutoStartConditionType.Instant)
+                                {
+                                    DownloadManager.SetStart(viewModel);
+                                }
+                            }
                             else
                             {
                                 ShowNotifyMessage("container is not set", true);
@@ -484,7 +509,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                 case 0:
                     defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.Instant;
                     break;
-                case 1:
+                case 4:
                     {
                         defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.DownloadStateChange;
 
@@ -497,10 +522,10 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                         }
                     }
                     break;
-                case 2:
+                case 3:
                     defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.AllDownloadFinish;
                     break;
-                case 3:
+                case 1:
                     {
                         defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.RelativeTime;
                         if (TimerDownload.Value == null && TimerDownload.Value <= DateTime.Now.TimeOfDay)
@@ -511,7 +536,7 @@ namespace HyperDownloadManager.Dialogs.DownloadDialog
                         defaultConfig.StartConditionInfo.StartIn = TimerDownload.Value ?? DateTime.Now.TimeOfDay;
                     }
                     break;
-                case 4:
+                case 2:
                     {
                         defaultConfig.StartConditionInfo.ConditionType = AutoStartConditionType.AbsoluteTime;
                         if (DatePicker.Value == null && DatePicker.Value <= DateTime.Now)

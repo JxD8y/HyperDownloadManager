@@ -87,7 +87,7 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
             this.CloseFile();
             if (this.model.IsTempFile)
             {
-                if (IoState == IoState.FileOk && (this.model.FileSavePath != null && this.model.CurrentFileName != null && this.model.CurrentSaveFileDirectory != null))
+                if (IoState != IoState.FileOk && (this.model.FileSavePath != null && this.model.CurrentFileName != null && this.model.CurrentSaveFileDirectory != null))
                 {
                     File.Move(this.model.FileSavePath, Path.Combine(this.model.CurrentSaveFileDirectory, this.model.CurrentFileName));
                 }
@@ -101,7 +101,8 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadIO
             if (!isStreamOpen)
             {
                 ThrottledStream? stream = null;
-                stream = IOUtility.CreateStream(this.model.FileSavePath, this.model.ConfigViewModel.SpeedLimit, this.model.ConfigViewModel.MaxFileSize, FileMode.Open);
+                long maxFileSize = UnitConverter.ConvertToByte(Unit.Gb,this.model.ConfigViewModel?.MaxFileSize ?? 0);
+                stream = IOUtility.CreateStream(this.model.FileSavePath, this.model.ConfigViewModel.SpeedLimit, maxFileSize, FileMode.Open);
                 if (stream != null)
                 {
                     this.FSID = IOUtility.GetStreamID(stream);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using HyperDownloadManager.Dialogs.MessageBoxDialog;
@@ -101,14 +102,6 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 return container;
             }
         }
-        public static void HighlightDownload(int downloadId, int containerId)
-        {
-            ContainerViewModel viewModel = GetContainer(containerId);
-            if (viewModel != null)
-            {
-                viewModel.HighLightDownload(downloadId);
-            }
-        }
         #region Oprations
         public static bool ContainerExist(string name) { var cn = from container in Containers where container.Name == name select container; return cn.Count() >= 1; }
         public static bool ContainerExist(int id) { var cn = from container in Containers where container.Id == id select container; return cn.Count() >= 1; }
@@ -123,9 +116,10 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 }
                 else
                 {
-                    foreach (DownloadViewModel node in container.Nodes)
+                    for(int i =0;i < container.Nodes.Count; i++)
                     {
-                        DownloadManager.Remove(node.Id);
+                        DownloadViewModel node = container.Nodes[i];
+                        DownloadManager.Remove(node);
                     }
                 }
                 Containers.Remove(container);
@@ -145,7 +139,7 @@ namespace HyperDownloadManager.ViewModels.Download.Container
                 {
                     foreach (DownloadViewModel node in container.Nodes)
                     {
-                        DownloadManager.Remove(node.Id);
+                        DownloadManager.Remove(node);
                     }
                 }
                 Containers.Remove(container);
@@ -163,14 +157,14 @@ namespace HyperDownloadManager.ViewModels.Download.Container
         {
             foreach (DownloadViewModel node in container.Nodes)
             {
-                DownloadManager.SetStop(node.Id);
+                DownloadManager.SetStop(node);
             }
         }
         public static void StartContainerNodes(ContainerViewModel container)
         {
             foreach (DownloadViewModel node in container.Nodes)
             {
-                DownloadManager.SetStart(node.Id);
+                DownloadManager.SetStart(node);
             }
         }
         public static void ChooseContainer(int id)

@@ -9,10 +9,10 @@
       d:DesignHeight="641" d:DesignWidth="353"
       Title="Settings" Background="Transparent">
 
-    <Border BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource BackgroundBrush}" BorderThickness=".5" CornerRadius="8">
+    <Border BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource BackgroundBrush}" BorderThickness=".5" CornerRadius="15">
         <Grid Background="Transparent" Margin="5">
             <Grid.RowDefinitions>
-                <RowDefinition Height=".05*"/>
+                <RowDefinition Height="35"/>
                 <RowDefinition/>
                 <RowDefinition Height="60"/>
             </Grid.RowDefinitions>

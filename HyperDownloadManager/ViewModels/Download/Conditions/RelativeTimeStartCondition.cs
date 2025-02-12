@@ -18,8 +18,8 @@ namespace HyperDownloadManager.ViewModels.Download.Conditions
         public TimeSpan StartIn { get; set; }
         public override bool Ready(DownloadViewModel downloadViewModel)
         {
-            Completed = IOUtility.CalculatePercent((long)StartIn.TotalSeconds, (long)(DateTime.Now - CreationTime).TotalSeconds);
-            return (CreationTime + StartIn) < DateTime.Now;
+            Completed = IOUtility.CalculatePercent((long)(DateTime.Now - downloadViewModel.StartTime).TotalSeconds,(long)StartIn.TotalSeconds);
+            return (downloadViewModel.StartTime + StartIn) < DateTime.Now;
         }
     }
 }

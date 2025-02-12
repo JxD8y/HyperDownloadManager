@@ -256,18 +256,26 @@ namespace HyperDownloadManager.ViewModels.Download.DownloadCore
             {
                 await Task.Run(new Action(() =>
                 {
-                    Stream? downloadStream = (Stream?)ar.AsyncState;
-                    int readBytes = downloadStream?.EndRead(ar) ?? 0;
-                    if (readBytes > 0)
+                    try
                     {
-                        agoReceivedBytes = receivedBytes;
-                        receivedBytes += readBytes;
-                        this.PerformWrite(readBytes);
-                        downloadStream?.BeginRead(buffer, 0, buffer.Length, readCallBack, downloadStream);
+                        Stream? downloadStream = (Stream?)ar.AsyncState;
+                        int readBytes = downloadStream?.EndRead(ar) ?? 0;
+                        if (readBytes > 0)
+                        {
+                            agoReceivedBytes = receivedBytes;
+                            receivedBytes += readBytes;
+                            this.PerformWrite(readBytes);
+                            downloadStream?.BeginRead(buffer, 0, buffer.Length, readCallBack, downloadStream);
+                        }
+                        else if (readBytes == 0)
+                        {
+                            completed();
+                        }
                     }
-                    else if (readBytes == 0)
+                    catch
                     {
-                        completed();
+                        if(OnDataReceived != null)
+                            OnDataReceived(this, new DataReceivedEventArgs(true));
                     }
                 }));
             }

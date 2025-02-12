@@ -135,28 +135,31 @@ namespace HyperDownloadManager.Views.Pages.Download
                     await DialogManager.ShowMessageBox("Cannot show settings while main app is not present", MessageLevel.Info, ButtonOrder.OK,true);
                 }
                 else
+                {
+                    this.model.DownloadSettingsPage = new DownloadSettingsView(this.model);
                     DialogManager.ShowDialog("Download Settings", this.model.DownloadSettingsPage, DialogMode.InApp);
+                }
             }
         }
 
         private void ResumeDownload_Click(object sender, RoutedEventArgs e)
         {
             if (!this.model.IsWorking)
-                DownloadManager.SetStart(this.model.Id);
+                DownloadManager.SetStart(this.model);
         }
 
         private void PauseDownload_Click(object sender, RoutedEventArgs e)
         {
             if (this.model.CurrentState == DownloadState.Downloading || this.model.CurrentState == DownloadState.Verifying)
-                DownloadManager.SetStop(this.model.Id);
+                DownloadManager.SetStop(this.model);
         }
 
         private async void DeleteDownload_Click(object sender, RoutedEventArgs e)
         {
             if (await DialogManager.ShowMessageBox("Are you sure to remove this download?", MessageLevel.Warning, ButtonOrder.YESNO) == MessageBoxStatus.YES)
             {
-                DownloadManager.SetStop(this.model.Id);
-                DownloadManager.Remove(this.model.Id);
+                DownloadManager.SetStop(this.model);
+                DownloadManager.Remove(this.model);
                 if (this.model.IsSeparateWindowOpen)
                 {
                     this.model.DownloadWindow?.Close();
