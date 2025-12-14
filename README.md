@@ -24,4 +24,4 @@ HDM is a sleek, high-performance download manager designed for speed, reliabilit
 Clone the repository and open it via visual studio click start and wait until all nuget packages are installed.
 
 # Contact
-feel free to send your suggestions to me via [Telegram](https://t.me/KVMswitch) or [Email](mailto:jvmdev@proton.me)
+feel free to send your suggestions to me via [Telegram](https://t.me/KVMswitch)
